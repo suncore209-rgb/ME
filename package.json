@@ -1,0 +1,12 @@
+{
+  "name": "miron-electronics",
+  "version": "1.0.0",
+  "description": "মিরন ইলেকট্রনিক্স — আকিজ ফুড পরিবেশক ব্যবস্থাপনা সফটওয়্যার",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2.43.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
