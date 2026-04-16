@@ -886,6 +886,27 @@ function saveTx(){
 // ═══════════════════════════════════════════════════
 //  SLIP
 // ═══════════════════════════════════════════════════
+function buildSlipText(slip, total) {
+  var lines = [];
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('📦 মিরন ইলেকট্রনিক্স');
+  lines.push('পরিবেশক: আকিজ ফুড এন্ড বেভারেজ');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('স্লিপ নং: ' + slip.slipNo);
+  lines.push('তারিখ: ' + fmtBn(slip.date));
+  lines.push('SR: ' + slip.srName + (slip.srArea ? ' | ' + slip.srArea : ''));
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━');
+  slip.items.forEach(function(item) {
+    var amt = item.totalUnits * item.sellingPrice;
+    lines.push('▸ ' + item.productName);
+    lines.push('  ' + (item.cases ? item.cases + 'কেস ' : '') + (item.pcs ? item.pcs + 'পিস ' : '') + '= ' + item.totalUnits + ' ইউ → ৳' + fm(amt));
+  });
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('💰 মোট: ৳' + fm(total));
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━');
+  return lines.join('\n');
+}
+
 function openSlipWin(slip){
   var total=0;
   var rows=slip.items.map(function(item){
@@ -897,7 +918,26 @@ function openSlipWin(slip){
       +'<td style="text-align:center;font-weight:bold;padding:6px 8px">'+item.totalUnits+'</td>'
       +'<td style="text-align:right;padding:6px 8px">৳'+fm(amt)+'</td></tr>';
   }).join('');
-  var html='<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><title>স্লিপ '+slip.slipNo+'</title>'
+
+  // ── Android: call native bridge directly ─────────
+  if (window.AndroidSlip) {
+    var slipText = buildSlipText(slip, total);
+    var slipHtml = buildSlipHtml(slip, rows, total, true); // android=true (no btns)
+    AndroidSlip.receiveSlip(slipHtml, slipText);
+    return;
+  }
+
+  // ── Browser: open popup as before ────────────────
+  var html = buildSlipHtml(slip, rows, total, false);
+  var win=window.open('','_blank','width=480,height=740,scrollbars=yes,toolbar=no');
+  if(win){win.document.write(html);win.document.close();}
+  else toast('পপআপ ব্লক — ব্রাউজারে অনুমতি দিন');
+}
+
+function buildSlipHtml(slip, rows, total, isAndroid) {
+  var btnsHtml = isAndroid ? '' :
+    '<div class="btns"><button class="bp" onclick="setTimeout(function(){window.print();},300)">📥 PDF ডাউনলোড / প্রিন্ট</button><button class="bc" onclick="window.close()">✕ বন্ধ করুন</button></div>';
+  return '<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><title>স্লিপ '+slip.slipNo+'</title>'
     +'<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">'
     +'<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:\'Hind Siliguri\',sans-serif;background:#fff;color:#000;padding:14px;max-width:420px;margin:0 auto}'
     +'.hdr{display:flex;align-items:flex-start;gap:12px;padding-bottom:10px;border-bottom:3px double #000;margin-bottom:10px}'
@@ -936,11 +976,8 @@ function openSlipWin(slip){
     +'<tfoot><tr><td colspan="4" style="text-align:right;padding:7px 8px">মোট পরিমাণ →</td><td style="text-align:right;padding:7px 8px;color:#0D47A1;font-size:14px">৳'+fm(total)+'</td></tr></tfoot></table>'
     +'<div class="sigs"><div class="sig"><div class="sig-line">জারি করেছেন</div></div><div class="sig"><div class="sig-line">গ্রহণ করেছেন</div></div></div>'
     +'<div class="ftr">Developed by Suncore Ltd | মিরন ইলেকট্রনিক্স | '+new Date().toLocaleString('bn-BD')+'</div>'
-    +'<div class="btns"><button class="bp" onclick="setTimeout(function(){window.print();},300)">📥 PDF ডাউনলোড / প্রিন্ট</button><button class="bc" onclick="window.close()">✕ বন্ধ করুন</button></div>'
+    +btnsHtml
     +'</body></html>';
-  var win=window.open('','_blank','width=480,height=740,scrollbars=yes,toolbar=no');
-  if(win){win.document.write(html);win.document.close();}
-  else toast('পপআপ ব্লক — ব্রাউজারে অনুমতি দিন');
 }
 
 // ═══════════════════════════════════════════════════
