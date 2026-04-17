@@ -164,6 +164,23 @@ tr:hover td{background:#F5F7FF}
 .pin-role{margin-top:20px;display:flex;gap:10px}
 .pin-role-btn{padding:7px 18px;border-radius:20px;border:1.5px solid rgba(255,255,255,.4);background:transparent;color:rgba(255,255,255,.7);font-size:12px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer;transition:.15s}
 .pin-role-btn.active{background:rgba(255,255,255,.2);border-color:#fff;color:#fff}
+
+/* ── PIN LOGIN ───────────────────────────── */
+#pin-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(145deg,#0D47A1,#1565C0);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;padding:24px}
+.pin-logo{width:80px;height:80px;background:#fff;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:var(--bl);margin-bottom:16px;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
+.pin-title{color:#fff;font-size:22px;font-weight:700;margin-bottom:4px}
+.pin-sub{color:rgba(255,255,255,.7);font-size:12px;margin-bottom:28px}
+.pin-dots{display:flex;gap:14px;margin-bottom:24px;transition:transform .08s}
+.pin-dot{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:transparent;transition:.2s}
+.pin-dot.filled{background:#fff;border-color:#fff}
+.pin-err{color:#FF5252;font-size:12px;font-weight:700;margin-bottom:12px;min-height:16px;text-align:center}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:240px}
+.pin-btn{height:64px;border-radius:14px;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:22px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center}
+.pin-btn:active{background:rgba(255,255,255,.35);transform:scale(.94)}
+.pin-btn.del{font-size:18px;background:rgba(255,82,82,.25)}
+.pin-role{margin-top:20px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:280px}
+.pin-role-btn{padding:7px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,.4);background:transparent;color:rgba(255,255,255,.7);font-size:12px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer;transition:.15s}
+.pin-role-btn.active{background:rgba(255,255,255,.25);border-color:#fff;color:#fff}
 </style>
 </head>
 <body>
@@ -173,7 +190,8 @@ tr:hover td{background:#F5F7FF}
   <div class="sl-nm">মিরন ইলেকট্রনিক্স</div>
   <div class="sl-sb">স্টক ও ব্যবসা ব্যবস্থাপনা সফটওয়্যার</div>
   <div class="sl-bar"><div class="sl-prog"></div></div>
-  <div style="margin-top:22px;animation:up .5s .7s both;text-align:center"><div style="color:rgba(255,255,255,.5);font-size:10px;margin-bottom:5px;letter-spacing:1px">DEVELOPED BY</div><div style="color:#FFD700;font-size:17px;font-weight:700;letter-spacing:2px;text-shadow:0 0 12px rgba(255,215,0,.6)">✦ AXIION TECHNOLOGY ✦</div></div>
+  <div style="margin-top:20px;text-align:center;animation:up .5s .7s both"><div style="color:rgba(255,255,255,.45);font-size:10px;letter-spacing:2px;margin-bottom:5px">POWERED BY</div><div style="color:#FFD700;font-size:17px;font-weight:700;letter-spacing:3px;text-shadow:0 0 18px rgba(255,215,0,.7)">⚡ AXIION TECHNOLOGY ⚡</div></div>
+  <div style="margin-top:22px;animation:up .5s .7s both;text-align:center"><div style="color:rgba(255,255,255,.5);font-size:10px;margin-bottom:5px;letter-spacing:1px">DEVELOPED BY</div><div style="color:#FFD700;font-size:17px;font-weight:700;letter-spacing:2px;text-shadow:0 0 12px rgba(255,215,0,.6)">✦ SAKIB HOSSAIN ✦</div></div>
 </div>
 
 <div id="app">
@@ -182,8 +200,8 @@ tr:hover td{background:#F5F7FF}
     <div style="display:flex;align-items:center;gap:6px">
       <div style="font-size:10px;color:rgba(255,255,255,.7)" id="hdr-date"></div>
       <div id="role-badge" style="background:rgba(255,215,0,.2);border:1px solid rgba(255,215,0,.4);color:#FFD700;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700">👑 Owner</div>
-      <button onclick="refreshApp()" title="রিফ্রেশ" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:6px;padding:4px 9px;font-size:15px;cursor:pointer;line-height:1">🔄</button>
-      <button onclick="logout()" title="লগআউট" style="background:rgba(255,82,82,.25);border:1px solid rgba(255,82,82,.4);color:#fff;border-radius:6px;padding:4px 9px;font-size:13px;cursor:pointer">🔒</button>
+      <button onclick="refreshApp()" title="রিফ্রেশ" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:6px;padding:4px 9px;font-size:15px;cursor:pointer;line-height:1;font-family:inherit">🔄</button>
+      <button onclick="logout()" title="লগআউট" style="background:rgba(255,82,82,.25);border:1px solid rgba(255,82,82,.4);color:#fff;border-radius:6px;padding:4px 9px;font-size:13px;cursor:pointer;font-family:inherit">🔒</button>
     </div>
   </div>
   <div class="pages">
@@ -197,7 +215,7 @@ tr:hover td{background:#F5F7FF}
   <nav class="nav">
     <button class="nb active" onclick="gTab('dash')" id="nb-dash"><span class="ni">🏠</span>হোম</button>
     <button class="nb" onclick="gTab('prod')" id="nb-prod"><span class="ni">📦</span>পণ্য</button>
-    <button class="nb" onclick="gTab('sr')" id="nb-sr"><span class="ni">👤</span>DSR</button>
+    <button class="nb" onclick="gTab('sr')" id="nb-sr"><span class="ni">👤</span>SR</button>
     <button class="nb" onclick="gTab('tx')" id="nb-tx"><span class="ni">📝</span>লেনদেন</button>
     <button class="nb" onclick="gTab('rep')" id="nb-rep"><span class="ni">📊</span>রিপোর্ট</button>
     <button class="nb" onclick="gTab('exp')" id="nb-exp"><span class="ni">💸</span>খরচ</button>
@@ -212,60 +230,108 @@ tr:hover td{background:#F5F7FF}
 // ═══════════════════════════════════════════════════
 //  🔐 PIN & ROLE SYSTEM — 4 ROLES
 // ═══════════════════════════════════════════════════
-var PINS={'owner':'2713','manager':'5620','so':'1280','dsr':'1275'};
-var ROLE_LABELS={'owner':'👑 Owner','manager':'🧑 Manager','so':'📊 SO','dsr':'🚚 DSR'};
-var _pinBuf='',_pinRole='owner';
+var PINS = {'owner':'2713','manager':'5620','so':'1280','dsr':'1275'};
+var ROLE_LABELS = {'owner':'👑 Owner','manager':'🧑 Manager','so':'📊 SO','dsr':'🚚 DSR'};
+var _pinBuf = '', _pinRole = 'owner';
 
-function switchPinRole(r){
-  _pinRole=r;_pinBuf='';updatePinDots();
-  document.getElementById('pin-err').textContent='';
-  document.getElementById('pin-role-label').textContent=ROLE_LABELS[r]+' PIN দিন';
-  ['owner','manager','so','dsr'].forEach(function(x){var el=document.getElementById('prb-'+x);if(el)el.classList.toggle('active',x===r);});
+function switchPinRole(r) {
+  _pinRole = r; _pinBuf = ''; updatePinDots();
+  document.getElementById('pin-err').textContent = '';
+  document.getElementById('pin-role-label').textContent = ROLE_LABELS[r] + ' PIN দিন';
+  ['owner','manager','so','dsr'].forEach(function(x){
+    var el = document.getElementById('prb-'+x);
+    if(el) el.classList.toggle('active', x===r);
+  });
 }
-function pinKey(k){if(_pinBuf.length>=4)return;_pinBuf+=k;updatePinDots();if(_pinBuf.length===4)setTimeout(checkPin,150);}
-function pinDel(){_pinBuf=_pinBuf.slice(0,-1);updatePinDots();document.getElementById('pin-err').textContent='';}
-function updatePinDots(){for(var i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('filled',i<_pinBuf.length);}
-function checkPin(){
-  if(PINS[_pinRole]&&_pinBuf===PINS[_pinRole]){
-    S.role=_pinRole;
-    sessionStorage.setItem('miron_role', _pinRole); // ✅ Save session
-    document.getElementById('pin-screen').style.display='none';
+
+function pinKey(k) {
+  if (_pinBuf.length >= 4) return;
+  _pinBuf += k; updatePinDots();
+  if (_pinBuf.length === 4) setTimeout(checkPin, 150);
+}
+
+function pinDel() {
+  _pinBuf = _pinBuf.slice(0,-1); updatePinDots();
+  document.getElementById('pin-err').textContent = '';
+}
+
+function updatePinDots() {
+  for (var i=0;i<4;i++)
+    document.getElementById('pd'+i).classList.toggle('filled', i<_pinBuf.length);
+}
+
+function checkPin() {
+  if (PINS[_pinRole] && _pinBuf === PINS[_pinRole]) {
+    S.role = _pinRole;
+    sessionStorage.setItem('miron_role', _pinRole);
+    document.getElementById('pin-screen').style.display = 'none';
     applyRole();
-    if(_pinRole==='dsr'||_pinRole==='so'){
-      document.getElementById('spl').style.display='none';
+    if (_pinRole==='dsr' || _pinRole==='so') {
+      document.getElementById('spl').style.display = 'none';
       document.getElementById('app').classList.add('show');
       loadAll();
     } else {
-      setTimeout(function(){document.getElementById('spl').classList.add('fade');document.getElementById('app').classList.add('show');loadAll();},2200);
+      setTimeout(function(){
+        document.getElementById('spl').classList.add('fade');
+        document.getElementById('app').classList.add('show');
+        loadAll();
+      }, 2200);
     }
   } else {
-    document.getElementById('pin-err').textContent='❌ ভুল PIN! আবার চেষ্টা করুন';
-    _pinBuf='';updatePinDots();
-    var dots=document.querySelector('.pin-dots'),vals=['-8px','8px','-4px','0'];
-    vals.forEach(function(v,i){setTimeout(function(){dots.style.transform='translateX('+v+')';},i*80);});
+    document.getElementById('pin-err').textContent = '❌ ভুল PIN! আবার চেষ্টা করুন';
+    _pinBuf = ''; updatePinDots();
+    var dots = document.getElementById('pin-dots-row');
+    if (dots) {
+      ['-8px','8px','-4px','0'].forEach(function(v,i){
+        setTimeout(function(){dots.style.transform='translateX('+v+')';},i*80);
+      });
+    }
   }
 }
-function applyRole(){
-  var hidden={'owner':[],'manager':[],'so':['tx','rep','exp'],'dsr':['prod','sr','rep','exp']}[S.role]||[];
-  ['dash','prod','sr','tx','rep','exp'].forEach(function(t){var el=document.getElementById('nb-'+t);if(el)el.style.display=hidden.indexOf(t)>=0?'none':'';});
-  var badge=document.getElementById('role-badge');
-  if(badge)badge.textContent=ROLE_LABELS[S.role]||'';
-}
-function logout(){
-  if(!confirm('লগআউট করবেন?'))return;
-  sessionStorage.removeItem('miron_role'); // ✅ Clear session
-  S.role='owner';_pinBuf='';_pinRole='owner';
-  _dashCache=null;
-  updatePinDots();switchPinRole('owner');
-  document.getElementById('app').classList.remove('show');
-  var spl=document.getElementById('spl');spl.style.display='flex';spl.style.opacity='1';
-  document.getElementById('pin-screen').style.display='flex';
+
+function applyRole() {
+  var hidden = {
+    'owner':[], 'manager':[], 'so':['tx','rep','exp'], 'dsr':['prod','sr','rep','exp']
+  }[S.role] || [];
+  ['dash','prod','sr','tx','rep','exp'].forEach(function(t){
+    var el = document.getElementById('nb-'+t);
+    if (el) el.style.display = hidden.indexOf(t) >= 0 ? 'none' : '';
+  });
+  var badge = document.getElementById('role-badge');
+  if (badge) badge.textContent = ROLE_LABELS[S.role] || '';
 }
 
-// ═══════════════════════════════════════════════════
-//  API LAYER — google.script.run compatible fetch mock
-//  Replaces Google Apps Script RPC with Vercel API calls
-// ═══════════════════════════════════════════════════
+function logout() {
+  if (!confirm('লগআউট করবেন?')) return;
+  sessionStorage.removeItem('miron_role');
+  S.role = 'owner'; _pinBuf = ''; _pinRole = 'owner'; _dashCache = null;
+  updatePinDots(); switchPinRole('owner');
+  document.getElementById('app').classList.remove('show');
+  var spl = document.getElementById('spl');
+  spl.style.display = 'flex'; spl.style.opacity = '1';
+  document.getElementById('pin-screen').style.display = 'flex';
+}
+
+function refreshApp() {
+  _dashCache = null;
+  var t = S.tab;
+  showOvl('রিফ্রেশ হচ্ছে...');
+  google.script.run
+    .withSuccessHandler(function(r){
+      hideOvl();
+      if (!r.ok) return toast('রিফ্রেশ ব্যর্থ');
+      S.products=r.products||[]; S.srs=r.srs||[]; S.stockMap=r.stockMap||{};
+      document.getElementById('hdr-sub').textContent = S.products.length+'টি পণ্য · '+S.srs.length+' DSR/SO';
+      toast('✅ রিফ্রেশ সম্পন্ন');
+      if(t==='dash')loadDash(true); else if(t==='prod')renderProd();
+      else if(t==='sr')renderSR(); else if(t==='tx')renderTx();
+      else if(t==='rep')renderRep(); else if(t==='exp')loadExpSetup();
+    })
+    .withFailureHandler(function(e){hideOvl();toast('রিফ্রেশ ব্যর্থ');})
+    .loadAll();
+}
+
+
 (function() {
   var ROUTES = {
     loadAll:             { url:'/api/load-all',      method:'GET' },
@@ -473,7 +539,7 @@ function downloadReportCSV(r) {
     +'.scard .val{font-size:16px;font-weight:700;color:#0D47A1}.scard .lbl{font-size:10px;color:#546E7A;margin-top:2px}'
     +'@media print{body{padding:8px}.no-print{display:none}}'
     +'</style></head><body>'
-    +'<div class="hdr"><h1>📦 মিরন ইলেকট্রনিক্স</h1><p>পরিবেশক: আকিজ ফুড এন্ড বেভারেজ লিঃ | সময়কাল: '+period+'</p><p style="font-size:10px;opacity:.6;margin-top:4px">Developed by AXIION TECHNOLOGY</p></div>';
+    +'<div class="hdr"><h1>📦 মিরন ইলেকট্রনিক্স</h1><p>পরিবেশক: আকিজ ফুড এন্ড বেভারেজ লিঃ | সময়কাল: '+period+'</p><p style="font-size:10px;opacity:.6;margin-top:4px">Developed by SAKIB HOSSAIN</p></div>';
 
   if(r.totals){
     var t=r.totals;
@@ -488,542 +554,7 @@ function downloadReportCSV(r) {
   }
 
   if(r.bySR&&r.bySR.length){
-    html+='<div class="sec"><div class="sec-t">DSR/SO ভিত্তিক রিপোর্ট</div><table><thead><tr><th>SR</th><th>এলাকা</th><th>দেওয়া</th><th>ফেরত</th><th>বিক্রয়</th><th>আয়</th><th>লাভ</th><th>দেনা</th></tr></thead><tbody>';
-    r.bySR.forEach(function(s){
-      html+='<tr><td>'+esc(s.name)+'</td><td>'+esc(s.area||'')+'</td><td>'+fN(s.givenUnits)+'</td><td>'+fN(s.returnUnits)+'</td><td>'+fN(s.soldUnits)+'</td><td>'+fT(s.netRev)+'</td><td class="'+(s.profit>=0?'profit':'loss')+'">'+fT(s.profit)+'</td><td class="loss">'+fT(s.due)+'</td></tr>';
-    });
-    html+='</tbody></table></div>';
-  }
-
-  if(r.byProduct&&r.byProduct.length){
-    html+='<div class="sec"><div class="sec-t" style="background:#E65100">পণ্য ভিত্তিক রিপোর্ট</div><table><thead><tr><th>পণ্য</th><th>SKU</th><th>দেওয়া</th><th>ফেরত</th><th>ড্যামেজ</th><th>বিক্রয়</th><th>আয়</th><th>লাভ</th></tr></thead><tbody>';
-    r.byProduct.forEach(function(p){
-      html+='<tr><td>'+esc(p.name)+'</td><td>'+esc(p.sku)+'</td><td>'+fN(p.given)+'</td><td>'+fN(p.returned)+'</td><td>'+fN(p.damage)+'</td><td>'+fN(p.sold)+'</td><td>'+fT(p.revenue)+'</td><td class="'+(p.profit>=0?'profit':'loss')+'">'+fT(p.profit)+'</td></tr>';
-    });
-    html+='</tbody></table></div>';
-  }
-
-  if(r.byDate&&r.byDate.length){
-    html+='<div class="sec"><div class="sec-t" style="background:#4A148C">দৈনিক রিপোর্ট</div><table><thead><tr><th>তারিখ</th><th>দেওয়া</th><th>ফেরত</th><th>ড্যামেজ</th><th>আয়</th><th>লাভ</th></tr></thead><tbody>';
-    r.byDate.forEach(function(d){
-      html+='<tr><td>'+d.date+'</td><td>'+fN(d.givenUnits)+'</td><td>'+fN(d.returnUnits)+'</td><td>'+fN(d.dmgUnits)+'</td><td>'+fT(d.revenue)+'</td><td class="'+(d.profit>=0?'profit':'loss')+'">'+fT(d.profit)+'</td></tr>';
-    });
-    html+='</tbody></table></div>';
-  }
-
-  html+='<div class="no-print" style="position:fixed;bottom:16px;right:16px;display:flex;gap:8px">'
-    +'<button onclick="window.print()" style="padding:12px 20px;background:#0D47A1;color:#fff;border:none;border-radius:8px;font-size:14px;font-family:'Hind Siliguri',sans-serif;font-weight:700;cursor:pointer">📥 PDF সেভ / প্রিন্ট</button>'
-    +'<button onclick="window.close()" style="padding:12px 20px;background:#ECEFF1;color:#333;border:none;border-radius:8px;font-size:14px;font-family:'Hind Siliguri',sans-serif;font-weight:700;cursor:pointer">✕ বন্ধ</button>'
-    +'</div>'
-    +'
-<div id="pin-screen">
-  <div class="pin-logo">ME</div>
-  <div class="pin-title">মিরন ইলেকট্রনিক্স</div>
-  <div style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:14px;letter-spacing:1px">⚡ AXIION TECHNOLOGY</div>
-  <div class="pin-sub" id="pin-role-label">👑 Owner PIN দিন</div>
-  <div class="pin-dots"><div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div></div>
-  <div class="pin-err" id="pin-err"></div>
-  <div class="pin-pad">
-    <button class="pin-btn" onclick="pinKey('1')">১</button><button class="pin-btn" onclick="pinKey('2')">২</button><button class="pin-btn" onclick="pinKey('3')">৩</button>
-    <button class="pin-btn" onclick="pinKey('4')">৪</button><button class="pin-btn" onclick="pinKey('5')">৫</button><button class="pin-btn" onclick="pinKey('6')">৬</button>
-    <button class="pin-btn" onclick="pinKey('7')">৭</button><button class="pin-btn" onclick="pinKey('8')">৮</button><button class="pin-btn" onclick="pinKey('9')">৯</button>
-    <button class="pin-btn" style="background:transparent"></button><button class="pin-btn" onclick="pinKey('0')">০</button><button class="pin-btn del" onclick="pinDel()">⌫</button>
-  </div>
-  <div class="pin-role" style="flex-wrap:wrap;justify-content:center;max-width:280px;gap:8px">
-    <button class="pin-role-btn active" id="prb-owner"   onclick="switchPinRole('owner')">👑 Owner</button>
-    <button class="pin-role-btn"        id="prb-manager" onclick="switchPinRole('manager')">🧑 Manager</button>
-    <button class="pin-role-btn"        id="prb-so"      onclick="switchPinRole('so')">📊 SO</button>
-    <button class="pin-role-btn"        id="prb-dsr"     onclick="switchPinRole('dsr')">🚚 DSR</button>
-  </div>
-</div>TYPE html>
-<html lang="bn">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0D47A1">
-<title>মিরন ইলেকট্রনিক্স</title>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bl:#0D47A1;--bl2:#1565C0;--bll:#E3F2FD;
-  --gr:#2E7D32;--grl:#E8F5E9;
-  --re:#C62828;--rel:#FFEBEE;
-  --am:#E65100;--aml:#FFF3E0;
-  --te:#00695C;--tel:#E0F2F1;
-  --pu:#6A1B9A;--pul:#F3E5F5;
-  --bg:#EEF2FF;--card:#fff;--bdr:#C5CAE9;
-  --txt:#0D1B2A;--mt:#546E7A;--mt2:#90A4AE;
-  --rad:12px;--shad:0 2px 8px rgba(13,71,161,.1);
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden}
-body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--txt);font-size:14px;display:flex;flex-direction:column}
-#spl{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(145deg,#0D47A1,#1976D2);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s}
-#spl.fade{opacity:0;pointer-events:none}
-.sl-logo{width:90px;height:90px;background:#fff;border-radius:22px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
-@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
-.sl-me{font-size:46px;font-weight:700;color:var(--bl)}
-.sl-nm{color:#fff;font-size:24px;font-weight:700;animation:up .5s .25s both}
-.sl-sb{color:rgba(255,255,255,.7);font-size:12px;margin-top:4px;animation:up .5s .4s both}
-.sl-dev{color:rgba(255,255,255,.4);font-size:10px;margin-top:18px;animation:up .5s .55s both}
-.sl-bar{margin-top:8px;width:140px;height:3px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden;animation:up .5s .6s both}
-.sl-prog{height:100%;background:#fff;border-radius:2px;animation:prog 2s ease forwards}
-@keyframes prog{from{width:0}to{width:100%}}
-@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-#app{flex:1;display:flex;flex-direction:column;overflow:hidden;opacity:0;transition:opacity .3s}
-#app.show{opacity:1}
-.hdr{background:var(--bl);color:#fff;padding:11px 14px 9px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
-.hdr h1{font-size:15px;font-weight:700;line-height:1}
-.hdr-s{font-size:10px;opacity:.75;margin-top:2px}
-.pages{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.page{padding:12px 12px 72px;max-width:640px;margin:0 auto;display:none}
-.page.active{display:block}
-.nav{flex-shrink:0;background:#fff;border-top:1px solid var(--bdr);display:flex;height:56px}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:none;border:none;font-size:8px;color:var(--mt2);cursor:pointer;padding:3px 1px;font-family:'Hind Siliguri',sans-serif;transition:.15s}
-.nb.active{color:var(--bl)}
-.ni{font-size:18px;line-height:1}
-.card{background:var(--card);border-radius:var(--rad);box-shadow:var(--shad);padding:12px;margin-bottom:10px;border:1px solid var(--bdr)}
-.ct{font-size:13px;font-weight:700;color:var(--bl);margin-bottom:10px}
-.mets{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.met{background:#fff;border-radius:10px;padding:11px;text-align:center;border:1px solid var(--bdr);box-shadow:var(--shad)}
-.mv{font-size:18px;font-weight:700;margin:3px 0 1px;line-height:1}
-.ml{font-size:10px;color:var(--mt2)}
-.met-b{border-top:3px solid var(--bl)}.met-g{border-top:3px solid var(--gr)}
-.met-r{border-top:3px solid var(--re)}.met-a{border-top:3px solid var(--am)}
-.fl{display:block;font-size:11px;color:var(--mt);margin-bottom:3px;font-weight:600}
-input,select,textarea{width:100%;border:1.5px solid var(--bdr);border-radius:7px;padding:8px 11px;font-size:13px;font-family:'Hind Siliguri',sans-serif;color:var(--txt);background:#fff;outline:none;transition:.12s}
-input:focus,select:focus{border-color:var(--bl);box-shadow:0 0 0 2px rgba(13,71,161,.1)}
-.fg{margin-bottom:10px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:9px 14px;border-radius:7px;border:none;font-size:13px;font-family:'Hind Siliguri',sans-serif;font-weight:700;cursor:pointer;transition:.12s}
-.btn:active{transform:scale(.97)}
-.btn-bl{background:var(--bl);color:#fff}.btn-gr{background:var(--gr);color:#fff}
-.btn-re{background:var(--re);color:#fff}.btn-am{background:var(--am);color:#fff}
-.btn-te{background:var(--te);color:#fff}.btn-pu{background:var(--pu);color:#fff}
-.btn-gh{background:var(--bg);color:var(--txt);border:1.5px solid var(--bdr)}
-.btn-w{width:100%}.btn-sm{padding:6px 10px;font-size:11px;border-radius:6px}
-.seg{display:flex;background:#E8EAF6;border-radius:8px;padding:3px;gap:2px;margin-bottom:12px;flex-wrap:wrap}
-.sbt{flex:1;min-width:50px;padding:6px 4px;border-radius:6px;border:none;background:none;font-size:11px;font-weight:700;color:var(--mt);cursor:pointer;font-family:'Hind Siliguri',sans-serif;transition:.12s;text-align:center}
-.sbt.active{background:#fff;color:var(--bl);box-shadow:0 1px 3px rgba(13,71,161,.15)}
-.tbar{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap}
-.tb{flex:1;min-width:70px;padding:8px 4px;border-radius:7px;border:2px solid var(--bdr);background:#fff;font-size:11px;font-weight:700;cursor:pointer;color:var(--mt);transition:.12s;text-align:center;font-family:'Hind Siliguri',sans-serif}
-.tb.tg{border-color:var(--bl);background:var(--bll);color:var(--bl)}
-.tb.tr_{border-color:var(--te);background:var(--tel);color:var(--te)}
-.tb.td_{border-color:var(--re);background:var(--rel);color:var(--re)}
-.tb.tb_{border-color:var(--gr);background:var(--grl);color:var(--gr)}
-.img-sq{width:80px;height:80px;border-radius:10px;border:2px solid var(--bdr);background:#EEF2FF;flex-shrink:0;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer}
-.img-sq img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:8px}
-.img-cam{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.42);display:flex;align-items:center;justify-content:center;font-size:22px;opacity:0;transition:.2s;border-radius:8px}
-.img-sq:hover .img-cam{opacity:1}
-.sr-av{width:52px;height:52px;border-radius:50%;border:2px solid var(--bdr);background:#EEF2FF;flex-shrink:0;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--bl)}
-.sr-av img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
-.sr-av-lg{width:76px;height:76px;border-radius:50%;border:2px solid var(--bdr);background:#EEF2FF;flex-shrink:0;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:var(--bl);cursor:pointer}
-.sr-av-lg img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
-.sr-av-lg .img-cam{border-radius:50%}
-.sr-av-lg:hover .img-cam{opacity:1}
-.up-lbl{display:block;text-align:center;margin-top:5px;font-size:10px;font-weight:700;color:var(--bl);cursor:pointer;background:var(--bll);border:1.5px dashed var(--bl);border-radius:6px;padding:4px 6px}
-.pc{display:flex;gap:10px;align-items:center;padding:9px 11px;border-bottom:1px solid #EEF2FF}
-.pc:last-child{border-bottom:none}
-.pc-img{width:52px;height:52px;border-radius:8px;border:1.5px solid var(--bdr);background:#EEF2FF;flex-shrink:0;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;font-size:22px}
-.pc-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block}
-.sku-i{width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;border:1px solid var(--bdr);background:#EEF2FF;position:relative;display:flex;align-items:center;justify-content:center;font-size:20px}
-.sku-i img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block}
-.sku-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #EEF2FF}
-.sku-row:last-child{border-bottom:none}
-.psel{display:flex;align-items:center;gap:9px;padding:9px 11px;border-bottom:1px solid #EEF2FF;cursor:pointer}
-.psel:last-child{border-bottom:none}
-.psel input[type=checkbox]{width:18px;height:18px;flex-shrink:0;accent-color:var(--bl)}
-.psel-all{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--bll);border-bottom:2px solid var(--bl);font-weight:700;color:var(--bl);font-size:12px}
-.prow{background:#F8FAFF;border:1px solid var(--bdr);border-radius:9px;padding:9px;margin-bottom:7px}
-.prow-h{display:flex;gap:7px;align-items:center;margin-bottom:7px}
-.prow-h select{flex:1;font-size:12px}
-.prow-del{background:var(--rel);color:var(--re);border:none;border-radius:6px;padding:7px 9px;cursor:pointer;font-size:14px;flex-shrink:0}
-.prow-ins{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.prow-c{font-size:11px;color:var(--bl);margin-top:5px;font-weight:600;background:var(--bll);padding:4px 9px;border-radius:5px}
-.tbl-w{overflow-x:auto;border-radius:8px;border:1px solid var(--bdr)}
-table{width:100%;border-collapse:collapse;font-size:12px;min-width:360px}
-th{text-align:left;padding:7px 9px;background:var(--bl);color:#fff;font-weight:600;font-size:11px;white-space:nowrap}
-td{padding:8px 9px;border-bottom:1px solid #EEF2FF;vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:#F5F7FF}
-.tf td{background:var(--bll);font-weight:700;border-top:2px solid var(--bl)}
-.bdg{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700}
-.b-bl{background:var(--bll);color:var(--bl)}.b-gr{background:var(--grl);color:var(--gr)}
-.b-re{background:var(--rel);color:var(--re)}.b-am{background:var(--aml);color:var(--am)}
-.b-te{background:var(--tel);color:var(--te)}.b-gy{background:#ECEFF1;color:var(--mt)}
-.prof{border-radius:10px;padding:14px;text-align:center;margin-bottom:10px;color:#fff}
-.prof-v{font-size:26px;font-weight:700}.prof-l{font-size:11px;opacity:.85;margin-top:2px}
-.ib{background:var(--bll);border-left:3px solid var(--bl);border-radius:5px;padding:8px 11px;font-size:11px;color:var(--bl2);margin-bottom:10px;font-weight:600}
-.wb{background:#FFF8E1;border-left:3px solid #FFA000;border-radius:5px;padding:8px 11px;font-size:11px;color:var(--am);margin-bottom:10px;font-weight:600}
-.gib{background:var(--grl);border-left:3px solid var(--gr);border-radius:5px;padding:8px 11px;font-size:11px;color:var(--gr);margin-bottom:10px;font-weight:600}
-.rib{background:var(--rel);border-left:3px solid var(--re);border-radius:5px;padding:8px 11px;font-size:11px;color:var(--re);margin-bottom:10px;font-weight:600}
-.step-ind{display:flex;align-items:center;gap:5px;margin-bottom:12px}
-.sdi{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.sdi-a{background:var(--bl);color:#fff}.sdi-i{background:#E0E0E0;color:var(--mt)}
-.sdl{flex:1;height:2px;background:#E0E0E0}.sdl.done{background:var(--bl)}
-.dr{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:1px solid #EEF2FF}
-.dr:last-child{border-bottom:none}
-.stk-ok{color:var(--gr);font-weight:700}.stk-lo{color:var(--am);font-weight:700}.stk-no{color:var(--re);font-weight:700}
-.dmg-card{border:2px solid var(--re);border-radius:10px;overflow:hidden;margin-bottom:10px}
-.dmg-h{background:var(--re);color:#fff;padding:10px 12px;display:flex;align-items:center;gap:10px}
-.bon-card{border:2px solid var(--am);border-radius:10px;overflow:hidden;margin-bottom:10px}
-.bon-h{background:var(--am);color:#fff;padding:10px 12px;display:flex;align-items:center;gap:10px}
-.dm-img{width:40px;height:40px;border-radius:7px;overflow:hidden;flex-shrink:0;background:rgba(255,255,255,.2);position:relative;display:flex;align-items:center;justify-content:center;font-size:20px}
-.dm-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block}
-.exp-cat-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #EEF2FF}
-.exp-cat-row:last-child{border-bottom:none}
-.exp-inp-row{display:flex;align-items:center;gap:8px;padding:8px 11px;border-bottom:1px solid #EEF2FF}
-.exp-inp-row:last-child{border-bottom:none}
-.exp-inp-row label{font-size:12px;font-weight:600;min-width:110px;flex-shrink:0}
-.exp-inp-row input{flex:1;padding:7px 10px}
-.ovl{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:12px}
-.spin{width:36px;height:36px;border:3px solid var(--bll);border-top-color:var(--bl);border-radius:50%;animation:spin .65s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.ovl-m{font-size:12px;color:var(--mt);font-weight:600}
-.tst{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);background:#1A237E;color:#fff;padding:9px 20px;border-radius:20px;font-size:12px;z-index:9998;white-space:nowrap;animation:tin .18s ease;pointer-events:none;font-weight:700;box-shadow:0 4px 14px rgba(26,35,126,.3)}
-@keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-
-/* ── PIN LOGIN ───────────────────────────── */
-#pin-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(145deg,#0D47A1,#1565C0);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;padding:24px}
-.pin-logo{width:80px;height:80px;background:#fff;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:var(--bl);margin-bottom:16px;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
-.pin-title{color:#fff;font-size:22px;font-weight:700;margin-bottom:4px}
-.pin-sub{color:rgba(255,255,255,.7);font-size:12px;margin-bottom:28px}
-.pin-dots{display:flex;gap:14px;margin-bottom:24px}
-.pin-dot{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:transparent;transition:.2s}
-.pin-dot.filled{background:#fff;border-color:#fff}
-.pin-err{color:#FF5252;font-size:12px;font-weight:700;margin-bottom:12px;min-height:16px}
-.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:240px}
-.pin-btn{height:64px;border-radius:14px;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:22px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center}
-.pin-btn:active{background:rgba(255,255,255,.35);transform:scale(.94)}
-.pin-btn.del{font-size:18px;background:rgba(255,82,82,.25)}
-.pin-role{margin-top:20px;display:flex;gap:10px}
-.pin-role-btn{padding:7px 18px;border-radius:20px;border:1.5px solid rgba(255,255,255,.4);background:transparent;color:rgba(255,255,255,.7);font-size:12px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer;transition:.15s}
-.pin-role-btn.active{background:rgba(255,255,255,.2);border-color:#fff;color:#fff}
-</style>
-</head>
-<body>
-
-<div id="spl">
-  <div class="sl-logo"><div class="sl-me">ME</div></div>
-  <div class="sl-nm">মিরন ইলেকট্রনিক্স</div>
-  <div class="sl-sb">স্টক ও ব্যবসা ব্যবস্থাপনা সফটওয়্যার</div>
-  <div class="sl-bar"><div class="sl-prog"></div></div>
-  <div style="margin-top:22px;animation:up .5s .7s both;text-align:center"><div style="color:rgba(255,255,255,.5);font-size:10px;margin-bottom:5px;letter-spacing:1px">DEVELOPED BY</div><div style="color:#FFD700;font-size:17px;font-weight:700;letter-spacing:2px;text-shadow:0 0 12px rgba(255,215,0,.6)">✦ AXIION TECHNOLOGY ✦</div></div>
-</div>
-
-<div id="app">
-  <div class="hdr">
-    <div><h1>📦 মিরন ইলেকট্রনিক্স</h1><div class="hdr-s" id="hdr-sub">লোড হচ্ছে...</div></div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <div style="font-size:10px;color:rgba(255,255,255,.75)" id="hdr-date"></div>
-      <button onclick="logout()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:4px 10px;font-size:11px;font-family:'Hind Siliguri',sans-serif;cursor:pointer" id="logout-btn">🔒 লগআউট</button>
-    </div>
-  </div>
-  <div class="pages">
-    <div class="page active" id="pg-dash"></div>
-    <div class="page" id="pg-prod"></div>
-    <div class="page" id="pg-sr"></div>
-    <div class="page" id="pg-tx"></div>
-    <div class="page" id="pg-rep"></div>
-    <div class="page" id="pg-exp"></div>
-  </div>
-  <nav class="nav">
-    <button class="nb active" onclick="gTab('dash')" id="nb-dash"><span class="ni">🏠</span>হোম</button>
-    <button class="nb" onclick="gTab('prod')" id="nb-prod"><span class="ni">📦</span>পণ্য</button>
-    <button class="nb" onclick="gTab('sr')" id="nb-sr"><span class="ni">👤</span>DSR</button>
-    <button class="nb" onclick="gTab('tx')" id="nb-tx"><span class="ni">📝</span>লেনদেন</button>
-    <button class="nb" onclick="gTab('rep')" id="nb-rep"><span class="ni">📊</span>রিপোর্ট</button>
-    <button class="nb" onclick="gTab('exp')" id="nb-exp"><span class="ni">💸</span>খরচ</button>
-  </nav>
-</div>
-
-<div class="ovl" id="ovl" style="display:none"><div class="spin"></div><div class="ovl-m" id="ovl-m">লোড হচ্ছে...</div></div>
-<div class="tst" id="tst" style="display:none"></div>
-
-<script>
-
-// ═══════════════════════════════════════════════════
-//  🔐 PIN & ROLE SYSTEM — 4 ROLES
-// ═══════════════════════════════════════════════════
-var PINS={'owner':'2713','manager':'5620','so':'1280','dsr':'1275'};
-var ROLE_LABELS={'owner':'👑 Owner','manager':'🧑 Manager','so':'📊 SO','dsr':'🚚 DSR'};
-var _pinBuf='',_pinRole='owner';
-
-function switchPinRole(r){
-  _pinRole=r;_pinBuf='';updatePinDots();
-  document.getElementById('pin-err').textContent='';
-  document.getElementById('pin-role-label').textContent=ROLE_LABELS[r]+' PIN দিন';
-  ['owner','manager','so','dsr'].forEach(function(x){var el=document.getElementById('prb-'+x);if(el)el.classList.toggle('active',x===r);});
-}
-function pinKey(k){if(_pinBuf.length>=4)return;_pinBuf+=k;updatePinDots();if(_pinBuf.length===4)setTimeout(checkPin,150);}
-function pinDel(){_pinBuf=_pinBuf.slice(0,-1);updatePinDots();document.getElementById('pin-err').textContent='';}
-function updatePinDots(){for(var i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('filled',i<_pinBuf.length);}
-function checkPin(){
-  if(PINS[_pinRole]&&_pinBuf===PINS[_pinRole]){
-    S.role=_pinRole;
-    sessionStorage.setItem('miron_role', _pinRole); // ✅ Save session
-    document.getElementById('pin-screen').style.display='none';
-    applyRole();
-    if(_pinRole==='dsr'||_pinRole==='so'){
-      document.getElementById('spl').style.display='none';
-      document.getElementById('app').classList.add('show');
-      loadAll();
-    } else {
-      setTimeout(function(){document.getElementById('spl').classList.add('fade');document.getElementById('app').classList.add('show');loadAll();},2200);
-    }
-  } else {
-    document.getElementById('pin-err').textContent='❌ ভুল PIN! আবার চেষ্টা করুন';
-    _pinBuf='';updatePinDots();
-    var dots=document.querySelector('.pin-dots'),vals=['-8px','8px','-4px','0'];
-    vals.forEach(function(v,i){setTimeout(function(){dots.style.transform='translateX('+v+')';},i*80);});
-  }
-}
-function applyRole(){
-  var hidden={'owner':[],'manager':[],'so':['tx','rep','exp'],'dsr':['prod','sr','rep','exp']}[S.role]||[];
-  ['dash','prod','sr','tx','rep','exp'].forEach(function(t){var el=document.getElementById('nb-'+t);if(el)el.style.display=hidden.indexOf(t)>=0?'none':'';});
-  var badge=document.getElementById('role-badge');
-  if(badge)badge.textContent=ROLE_LABELS[S.role]||'';
-}
-function logout(){
-  if(!confirm('লগআউট করবেন?'))return;
-  sessionStorage.removeItem('miron_role'); // ✅ Clear session
-  S.role='owner';_pinBuf='';_pinRole='owner';
-  _dashCache=null;
-  updatePinDots();switchPinRole('owner');
-  document.getElementById('app').classList.remove('show');
-  var spl=document.getElementById('spl');spl.style.display='flex';spl.style.opacity='1';
-  document.getElementById('pin-screen').style.display='flex';
-}
-
-// ═══════════════════════════════════════════════════
-//  API LAYER — google.script.run compatible fetch mock
-//  Replaces Google Apps Script RPC with Vercel API calls
-// ═══════════════════════════════════════════════════
-(function() {
-  var ROUTES = {
-    loadAll:             { url:'/api/load-all',      method:'GET' },
-    getDashboard:        { url:'/api/dashboard',     method:'GET' },
-    addProduct:          { url:'/api/products',      method:'POST' },
-    updateProduct:       { url:'/api/products',      method:'PUT' },
-    deleteProduct:       { url:'/api/products',      method:'DELETE', wrap:'id' },
-    addSR:               { url:'/api/srs',           method:'POST' },
-    updateSR:            { url:'/api/srs',           method:'PUT' },
-    deleteSR:            { url:'/api/srs',           method:'DELETE', wrap:'id' },
-    addSRPayment:        { url:'/api/sr-payments',   method:'POST' },
-    addTransaction:      { url:'/api/transactions',  method:'POST' },
-    getReport:           { url:'/api/report',        method:'GET',  qs:['from','to'] },
-    // damage.js handles both list (GET) and clear (POST)
-    getDmgByProduct:     { url:'/api/damage',        method:'GET' },
-    clearDmgForProduct:  { url:'/api/damage',        method:'POST', wrap:'productId' },
-    // bonus.js handles both summary (GET) and pay (POST)
-    getBonusSummary:     { url:'/api/bonus',         method:'GET' },
-    payBonus:            { url:'/api/bonus',         method:'POST', wrap:'productId' },
-    // expenses.js handles all expense ops via ?action=
-    loadExpSetup:        { url:'/api/expenses?action=cats',   method:'GET' },
-    addExpCat:           { url:'/api/expenses?action=cat',    method:'POST', wrap:'name' },
-    delExpCat:           { url:'/api/expenses?action=cat',    method:'DELETE', wrap:'id' },
-    addExpEntry:         { url:'/api/expenses?action=record', method:'POST' },
-    getExpReport:        { url:'/api/expenses?action=report', method:'GET', qs:['from','to'] },
-    exportToSheet:       { url:'/api/report',        method:'GET',  qs:['from','to'], isExport:true }
-  };
-
-  function createRunner() {
-    var _sh = null, _fh = null;
-    var runner = {
-      withSuccessHandler: function(fn) { _sh = fn; return runner; },
-      withFailureHandler: function(fn) { _fh = fn; return runner; }
-    };
-
-    Object.keys(ROUTES).forEach(function(name) {
-      runner[name] = function() {
-        var args = Array.prototype.slice.call(arguments);
-        var cfg  = ROUTES[name];
-        var url  = cfg.url;
-        var opts = { headers: { 'Content-Type': 'application/json' } };
-
-        if (cfg.method === 'GET') {
-          opts.method = 'GET';
-          if (cfg.qs && args.length) {
-            var params = [];
-            cfg.qs.forEach(function(k, i) {
-              if (args[i] !== undefined && args[i] !== null)
-                params.push(encodeURIComponent(k) + '=' + encodeURIComponent(args[i]));
-            });
-            if (params.length) {
-              // URL may already contain ? (e.g. /api/expenses?action=report)
-              url += (url.indexOf('?') >= 0 ? '&' : '?') + params.join('&');
-            }
-          }
-        } else {
-          opts.method = cfg.method;
-          var body;
-          if (!args.length) {
-            body = {};
-          } else if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null) {
-            body = args[0];
-          } else if (args.length === 1) {
-            body = {}; body[cfg.wrap || 'id'] = args[0];
-          } else {
-            body = {}; args.forEach(function(a, i) { body['arg' + i] = a; });
-          }
-          opts.body = JSON.stringify(body);
-        }
-
-        if (cfg.isExport) {
-          // Client-side CSV export instead of Google Sheets
-          fetch(url, opts)
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-              if (data.ok && !data.empty) {
-                downloadReportCSV(data);
-                if (_sh) _sh({ ok: true, url: null });
-              } else {
-                if (_sh) _sh(data);
-              }
-            })
-            .catch(function(e) { if (_fh) _fh(e); });
-          return;
-        }
-
-        fetch(url, opts)
-          .then(function(r) { return r.json(); })
-          .then(function(data) { if (_sh) _sh(data); })
-          .catch(function(e) { if (_fh) _fh(e); });
-      };
-    });
-
-    return runner;
-  }
-
-  window.google = {
-    script: Object.defineProperty({}, 'run', { get: function() { return createRunner(); } })
-  };
-})();
-
-// ═══════════════════════════════════════════════════
-//  IMAGE SYSTEM — BASE64 ONLY
-// ═══════════════════════════════════════════════════
-var IMG = {
-  prod: { full:'', name:'', thumb:'', previewUrl:'' },
-  sr:   { full:'', name:'', thumb:'', previewUrl:'' }
-};
-
-function getThumb(obj) {
-  if (!obj) return '';
-  var t = String(obj.thumb || '');
-  return (t.length > 50 && t.indexOf('data:') === 0) ? t : '';
-}
-
-function makeThumb(dataUrl, cb) {
-  var img = new Image();
-  img.onload = function() {
-    try {
-      var canvas = document.createElement('canvas');
-      canvas.width = 120; canvas.height = 120;
-      var ctx = canvas.getContext('2d');
-      var s = Math.min(img.width, img.height);
-      var sx = (img.width - s) / 2, sy = (img.height - s) / 2;
-      ctx.drawImage(img, sx, sy, s, s, 0, 0, 120, 120);
-      cb(canvas.toDataURL('image/jpeg', 0.5));
-    } catch(e) { cb(''); }
-  };
-  img.onerror = function() { cb(''); };
-  img.src = dataUrl;
-}
-
-function setContainerImg(container, src) {
-  if (!container) return;
-  var old = container.querySelector('img.injected');
-  if (old) old.remove();
-  if (!src) return;
-  var im = document.createElement('img');
-  im.className = 'injected';
-  im.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;z-index:1';
-  im.onload = function() {
-    container.childNodes.forEach(function(n) { if (n.nodeType === Node.TEXT_NODE) n.textContent = ''; });
-  };
-  im.onerror = function() {
-    im.remove();
-    container.childNodes.forEach(function(n) {
-      if (n.nodeType === Node.TEXT_NODE && n.textContent === '')
-        n.textContent = container.getAttribute('data-fallback') || '';
-    });
-  };
-  container.appendChild(im);
-  im.src = src;
-}
-
-function pickImg(file, previewId, slot, maxMB) {
-  if (!file) return;
-  if (file.size > maxMB * 1024 * 1024) { toast('ছবি ' + maxMB + 'MB এর কম হতে হবে'); return; }
-  var prv = document.getElementById(previewId);
-  var rd  = new FileReader();
-  rd.onload = function(e) {
-    var full = e.target.result;
-    IMG[slot].full = full; IMG[slot].name = file.name; IMG[slot].previewUrl = full;
-    if (prv) setContainerImg(prv, full);
-    makeThumb(full, function(thumb) { IMG[slot].thumb = thumb; });
-  };
-  rd.readAsDataURL(file);
-}
-
-function renderThumb(containerId, obj, fallback) {
-  var el = document.getElementById(containerId); if (!el) return;
-  if (fallback) el.setAttribute('data-fallback', fallback);
-  var src;
-  if (typeof obj === 'string') { src = (obj.length > 50 && obj.indexOf('data:') === 0) ? obj : ''; }
-  else { src = getThumb(obj); }
-  setContainerImg(el, src);
-}
-
-function thumbImg(obj, radius) {
-  var src = getThumb(obj); if (!src) return '';
-  return '<img src="' + src + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1;border-radius:' + (radius || 'inherit') + '" onerror="this.remove()">';
-}
-
-// ═══════════════════════════════════════════════════
-//  CSV EXPORT — replaces Google Sheets export
-// ═══════════════════════════════════════════════════
-function downloadReportCSV(r) {
-  // Build styled HTML report and open for PDF printing
-  var fN = function(n) { return Math.round(Number(n)||0).toLocaleString('en-IN'); };
-  var fT = function(n) { return '৳'+fN(n); };
-  var period = r.from===r.to ? fmtBn(r.from) : fmtBn(r.from)+' → '+fmtBn(r.to);
-
-  var html = '<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8">'
-    +'<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">'
-    +'<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Hind Siliguri',sans-serif;background:#fff;color:#000;padding:16px;font-size:12px}'
-    +'.hdr{background:#0D47A1;color:#fff;padding:14px 16px;border-radius:8px;margin-bottom:12px}'
-    +'.hdr h1{font-size:18px;font-weight:700}.hdr p{font-size:11px;opacity:.85;margin-top:3px}'
-    +'.sec{margin-bottom:14px}.sec-t{background:#1565C0;color:#fff;padding:7px 12px;font-weight:700;font-size:12px;border-radius:5px 5px 0 0}'
-    +'table{width:100%;border-collapse:collapse}th{background:#E3F2FD;padding:6px 8px;text-align:left;font-size:11px;border:1px solid #C5CAE9}'
-    +'td{padding:6px 8px;border:1px solid #E0E0E0;font-size:11px}'
-    +'tr:nth-child(even) td{background:#F5F5F5}'
-    +'.tot{background:#E3F2FD!important;font-weight:700}'
-    +'.profit{color:#2E7D32;font-weight:700}.loss{color:#C62828;font-weight:700}'
-    +'.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}'
-    +'.scard{border:1px solid #C5CAE9;border-radius:6px;padding:10px;text-align:center}'
-    +'.scard .val{font-size:16px;font-weight:700;color:#0D47A1}.scard .lbl{font-size:10px;color:#546E7A;margin-top:2px}'
-    +'@media print{body{padding:8px}.no-print{display:none}}'
-    +'</style></head><body>'
-    +'<div class="hdr"><h1>📦 মিরন ইলেকট্রনিক্স</h1><p>পরিবেশক: আকিজ ফুড এন্ড বেভারেজ লিঃ | সময়কাল: '+period+'</p><p style="font-size:10px;opacity:.6;margin-top:4px">Developed by AXIION TECHNOLOGY</p></div>';
-
-  if(r.totals){
-    var t=r.totals;
-    html+='<div class="summary-grid">'
-      +'<div class="scard"><div class="val">'+fT(t.netRevenue)+'</div><div class="lbl">মোট আয়</div></div>'
-      +'<div class="scard"><div class="val">'+fT(t.netCost)+'</div><div class="lbl">মোট খরচ</div></div>'
-      +'<div class="scard"><div class="val '+(t.grossProfit>=0?'profit':'loss')+'">'+fT(Math.abs(t.grossProfit))+'</div><div class="lbl">'+(t.grossProfit>=0?'মোট লাভ':'মোট ক্ষতি')+'</div></div>'
-      +'<div class="scard"><div class="val">'+fN(t.givenUnits)+'</div><div class="lbl">দেওয়া (পিস)</div></div>'
-      +'<div class="scard"><div class="val">'+fN(t.soldUnits)+'</div><div class="lbl">বিক্রয় (পিস)</div></div>'
-      +'<div class="scard"><div class="val">'+fT(t.payments)+'</div><div class="lbl">পেমেন্ট আদায়</div></div>'
-      +'</div>';
-  }
-
-  if(r.bySR&&r.bySR.length){
-    html+='<div class="sec"><div class="sec-t">DSR/SO ভিত্তিক রিপোর্ট</div><table><thead><tr><th>SR</th><th>এলাকা</th><th>দেওয়া</th><th>ফেরত</th><th>বিক্রয়</th><th>আয়</th><th>লাভ</th><th>দেনা</th></tr></thead><tbody>';
+    html+='<div class="sec"><div class="sec-t">SR ভিত্তিক রিপোর্ট</div><table><thead><tr><th>SR</th><th>এলাকা</th><th>দেওয়া</th><th>ফেরত</th><th>বিক্রয়</th><th>আয়</th><th>লাভ</th><th>দেনা</th></tr></thead><tbody>';
     r.bySR.forEach(function(s){
       html+='<tr><td>'+esc(s.name)+'</td><td>'+esc(s.area||'')+'</td><td>'+fN(s.givenUnits)+'</td><td>'+fN(s.returnUnits)+'</td><td>'+fN(s.soldUnits)+'</td><td>'+fT(s.netRev)+'</td><td class="'+(s.profit>=0?'profit':'loss')+'">'+fT(s.profit)+'</td><td class="loss">'+fT(s.due)+'</td></tr>';
     });
@@ -1081,6 +612,40 @@ function downloadReportCSV(r) {
     <button class="pin-role-btn" id="prb-manager" onclick="switchPinRole('manager')">👤 Manager</button>
   </div>
 </div>
+
+<div id="pin-screen">
+  <div class="pin-logo">ME</div>
+  <div class="pin-title">মিরন ইলেকট্রনিক্স</div>
+  <div style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:14px;letter-spacing:1px">⚡ AXIION TECHNOLOGY</div>
+  <div class="pin-sub" id="pin-role-label">👑 Owner PIN দিন</div>
+  <div class="pin-dots" id="pin-dots-row">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-err" id="pin-err"></div>
+  <div class="pin-pad">
+    <button class="pin-btn" onclick="pinKey('1')">১</button>
+    <button class="pin-btn" onclick="pinKey('2')">২</button>
+    <button class="pin-btn" onclick="pinKey('3')">৩</button>
+    <button class="pin-btn" onclick="pinKey('4')">৪</button>
+    <button class="pin-btn" onclick="pinKey('5')">৫</button>
+    <button class="pin-btn" onclick="pinKey('6')">৬</button>
+    <button class="pin-btn" onclick="pinKey('7')">৭</button>
+    <button class="pin-btn" onclick="pinKey('8')">৮</button>
+    <button class="pin-btn" onclick="pinKey('9')">৯</button>
+    <button class="pin-btn" style="background:transparent"></button>
+    <button class="pin-btn" onclick="pinKey('0')">০</button>
+    <button class="pin-btn del" onclick="pinDel()">⌫</button>
+  </div>
+  <div class="pin-role">
+    <button class="pin-role-btn active" id="prb-owner"   onclick="switchPinRole('owner')">👑 Owner</button>
+    <button class="pin-role-btn"        id="prb-manager" onclick="switchPinRole('manager')">🧑 Manager</button>
+    <button class="pin-role-btn"        id="prb-so"      onclick="switchPinRole('so')">📊 SO</button>
+    <button class="pin-role-btn"        id="prb-dsr"     onclick="switchPinRole('dsr')">🚚 DSR</button>
+  </div>
+</div>
 </body></html>';
 
   // Android: send to native PDF handler
@@ -1098,7 +663,7 @@ function downloadReportCSV(r) {
 //  STATE
 // ═══════════════════════════════════════════════════
 var S = {
-  products:[], srs:[], stockMap:{}, tab:'dash', role:'owner', role:'owner',
+  products:[], srs:[], stockMap:{}, tab:'dash', role:'owner',
   txType:'give', giveStep:1, giveSRId:'', giveSRName:'', giveArea:'', giveDate:'',
   giveSelProd:{}, giveItems:[],
   txItems:[{productId:'',cases:'',pcs:''}],
@@ -1118,45 +683,26 @@ window.addEventListener('load', function() {
   S.giveDate = S.rptDate = S.rptFrom = S.rptTo = S.expDate = iso(n);
   S.rptMonth = iso(n).slice(0,7);
   document.getElementById('hdr-date').textContent = fmtBn(iso(n));
-
-  // ✅ Check session — if already logged in, skip PIN screen
-  var savedRole = sessionStorage.getItem('miron_role');
-  if (savedRole && PINS[savedRole]) {
-    S.role = savedRole;
+  // Check sessionStorage — if logged in, skip PIN screen
+  var saved = sessionStorage.getItem('miron_role');
+  if (saved && PINS[saved]) {
+    S.role = saved;
     document.getElementById('pin-screen').style.display = 'none';
     applyRole();
-    document.getElementById('spl').classList.add('fade');
-    document.getElementById('app').classList.add('show');
-    loadAll();
+    if (saved==='dsr'||saved==='so') {
+      document.getElementById('spl').style.display='none';
+      document.getElementById('app').classList.add('show');
+      loadAll();
+    } else {
+      setTimeout(function(){
+        document.getElementById('spl').classList.add('fade');
+        document.getElementById('app').classList.add('show');
+        loadAll();
+      }, 2200);
+    }
   }
-  // else: PIN screen stays visible (default)
+  // else: PIN screen visible by default
 });
-
-
-function refreshApp() {
-  _dashCache = null;
-  var t = S.tab;
-  showOvl('রিফ্রেশ হচ্ছে...');
-  google.script.run
-    .withSuccessHandler(function(r) {
-      hideOvl();
-      if (!r.ok) return toast('রিফ্রেশ ব্যর্থ');
-      S.products = r.products || [];
-      S.srs      = r.srs      || [];
-      S.stockMap = r.stockMap || {};
-      document.getElementById('hdr-sub').textContent = S.products.length+'টি পণ্য · '+S.srs.length+' DSR/SO';
-      toast('✅ রিফ্রেশ সম্পন্ন');
-      // Reload current tab
-      if(t==='dash') loadDash(true);
-      else if(t==='prod') renderProd();
-      else if(t==='sr')   renderSR();
-      else if(t==='tx')   renderTx();
-      else if(t==='rep')  renderRep();
-      else if(t==='exp')  loadExpSetup();
-    })
-    .withFailureHandler(function(e){ hideOvl(); toast('রিফ্রেশ ব্যর্থ: '+e.message); })
-    .loadAll();
-}
 
 function loadAll() {
   _dashCache = null;
@@ -1202,8 +748,8 @@ function gTab(t) {
 //  DASHBOARD
 // ═══════════════════════════════════════════════════
 function loadDash(force) {
-  if(S.role==='dsr'){loadDsrDash();return;}
-  if(S.role==='so'){loadSoDash();return;}
+  if(S.role==='dsr'){loadDsrDash&&loadDsrDash();return;}
+  if(S.role==='so'){loadSoDash&&loadSoDash();return;}
   var now2 = Date.now();
   if (!force && _dashCache && (now2 - _dashTime) < DASH_TTL) { renderDash(_dashCache); return; }
   showOvl('ড্যাশবোর্ড লোড হচ্ছে...');
@@ -1246,7 +792,7 @@ function renderDash(d) {
     h+='<div style="text-align:right"><div class="'+wc+'">'+fn(p.units)+' পিস</div><div style="font-size:10px;color:var(--mt2)">৳'+fm(p.sellValue)+'</div></div></div>';
   });
   h+='<div style="padding:9px 11px;background:var(--bll);display:flex;justify-content:space-between;font-weight:700;font-size:12px"><span>মোট স্টক মূল্য (বিক্রয়)</span><span style="color:var(--bl)">৳'+fm(st.totalSell)+'</span></div></div>';
-  h+='<div class="ct">💰 DSR/SO বাকির তালিকা</div><div class="card" style="padding:0;overflow:hidden">';
+  h+='<div class="ct">💰 SR বাকির তালিকা</div><div class="card" style="padding:0;overflow:hidden">';
   var ad=dues.list.filter(function(s){return s.due!==0||s.givenUnits>0;});
   if (!ad.length) h+='<div style="padding:20px;text-align:center;color:var(--mt2)">কোনো বাকি নেই</div>';
   ad.forEach(function(sr) {
@@ -1405,7 +951,7 @@ function renderSR() {
 }
 
 function buildSRList() {
-  if (!S.srs.length) return '<div style="padding:24px;text-align:center;color:var(--mt2)">কোনো DSR/SO নেই</div>';
+  if (!S.srs.length) return '<div style="padding:24px;text-align:center;color:var(--mt2)">কোনো SR নেই</div>';
   var h='<div class="card" style="padding:0;overflow:hidden">';
   S.srs.forEach(function(sr) {
     var ti=thumbImg(sr,'50%'), letter=esc(sr.name.charAt(0)||'?');
@@ -1424,32 +970,22 @@ function buildSRForm() {
     +'<div class="sr-av-lg" id="sr-prv" data-fallback="'+letter+'" onclick="document.getElementById(\'sr-img-inp\').click()">'+letter+'<div class="img-cam">📷</div></div>'
     +'<label class="up-lbl" style="width:76px">📷 ছবি<input type="file" accept="image/*" id="sr-img-inp" style="display:none" onchange="pickImg(this.files[0],\'sr-prv\',\'sr\',5)"></label>'
     +'</div><div style="flex:1">'
-    +'<div class="fg"><label class="fl">DSR/SO এর নাম *</label><input id="sf-nm" value="'+(sr?esc(sr.name):'')+'" placeholder="যেমন: রহিম"></div>'
+    +'<div class="fg"><label class="fl">SR এর নাম *</label><input id="sf-nm" value="'+(sr?esc(sr.name):'')+'" placeholder="যেমন: রহিম"></div>'
     +'<div class="g2"><div class="fg"><label class="fl">ফোন</label><input id="sf-ph" value="'+(sr?esc(sr.phone||''):'')+'" placeholder="017XXXXXXXX"></div>'
     +'<div class="fg"><label class="fl">এলাকা</label><input id="sf-ar" value="'+(sr?esc(sr.area||''):'')+'" placeholder="শাহজাদপুর"></div></div></div></div>'
-    +'<div style="display:flex;gap:7px"><button class="btn btn-bl" style="flex:1" onclick="saveSR()">'+(S.editSRId?'✏️ আপডেট':'DSR/SO যোগ করুন')+'</button>'
+    +'<div style="display:flex;gap:7px"><button class="btn btn-bl" style="flex:1" onclick="saveSR()">'+(S.editSRId?'✏️ আপডেট':'SR যোগ করুন')+'</button>'
     +(S.editSRId?'<button class="btn btn-gh" onclick="S.editSRId=null;IMG.sr={full:\'\',name:\'\',thumb:\'\',previewUrl:\'\'};S.srTab=\'list\';renderSR()">বাতিল</button>':'')
     +'</div></div>';
 }
 
 function buildPayForm() {
   var opts=S.srs.map(function(s){return'<option value="'+s.id+'">'+esc(s.name)+(s.area?' ('+esc(s.area)+')':'')+'</option>';}).join('');
-  return '<div class="card"><div class="ib">💡 তিনটি ভাগে পেমেন্ট রেকর্ড করুন — মোট স্বয়ংক্রিয় যোগ হবে।</div>'
-    +'<div class="fg"><label class="fl">DSR/SO *</label><select id="pf-sr"><option value="">-- DSR/SO বাছাই করুন --</option>'+opts+'</select></div>'
-    +'<div class="fg"><label class="fl">তারিখ</label><input type="date" id="pf-dt" value="'+iso(new Date())+'"></div>'
-    +'<div style="background:#F8FAFF;border:1px solid var(--bdr);border-radius:9px;padding:10px;margin-bottom:10px">'
-    +'<div class="fg"><label class="fl">💵 নগদ (Cash)</label><input type="number" id="pf-cash" min="0" placeholder="0" oninput="calcPayTotal()"></div>'
-    +'<div class="fg"><label class="fl">🤝 কমিশন</label><input type="number" id="pf-comm" min="0" placeholder="0" oninput="calcPayTotal()"></div>'
-    +'<div class="fg"><label class="fl">🎁 ছাড় / Free</label><input type="number" id="pf-disc" min="0" placeholder="0" oninput="calcPayTotal()"></div>'
-    +'<div style="background:var(--bll);border-radius:7px;padding:9px 12px;font-weight:700;color:var(--bl);font-size:13px;display:flex;justify-content:space-between;margin-top:4px"><span>মোট পেমেন্ট</span><span id="pay-total-val">৳ 0</span></div>'
-    +'</div>'
+  return '<div class="card"><div class="ib">SR থেকে টাকা পেলে এখানে রেকর্ড করুন। বাকি কমে যাবে।</div>'
+    +'<div class="fg"><label class="fl">SR *</label><select id="pf-sr"><option value="">-- SR বাছাই করুন --</option>'+opts+'</select></div>'
+    +'<div class="g2"><div class="fg"><label class="fl">তারিখ</label><input type="date" id="pf-dt" value="'+iso(new Date())+'"></div>'
+    +'<div class="fg"><label class="fl">পরিমাণ (৳) *</label><input type="number" id="pf-am" min="1" placeholder="0"></div></div>'
     +'<div class="fg"><label class="fl">নোট</label><input id="pf-nt" placeholder="ঐচ্ছিক"></div>'
     +'<button class="btn btn-gr btn-w" onclick="savePay()">💰 পেমেন্ট রেকর্ড করুন</button></div>';
-}
-function calcPayTotal(){
-  var t=vn('pf-cash')+vn('pf-comm')+vn('pf-disc');
-  var el=document.getElementById('pay-total-val');
-  if(el)el.textContent='৳ '+fm(t);
 }
 
 function saveSR() {
@@ -1461,30 +997,21 @@ function saveSR() {
   var fn_=S.editSRId?'updateSR':'addSR';
   showOvl('...');
   google.script.run
-    .withSuccessHandler(function(r){hideOvl();if(r.ok){toast(S.editSRId?'আপডেট':'DSR/SO যোগ হয়েছে');S.editSRId=null;IMG.sr={full:'',name:'',thumb:'',previewUrl:''};S.srTab='list';loadAll();}else toast(r.error||'ব্যর্থ');})
+    .withSuccessHandler(function(r){hideOvl();if(r.ok){toast(S.editSRId?'আপডেট':'SR যোগ হয়েছে');S.editSRId=null;IMG.sr={full:'',name:'',thumb:'',previewUrl:''};S.srTab='list';loadAll();}else toast(r.error||'ব্যর্থ');})
     .withFailureHandler(function(e){hideOvl();toast(e.message);})[fn_](d);
 }
-function delSR(id){if(!confirm('DSR/SO সরাবেন?'))return;showOvl('...');google.script.run.withSuccessHandler(function(r){hideOvl();if(r.ok){toast('সরানো হয়েছে');loadAll();}else toast(r.error);}).withFailureHandler(function(e){hideOvl();toast(e.message);}).deleteSR(id);}
-function savePay(){
-  var srId=v('pf-sr'),cash=vn('pf-cash'),comm=vn('pf-comm'),disc=vn('pf-disc'),total=cash+comm+disc;
-  if(!srId)return toast('DSR/SO বাছাই করুন');
-  if(!total)return toast('কমপক্ষে একটি পরিমাণ দিন');
-  var sr=S.srs.find(function(s){return s.id===srId;});
-  showOvl('সংরক্ষণ হচ্ছে...');
-  google.script.run.withSuccessHandler(function(r){
-    hideOvl();
-    if(r.ok){toast('পেমেন্ট: ৳'+fm(total));sv('pf-cash','');sv('pf-comm','');sv('pf-disc','');sv('pf-nt','');calcPayTotal();}
-    else toast(r.error);
-  }).withFailureHandler(function(e){hideOvl();toast(e.message);})
-  .addSRPayment({srId:srId,srName:sr.name,date:v('pf-dt')||iso(new Date()),amount:total,note:v('pf-nt'),cash_amount:cash,commission:comm,discount:disc});
-}
+function delSR(id){if(!confirm('SR সরাবেন?'))return;showOvl('...');google.script.run.withSuccessHandler(function(r){hideOvl();if(r.ok){toast('সরানো হয়েছে');loadAll();}else toast(r.error);}).withFailureHandler(function(e){hideOvl();toast(e.message);}).deleteSR(id);}
+function savePay(){var srId=v('pf-sr'),amt=vn('pf-am');if(!srId)return toast('SR বাছাই করুন');if(!amt)return toast('পরিমাণ দিন');var sr=S.srs.find(function(s){return s.id===srId;});showOvl('...');google.script.run.withSuccessHandler(function(r){hideOvl();if(r.ok){toast('পেমেন্ট রেকর্ড হয়েছে');sv('pf-am','');sv('pf-nt','');}else toast(r.error);}).withFailureHandler(function(e){hideOvl();toast(e.message);}).addSRPayment({srId:srId,srName:sr.name,date:v('pf-dt')||iso(new Date()),amount:amt,note:v('pf-nt')});}
 
+// ═══════════════════════════════════════════════════
+//  TRANSACTION
+// ═══════════════════════════════════════════════════
 function renderTx(){
   var t=S.txType;
   document.getElementById('pg-tx').innerHTML='<div class="ct">📝 লেনদেন রেকর্ড করুন</div>'
     +'<div class="tbar">'
     +'<button class="tb '+(t==='give'?'tg':'')+'" onclick="S.txType=\'give\';S.giveStep=1;renderTx()">📤 দেওয়া<br><small>SR কে</small></button>'
-    +'<button class="tb '+(t==='return'?'tr_':'')+'" onclick="S.txType=\'return\';renderTx()">↩️ ফেরত<br><small>DSR/SO থেকে</small></button>'
+    +'<button class="tb '+(t==='return'?'tr_':'')+'" onclick="S.txType=\'return\';renderTx()">↩️ ফেরত<br><small>SR থেকে</small></button>'
     +'<button class="tb '+(t==='damage'?'td_':'')+'" onclick="S.txType=\'damage\';renderTx()">⚠️ ড্যামেজ<br><small>দাবি</small></button>'
     +'<button class="tb '+(t==='buy'?'tb_':'')+'" onclick="S.txType=\'buy\';renderTx()">🛒 কেনা<br><small>কোম্পানি</small></button>'
     +'</div>'
@@ -1504,8 +1031,8 @@ function stepBar(){
 function buildGiveWiz(){
   if(S.giveStep===1){
     var opts=S.srs.map(function(s){return'<option value="'+s.id+'">'+esc(s.name)+(s.area?' ('+esc(s.area)+')':'')+'</option>';}).join('');
-    return stepBar()+'<div class="card"><div class="ib">DSR/SO কে পণ্য দেওয়াই আপনার বিক্রয়।</div>'
-      +'<div class="fg"><label class="fl">SR *</label><select id="gs-sr"><option value="">-- DSR/SO --</option>'+opts+'</select></div>'
+    return stepBar()+'<div class="card"><div class="ib">SR কে পণ্য দেওয়াই আপনার বিক্রয়।</div>'
+      +'<div class="fg"><label class="fl">SR *</label><select id="gs-sr"><option value="">-- SR --</option>'+opts+'</select></div>'
       +'<div class="fg"><label class="fl">তারিখ</label><input type="date" id="gs-dt" value="'+(S.giveDate||iso(new Date()))+'"></div>'
       +'<button class="btn btn-bl btn-w" onclick="gNext1()">পণ্য বাছাই করুন →</button></div>';
   }
@@ -1543,7 +1070,7 @@ function buildGiveWiz(){
     +'<div style="display:flex;gap:7px"><button class="btn btn-gh" onclick="S.giveStep=2;renderTx()">← পণ্য বদলান</button><button class="btn btn-bl" style="flex:1" onclick="saveGive()">📤 স্লিপ তৈরি ও সংরক্ষণ</button></div>';
 }
 
-function gNext1(){S.giveSRId=v('gs-sr');S.giveDate=v('gs-dt')||iso(new Date());if(!S.giveSRId)return toast('DSR/SO বাছাই করুন');var sr=S.srs.find(function(s){return s.id===S.giveSRId;});S.giveSRName=sr?sr.name:'';S.giveArea=sr?sr.area||'':'';S.giveStep=2;renderTx();}
+function gNext1(){S.giveSRId=v('gs-sr');S.giveDate=v('gs-dt')||iso(new Date());if(!S.giveSRId)return toast('SR বাছাই করুন');var sr=S.srs.find(function(s){return s.id===S.giveSRId;});S.giveSRName=sr?sr.name:'';S.giveArea=sr?sr.area||'':'';S.giveStep=2;renderTx();}
 function togProd(id){S.giveSelProd[id]=!S.giveSelProd[id];renderTx();}
 function selAll(){var el=document.getElementById('chk-all');if(!el)return;S.products.forEach(function(p){S.giveSelProd[p.id]=el.checked;});renderTx();}
 function gNext2(){var sel=S.products.filter(function(p){return S.giveSelProd[p.id];});if(!sel.length)return toast('কমপক্ষে একটি পণ্য বাছাই করুন');var ex={};S.giveItems.forEach(function(i){ex[i.productId]={cases:i.cases,pcs:i.pcs};});S.giveItems=sel.map(function(p){return{productId:p.id,cases:ex[p.id]?ex[p.id].cases:'',pcs:ex[p.id]?ex[p.id].pcs:''};});S.giveStep=3;renderTx();}
@@ -1572,12 +1099,12 @@ function saveGive(){
 
 function buildSimpleTx(){
   var t=S.txType, nr=t==='return'||t==='damage', h='';
-  if(t==='return') h='<div class="gib">DSR/SO অবিক্রীত পণ্য ফেরত দিলে রেকর্ড করুন।</div>';
+  if(t==='return') h='<div class="gib">SR অবিক্রীত পণ্য ফেরত দিলে রেকর্ড করুন।</div>';
   if(t==='damage') h='<div class="wb">⚠️ ড্যামেজ পণ্য — ক্রয় মূল্যে কোম্পানির কাছে দাবি হবে।</div>';
   if(t==='buy')    h='<div class="gib">কোম্পানি থেকে পণ্য কিনলে রেকর্ড করুন। স্টক বাড়বে।</div>';
   var srOpts=S.srs.map(function(s){return'<option value="'+s.id+'">'+esc(s.name)+(s.area?' ('+esc(s.area)+')':'')+'</option>';}).join('');
   return h+'<div class="card">'
-    +(nr?'<div class="fg"><label class="fl">SR *</label><select id="tx-sr"><option value="">-- DSR/SO --</option>'+srOpts+'</select></div>':'')
+    +(nr?'<div class="fg"><label class="fl">SR *</label><select id="tx-sr"><option value="">-- SR --</option>'+srOpts+'</select></div>':'')
     +'<div class="g2" style="margin-bottom:10px"><div><label class="fl">তারিখ</label><input type="date" id="tx-dt" value="'+iso(new Date())+'"></div><div><label class="fl">নোট</label><input id="tx-nt" placeholder="ঐচ্ছিক"></div></div>'
     +'<label class="fl" style="margin-bottom:7px">পণ্য তালিকা</label>'
     +'<div id="tx-rows"></div>'
@@ -1633,7 +1160,7 @@ function updTxGrand(){
 function addTxRow(){S.txItems.push({productId:'',cases:'',pcs:''});renderTxRows();}
 function saveTx(){
   var t=S.txType,nr=t==='return'||t==='damage';
-  var srId=nr?v('tx-sr'):''; if(nr&&!srId)return toast('DSR/SO বাছাই করুন');
+  var srId=nr?v('tx-sr'):''; if(nr&&!srId)return toast('SR বাছাই করুন');
   var valid=S.txItems.filter(function(i){return i.productId&&(num(i.cases)+num(i.pcs))>0;});
   if(!valid.length)return toast('পরিমাণ দিন');
   var sr=srId?S.srs.find(function(s){return s.id===srId;}):null;
@@ -1646,170 +1173,255 @@ function saveTx(){
 }
 
 // ═══════════════════════════════════════════════════
-//  SLIP — PDF + Share + Download
+//  SLIP
 // ═══════════════════════════════════════════════════
-function buildSlipTextPlain(slip, total) {
-  var lines = [
-    '━━━━━━━━━━━━━━━━━━━━━━━━',
-    '📦 মিরন ইলেকট্রনিক্স',
-    'আকিজ ফুড এন্ড বেভারেজ পরিবেশক',
-    '━━━━━━━━━━━━━━━━━━━━━━━━',
-    'স্লিপ: ' + slip.slipNo,
-    'তারিখ: ' + fmtBn(slip.date),
-    'DSR: ' + slip.srName + (slip.srArea ? ' | ' + slip.srArea : ''),
-    '━━━━━━━━━━━━━━━━━━━━━━━━'
-  ];
+function buildSlipText(slip, total) {
+  var lines = [];
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('📦 মিরন ইলেকট্রনিক্স');
+  lines.push('পরিবেশক: আকিজ ফুড এন্ড বেভারেজ');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('স্লিপ নং: ' + slip.slipNo);
+  lines.push('তারিখ: ' + fmtBn(slip.date));
+  lines.push('SR: ' + slip.srName + (slip.srArea ? ' | ' + slip.srArea : ''));
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━');
   slip.items.forEach(function(item) {
     var amt = item.totalUnits * item.sellingPrice;
     lines.push('▸ ' + item.productName);
-    lines.push('  ' + (item.cases?item.cases+'কেস ':'') + (item.pcs?item.pcs+'পিস ':'') + '= ' + item.totalUnits + ' পিস → ৳' + fm(amt));
+    lines.push('  ' + (item.cases ? item.cases + 'কেস ' : '') + (item.pcs ? item.pcs + 'পিস ' : '') + '= ' + item.totalUnits + ' ইউ → ৳' + fm(amt));
   });
   lines.push('━━━━━━━━━━━━━━━━━━━━━━━━');
   lines.push('💰 মোট: ৳' + fm(total));
   lines.push('━━━━━━━━━━━━━━━━━━━━━━━━');
-  lines.push('Powered by AXIION TECHNOLOGY');
   return lines.join('\n');
 }
 
-function buildSlipHtml(slip, rows, total, hideButtons) {
-  var btns = hideButtons ? '' :
-    '<div class="btns">'
-    + '<button class="bp" onclick="window.print()">📥 PDF ডাউনলোড</button>'
-    + '<button class="bw" onclick="shareSlipWa()">📲 WhatsApp</button>'
-    + '<button class="bc" onclick="window.close()">✕ বন্ধ</button>'
-    + '</div>';
-  return '<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><title>স্লিপ '+slip.slipNo+'</title>'
-    +'<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">'
-    +'<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Hind Siliguri',sans-serif;background:#fff;color:#000;padding:14px;max-width:420px;margin:0 auto}'
-    +'.hdr{display:flex;align-items:flex-start;gap:12px;padding-bottom:10px;border-bottom:3px double #000;margin-bottom:10px}'
-    +'.logo{width:56px;height:56px;background:#0D47A1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;flex-shrink:0}'
-    +'.co-name{font-size:20px;font-weight:900;line-height:1.1}'
-    +'.co-phone{font-size:12px;font-weight:700;margin-top:4px}'
-    +'.co-dist{font-size:11px;color:#444;margin-top:2px;font-weight:600}'
-    +'.co-addr{font-size:10px;color:#555;margin-top:2px;line-height:1.4}'
-    +'.akij{text-align:center;font-size:11px;font-weight:700;background:#222;color:#fff;padding:4px 8px;border-radius:2px;margin-bottom:10px}'
-    +'.slip-t{text-align:center;font-size:14px;font-weight:700;letter-spacing:2px;border:1px dashed #999;padding:6px 0;margin-bottom:10px}'
-    +'.meta{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:12px}'
-    +'.meta td{padding:5px 8px;border:1px solid #ccc}'
-    +'.mk{background:#f0f0f0;font-weight:700;width:72px;font-size:11px}.mv{font-weight:600}'
-    +'.stbl{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:12px}'
-    +'.stbl th{border:1px solid #888;padding:6px 8px;background:#000;color:#fff;text-align:left;font-size:11px;font-weight:700}'
-    +'.stbl td{border:1px solid #ccc;vertical-align:middle}'
-    +'.stbl tr:nth-child(even) td{background:#fafafa}'
-    +'.stbl tfoot td{border:1px solid #888;background:#e8e8e8;font-weight:700;font-size:13px}'
-    +'.sigs{display:flex;justify-content:space-between;margin-top:20px}'
-    +'.sig{text-align:center;font-size:11px;color:#555;width:130px}'
-    +'.sig-line{border-top:1px solid #000;padding-top:4px;margin-top:28px}'
-    +'.ftr{text-align:center;font-size:9px;color:#bbb;margin-top:10px;border-top:1px dotted #ddd;padding-top:5px}'
-    +'.btns{position:sticky;bottom:0;background:#fff;padding:10px;border-top:1px solid #eee;display:flex;gap:6px;margin:0 -14px -14px}'
-    +'.btns button{flex:1;padding:11px 0;border:none;border-radius:8px;font-size:12px;font-family:'Hind Siliguri',sans-serif;font-weight:700;cursor:pointer}'
-    +'.bp{background:#0D47A1;color:#fff}.bw{background:#25D366;color:#fff}.bc{background:#f0f0f0;color:#333}'
-    +'@media print{.btns{display:none}body{padding:8px}}</style>'
-    +'<script>var _slipText="'+escape(slip._plainText||'')+'";'
-    +'function shareSlipWa(){try{var a=document.createElement("a");a.href="https://wa.me/?text="+encodeURIComponent(unescape(_slipText));a.target="_blank";a.click();}catch(e){}}'
-    +'</script>'
-    +'</head><body>'
-    +'<div class="hdr"><div class="logo">ME</div><div style="flex:1">'
-    +'<div class="co-name">মিরন ইলেকট্রনিক্স</div>'
-    +'<div class="co-phone">📞 ০১৭৪৭-২০২০৫৫</div>'
-    +'<div class="co-dist">পরিবেশক: আকিজ ফুড এন্ড বেভারেজ লিঃ</div>'
-    +'<div class="co-addr">বিসিক রোড, শাহজাদপুর, সিরাজগঞ্জ।</div>'
-    +'</div></div>'
-    +'<div class="akij">আকিজ ফুড এন্ড বেভারেজ লিমিটেড</div>'
-    +'<div class="slip-t">— স্টক সরবরাহ স্লিপ —</div>'
-    +'<table class="meta">'
-    +'<tr><td class="mk">স্লিপ নং</td><td class="mv">'+slip.slipNo+'</td></tr>'
-    +'<tr><td class="mk">তারিখ</td><td class="mv">'+fmtBn(slip.date)+'</td></tr>'
-    +'<tr><td class="mk">DSR নাম</td><td class="mv"><strong>'+esc(slip.srName)+'</strong>'+(slip.srArea?' | '+esc(slip.srArea):'')+'</td></tr>'
-    +'</table>'
-    +'<table class="stbl"><thead><tr>'
-    +'<th style="width:44%">পণ্যের নাম / SKU</th>'
-    +'<th style="text-align:center;width:13%">কেস</th>'
-    +'<th style="text-align:center;width:13%">পিস</th>'
-    +'<th style="text-align:center;width:14%">মোট পিস</th>'
-    +'<th style="text-align:right;width:16%">মূল্য</th>'
-    +'</tr></thead>'
-    +'<tbody>'+rows+'</tbody>'
-    +'<tfoot><tr><td colspan="4" style="text-align:right;padding:7px 8px">মোট →</td>'
-    +'<td style="text-align:right;padding:7px 8px;color:#0D47A1;font-size:14px">৳'+fm(total)+'</td>'
-    +'</tr></tfoot></table>'
-    +'<div class="sigs">'
-    +'<div class="sig"><div class="sig-line">জারি করেছেন</div></div>'
-    +'<div class="sig"><div class="sig-line">গ্রহণ করেছেন</div></div>'
-    +'</div>'
-    +'<div class="ftr">⚡ AXIION TECHNOLOGY | মিরন ইলেকট্রনিক্স | '+new Date().toLocaleString('bn-BD')+'</div>'
-    + btns
-    +'</body></html>';
-}
-
-function openSlipWin(slip) {
-  var total = 0;
-  var rows = slip.items.map(function(item) {
-    var amt = item.totalUnits * item.sellingPrice; total += amt;
-    var imgTag = item.thumb&&item.thumb.length>50
-      ? '<img src="'+item.thumb+'" width="26" height="26" style="object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:5px;border:1px solid #ddd" onerror="this.remove()">'
-      : '';
-    return '<tr><td style="padding:6px 8px">'+imgTag+'<span style="vertical-align:middle;font-weight:600">'+esc(item.productName)+'</span><br><span style="font-size:10px;color:#666">'+esc(item.sku)+'</span></td>'
+function openSlipWin(slip){
+  var total=0;
+  var rows=slip.items.map(function(item){
+    var amt=item.totalUnits*item.sellingPrice;total+=amt;
+    var imgTag=item.thumb&&item.thumb.length>50?'<img src="'+item.thumb+'" width="26" height="26" style="object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:6px;border:1px solid #ddd" onerror="this.remove()">':'';
+    return'<tr><td style="padding:6px 8px">'+imgTag+'<span style="vertical-align:middle;font-weight:600">'+esc(item.productName)+'</span><br><span style="font-size:10px;color:#666">'+esc(item.sku)+'</span></td>'
       +'<td style="text-align:center;padding:6px 8px">'+(item.cases||0)+'</td>'
       +'<td style="text-align:center;padding:6px 8px">'+(item.pcs||0)+'</td>'
       +'<td style="text-align:center;font-weight:bold;padding:6px 8px">'+item.totalUnits+'</td>'
       +'<td style="text-align:right;padding:6px 8px">৳'+fm(amt)+'</td></tr>';
   }).join('');
 
-  // Build plain text version for WhatsApp
-  slip._plainText = buildSlipTextPlain(slip, total);
-
-  // ── Android: send to native bridge for PDF ──────
+  // ── Android: call native bridge directly ─────────
   if (window.AndroidSlip) {
-    AndroidSlip.receiveSlip(buildSlipHtml(slip, rows, total, true), slip._plainText);
+    var slipText = buildSlipText(slip, total);
+    var slipHtml = buildSlipHtml(slip, rows, total, true); // android=true (no btns)
+    AndroidSlip.receiveSlip(slipHtml, slipText);
     return;
   }
 
-  // ── Browser: open printable slip window ────────
+  // ── Browser: open popup as before ────────────────
   var html = buildSlipHtml(slip, rows, total, false);
-  var win = window.open('', '_blank', 'width=480,height=760,scrollbars=yes,toolbar=no');
-  if (win) { win.document.write(html); win.document.close(); }
-  else {
-    // Popup blocked — show inline modal instead
-    showSlipModal(html, slip._plainText);
-  }
+  var win=window.open('','_blank','width=480,height=740,scrollbars=yes,toolbar=no');
+  if(win){win.document.write(html);win.document.close();}
+  else toast('পপআপ ব্লক — ব্রাউজারে অনুমতি দিন');
 }
 
-// Fallback inline modal (when popup blocked)
-function showSlipModal(html, plainText) {
-  var overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;flex-direction:column;padding:12px;gap:10px';
+function buildSlipHtml(slip, rows, total, isAndroid) {
+  var btnsHtml = isAndroid ? '' :
+    '<div class="btns"><button class="bp" onclick="setTimeout(function(){window.print();},300)">📥 PDF ডাউনলোড / প্রিন্ট</button><button class="bc" onclick="window.close()">✕ বন্ধ করুন</button></div>';
+  return '<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"><title>স্লিপ '+slip.slipNo+'</title>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">'
+    +'<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:\'Hind Siliguri\',sans-serif;background:#fff;color:#000;padding:14px;max-width:420px;margin:0 auto}'
+    +'.hdr{display:flex;align-items:flex-start;gap:12px;padding-bottom:10px;border-bottom:3px double #000;margin-bottom:10px}'
+    +'.logo{width:56px;height:56px;background:#0D47A1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;flex-shrink:0}'
+    +'.co{flex:1}.co-name{font-size:22px;font-weight:900;line-height:1.1;letter-spacing:.5px}'
+    +'.co-phone{font-size:13px;font-weight:700;margin-top:4px;color:#000}.co-dist{font-size:11px;color:#444;margin-top:3px;font-weight:600}'
+    +'.co-addr{font-size:10px;color:#555;margin-top:2px;line-height:1.5}'
+    +'.akij{text-align:center;font-size:11px;font-weight:700;background:#222;color:#fff;padding:4px 8px;border-radius:2px;margin-bottom:10px}'
+    +'.slip-t{text-align:center;font-size:14px;font-weight:700;letter-spacing:2px;border:1px dashed #999;padding:6px 0;margin-bottom:10px}'
+    +'.meta{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:12px}.meta td{padding:5px 8px;border:1px solid #ccc}'
+    +'.mk{background:#f0f0f0;font-weight:700;width:72px;font-size:11px}.mv{font-weight:600}'
+    +'.stbl{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:12px}'
+    +'.stbl th{border:1px solid #888;padding:6px 8px;background:#000;color:#fff;text-align:left;font-size:11px;font-weight:700}'
+    +'.stbl td{border:1px solid #ccc;vertical-align:middle}.stbl tr:nth-child(even) td{background:#fafafa}'
+    +'.stbl tfoot td{border:1px solid #888;background:#e8e8e8;font-weight:700;font-size:13px}'
+    +'.sigs{display:flex;justify-content:space-between;margin-top:20px}.sig{text-align:center;font-size:11px;color:#555;width:130px}'
+    +'.sig-line{border-top:1px solid #000;padding-top:4px;margin-top:28px}'
+    +'.ftr{text-align:center;font-size:9px;color:#bbb;margin-top:10px;border-top:1px dotted #ddd;padding-top:5px}'
+    +'.btns{position:sticky;bottom:0;background:#fff;padding:10px;border-top:1px solid #eee;display:flex;gap:8px;margin:0 -14px -14px}'
+    +'.btns button{flex:1;padding:12px 0;border:none;border-radius:8px;font-size:13px;font-family:\'Hind Siliguri\',sans-serif;font-weight:700;cursor:pointer}'
+    +'.bp{background:#0D47A1;color:#fff}.bc{background:#f0f0f0;color:#333}'
+    +'@media print{.btns{display:none}body{padding:8px}}</style></head><body>'
+    +'<div class="hdr"><div class="logo">ME</div><div class="co">'
+    +'<div class="co-name">মিরন ইলেকট্রনিক্স</div>'
+    +'<div class="co-phone">📞 ০১৭৪৭-২০২০৫৫</div>'
+    +'<div class="co-dist">পরিবেশক: আকিজ ফুড এন্ড বেভারেজ লিঃ</div>'
+    +'<div class="co-addr">বিসিক রোড, প্রগতি স্কুলের উত্তর পার্শ্বে, শাহজাদপুর, সিরাজগঞ্জ।</div>'
+    +'</div></div>'
+    +'<div class="akij">আকিজ ফুড এন্ড বেভারেজ লিমিটেড</div>'
+    +'<div class="slip-t">— স্টক সরবরাহ স্লিপ —</div>'
+    +'<table class="meta"><tr><td class="mk">স্লিপ নং</td><td class="mv">'+slip.slipNo+'</td></tr>'
+    +'<tr><td class="mk">তারিখ</td><td class="mv">'+fmtBn(slip.date)+'</td></tr>'
+    +'<tr><td class="mk">SR নাম</td><td class="mv"><strong>'+esc(slip.srName)+'</strong>'+(slip.srArea?' | '+esc(slip.srArea):'')+'</td></tr></table>'
+    +'<table class="stbl"><thead><tr><th style="width:44%">পণ্যের নাম / SKU</th><th style="text-align:center;width:13%">কেস</th><th style="text-align:center;width:13%">পিস</th><th style="text-align:center;width:14%">মোট পিস</th><th style="text-align:right;width:16%">মূল্য</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody>'
+    +'<tfoot><tr><td colspan="4" style="text-align:right;padding:7px 8px">মোট পরিমাণ →</td><td style="text-align:right;padding:7px 8px;color:#0D47A1;font-size:14px">৳'+fm(total)+'</td></tr></tfoot></table>'
+    +'<div class="sigs"><div class="sig"><div class="sig-line">জারি করেছেন</div></div><div class="sig"><div class="sig-line">গ্রহণ করেছেন</div></div></div>'
+    +'<div class="ftr">Developed by SAKIB HOSSAIN | মিরন ইলেকট্রনিক্স | '+new Date().toLocaleString('bn-BD')+'</div>'
+    +btnsHtml
+    +'
+<div id="pin-screen">
+  <div class="pin-logo">ME</div>
+  <div class="pin-title">মিরন ইলেকট্রনিক্স</div>
+  <div class="pin-sub" id="pin-role-label">Owner PIN দিন</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-err" id="pin-err"></div>
+  <div class="pin-pad">
+    <button class="pin-btn" onclick="pinKey('1')">১</button>
+    <button class="pin-btn" onclick="pinKey('2')">২</button>
+    <button class="pin-btn" onclick="pinKey('3')">৩</button>
+    <button class="pin-btn" onclick="pinKey('4')">৪</button>
+    <button class="pin-btn" onclick="pinKey('5')">৫</button>
+    <button class="pin-btn" onclick="pinKey('6')">৬</button>
+    <button class="pin-btn" onclick="pinKey('7')">৭</button>
+    <button class="pin-btn" onclick="pinKey('8')">৮</button>
+    <button class="pin-btn" onclick="pinKey('9')">৯</button>
+    <button class="pin-btn" style="background:transparent"></button>
+    <button class="pin-btn" onclick="pinKey('0')">০</button>
+    <button class="pin-btn del" onclick="pinDel()">⌫</button>
+  </div>
+  <div class="pin-role">
+    <button class="pin-role-btn active" id="prb-owner" onclick="switchPinRole('owner')">👑 Owner</button>
+    <button class="pin-role-btn" id="prb-manager" onclick="switchPinRole('manager')">👤 Manager</button>
+  </div>
+</div>
 
-  var iframe = document.createElement('iframe');
-  iframe.style.cssText = 'flex:1;border:none;border-radius:10px;background:#fff';
-  iframe.srcdoc = html;
+<div id="pin-screen">
+  <div class="pin-logo">ME</div>
+  <div class="pin-title">মিরন ইলেকট্রনিক্স</div>
+  <div style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:14px;letter-spacing:1px">⚡ AXIION TECHNOLOGY</div>
+  <div class="pin-sub" id="pin-role-label">👑 Owner PIN দিন</div>
+  <div class="pin-dots" id="pin-dots-row">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-err" id="pin-err"></div>
+  <div class="pin-pad">
+    <button class="pin-btn" onclick="pinKey('1')">১</button>
+    <button class="pin-btn" onclick="pinKey('2')">২</button>
+    <button class="pin-btn" onclick="pinKey('3')">৩</button>
+    <button class="pin-btn" onclick="pinKey('4')">৪</button>
+    <button class="pin-btn" onclick="pinKey('5')">৫</button>
+    <button class="pin-btn" onclick="pinKey('6')">৬</button>
+    <button class="pin-btn" onclick="pinKey('7')">৭</button>
+    <button class="pin-btn" onclick="pinKey('8')">৮</button>
+    <button class="pin-btn" onclick="pinKey('9')">৯</button>
+    <button class="pin-btn" style="background:transparent"></button>
+    <button class="pin-btn" onclick="pinKey('0')">০</button>
+    <button class="pin-btn del" onclick="pinDel()">⌫</button>
+  </div>
+  <div class="pin-role">
+    <button class="pin-role-btn active" id="prb-owner"   onclick="switchPinRole('owner')">👑 Owner</button>
+    <button class="pin-role-btn"        id="prb-manager" onclick="switchPinRole('manager')">🧑 Manager</button>
+    <button class="pin-role-btn"        id="prb-so"      onclick="switchPinRole('so')">📊 SO</button>
+    <button class="pin-role-btn"        id="prb-dsr"     onclick="switchPinRole('dsr')">🚚 DSR</button>
+  </div>
+</div>
+</body></html>';
+}
 
-  var btnRow = document.createElement('div');
-  btnRow.style.cssText = 'display:flex;gap:8px';
 
-  var pdfBtn = document.createElement('button');
-  pdfBtn.textContent = '📥 PDF ডাউনলোড';
-  pdfBtn.style.cssText = 'flex:1;padding:12px;background:#0D47A1;color:#fff;border:none;border-radius:8px;font-size:13px;font-family:'Hind Siliguri',sans-serif;font-weight:700;cursor:pointer';
-  pdfBtn.onclick = function(){ iframe.contentWindow.print(); };
+// ═══════════════════════════════════════════════════
+//  🚚 DSR DASHBOARD
+// ═══════════════════════════════════════════════════
+function loadDsrDash(){
+  var el=document.getElementById('pg-dash');
+  el.innerHTML='<div class="ct">🚚 DSR ড্যাশবোর্ড</div>'
+    +'<div class="card"><div class="fg"><label class="fl">সময়</label>'
+    +'<select id="dsr-filter" onchange="var m=this.value;document.getElementById('dsr-date-row').style.display=m==='custom'?'block':'none'">'
+    +'<option value="today">আজকের রিপোর্ট</option>'
+    +'<option value="week">এই সপ্তাহ</option>'
+    +'<option value="month">এই মাস</option>'
+    +'<option value="custom">নির্দিষ্ট তারিখ</option>'
+    +'</select></div>'
+    +'<div id="dsr-date-row" class="g2" style="display:none">'
+    +'<div class="fg"><label class="fl">শুরু</label><input type="date" id="dsr-fr" value="'+iso(new Date())+'"></div>'
+    +'<div class="fg"><label class="fl">শেষ</label><input type="date" id="dsr-to" value="'+iso(new Date())+'"></div>'
+    +'</div>'
+    +'<button class="btn btn-bl btn-w" onclick="fetchDsrData()">📊 দেখুন</button></div>'
+    +'<div id="dsr-result"></div>';
+  fetchDsrData();
+}
+function fetchDsrData(){
+  var mode=(document.getElementById('dsr-filter')||{}).value||'today';
+  var td=iso(new Date()),mo=td.slice(0,7),from,to;
+  if(mode==='today'){from=td;to=td;}
+  else if(mode==='week'){var d2=new Date();d2.setDate(d2.getDate()-6);from=iso(d2);to=td;}
+  else if(mode==='month'){from=mo+'-01';to=mo+'-31';}
+  else{from=(document.getElementById('dsr-fr')||{}).value||td;to=(document.getElementById('dsr-to')||{}).value||td;}
+  showOvl('লোড হচ্ছে...');
+  google.script.run
+    .withSuccessHandler(function(r){hideOvl();renderDsrResult(r,from,to);})
+    .withFailureHandler(function(e){hideOvl();toast(e.message);})
+    .getReport(from,to);
+}
+function renderDsrResult(r,from,to){
+  var el=document.getElementById('dsr-result');if(!el)return;
+  if(!r.ok||r.empty){el.innerHTML='<div class="card" style="text-align:center;color:var(--mt2);padding:24px">এই সময়ে কোনো ডেটা নেই</div>';return;}
+  var t=r.totals;
+  var h='<div class="gib">📅 '+(from===to?fmtBn(from):fmtBn(from)+' → '+fmtBn(to))+'</div>'
+    +'<div class="mets">'
+    +'<div class="met met-b"><div class="ml">দেওয়া</div><div class="mv">'+fn(t.givenUnits)+'<small style="font-size:9px"> পিস</small></div></div>'
+    +'<div class="met met-a"><div class="ml">ফেরত</div><div class="mv">'+fn(t.returnUnits)+'<small style="font-size:9px"> পিস</small></div></div>'
+    +'<div class="met met-r"><div class="ml">ড্যামেজ</div><div class="mv">'+fn(t.dmgUnits)+'<small style="font-size:9px"> পিস</small></div></div>'
+    +'<div class="met met-g"><div class="ml">নেট বিক্রয়</div><div class="mv">'+fn(t.soldUnits)+'<small style="font-size:9px"> পিস</small></div></div>'
+    +'</div>';
+  if(r.byProduct&&r.byProduct.length){
+    h+='<div class="ct">📦 পণ্য ভিত্তিক</div><div class="card" style="padding:0;overflow:hidden"><div class="tbl-w"><table><thead><tr><th>পণ্য</th><th>দেওয়া</th><th>ফেরত</th><th>বিক্রয়</th><th>মূল্য</th></tr></thead><tbody>';
+    r.byProduct.forEach(function(p){
+      h+='<tr><td><strong>'+esc(p.name)+'</strong><br><small>'+esc(p.sku)+'</small></td>'
+        +'<td>'+fn(p.given)+'</td><td style="color:var(--am)">'+fn(p.returned)+'</td>'
+        +'<td style="color:var(--gr);font-weight:700">'+fn(p.sold)+'</td>'
+        +'<td>৳'+fm(p.sellingPrice)+'/পিস</td></tr>';
+    });
+    h+='</tbody></table></div></div>';
+  }
+  el.innerHTML=h;
+}
 
-  var waBtn = document.createElement('button');
-  waBtn.textContent = '📲 WhatsApp';
-  waBtn.style.cssText = 'flex:1;padding:12px;background:#25D366;color:#fff;border:none;border-radius:8px;font-size:13px;font-family:'Hind Siliguri',sans-serif;font-weight:700;cursor:pointer';
-  waBtn.onclick = function(){
-    window.open('https://wa.me/?text='+encodeURIComponent(plainText), '_blank');
-  };
-
-  var closeBtn = document.createElement('button');
-  closeBtn.textContent = '✕';
-  closeBtn.style.cssText = 'padding:12px 16px;background:#ECEFF1;color:#333;border:none;border-radius:8px;font-size:16px;cursor:pointer';
-  closeBtn.onclick = function(){ document.body.removeChild(overlay); };
-
-  btnRow.appendChild(pdfBtn);
-  btnRow.appendChild(waBtn);
-  btnRow.appendChild(closeBtn);
-  overlay.appendChild(iframe);
-  overlay.appendChild(btnRow);
-  document.body.appendChild(overlay);
+// ═══════════════════════════════════════════════════
+//  📊 SO DASHBOARD
+// ═══════════════════════════════════════════════════
+function loadSoDash(){
+  var el=document.getElementById('pg-dash');
+  var totalSell=0,totalCost=0,totalPcs=0;
+  var h='<div class="ct">📊 SO ড্যাশবোর্ড — স্টক</div><div class="card" style="padding:0;overflow:hidden">';
+  S.products.forEach(function(p){
+    var stk=S.stockMap[p.id]||0,cs=num(p.caseSize)||1,cases=Math.floor(stk/cs);
+    var sv=stk*num(p.sellingPrice),cv=stk*num(p.purchasePrice);
+    totalSell+=sv;totalCost+=cv;totalPcs+=stk;
+    var ti=thumbImg(p,'8px');
+    h+='<div class="sku-row"><div class="sku-i">'+(ti||'📦')+'</div>'
+      +'<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:12px">'+esc(p.name)+'</div>'
+      +'<div style="font-size:10px;color:var(--mt2)">'+esc(p.sku)+'</div>'
+      +'<div style="font-size:11px;margin-top:2px">'
+      +(cases?'<span style="background:#E3F2FD;color:var(--bl);padding:1px 5px;border-radius:4px;font-weight:700;margin-right:3px">'+cases+' কেস</span>':'')
+      +(stk?'<span style="background:#E8F5E9;color:var(--gr);padding:1px 5px;border-radius:4px;font-weight:700">'+stk+' পিস</span>':'<span style="color:var(--re);font-weight:700">স্টক নেই</span>')
+      +'</div>'
+      +'<div style="font-size:10px;color:var(--bl);font-weight:600;margin-top:2px">বিক্রয়: ৳'+fm(p.sellingPrice)+'/পিস</div>'
+      +'</div>'
+      +'<div style="text-align:right"><div style="font-size:13px;font-weight:700;color:var(--bl)">৳'+fm(sv)+'</div><div style="font-size:9px;color:var(--mt2)">বিক্রয়মান</div></div></div>';
+  });
+  h+='<div style="padding:10px 12px;background:var(--bll);border-top:2px solid var(--bl)">'
+    +'<div style="display:flex;justify-content:space-between;font-weight:700;font-size:12px;margin-bottom:4px"><span>মোট স্টক</span><span style="color:var(--bl)">'+fn(totalPcs)+' পিস</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span>মোট বিক্রয় মূল্যমান</span><span style="color:var(--bl);font-weight:700">৳'+fm(totalSell)+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:11px"><span>মোট ক্রয় মূল্যমান (ইনভেন্টরি)</span><span style="color:var(--am);font-weight:700">৳'+fm(totalCost)+'</span></div>'
+    +'</div></div>';
+  el.innerHTML=h;
 }
 
 // ═══════════════════════════════════════════════════
@@ -1860,7 +1472,7 @@ function renderRepResult(r){
     +'<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span style="font-weight:700">'+(t.grossProfit>=0?'মোট লাভ':'মোট ক্ষতি')+'</span><span style="font-weight:700;color:'+pc+'">৳'+fm(Math.abs(t.grossProfit))+'</span></div></div>'
     +'<div class="mets"><div class="met met-b"><div class="ml">বিক্রয় (পিস)</div><div class="mv">'+fn(t.soldUnits)+'</div></div><div class="met met-g"><div class="ml">পেমেন্ট আদায়</div><div class="mv">৳'+fm(t.payments)+'</div></div><div class="met met-a"><div class="ml">দেওয়া (পিস)</div><div class="mv">'+fn(t.givenUnits)+'</div></div><div class="met met-r"><div class="ml">ড্যামেজ (পিস)</div><div class="mv">'+fn(t.dmgUnits)+'</div></div></div>';
   if(r.srPerformance&&r.srPerformance.length){
-    h+='<div class="ct">🏆 DSR/SO পারফরম্যান্স</div><div class="card" style="padding:0;overflow:hidden">';
+    h+='<div class="ct">🏆 SR পারফরম্যান্স</div><div class="card" style="padding:0;overflow:hidden">';
     var maxS=r.srPerformance[0].soldUnits||1;
     r.srPerformance.forEach(function(sr,i){
       var pct=Math.round((sr.soldUnits/maxS)*100), ti=thumbImg(sr,'50%'), letter=esc(sr.name.charAt(0)||'?');
@@ -2059,6 +1671,40 @@ function toast(m){var e=document.getElementById('tst');e.textContent=m;e.style.d
   <div class="pin-role">
     <button class="pin-role-btn active" id="prb-owner" onclick="switchPinRole('owner')">👑 Owner</button>
     <button class="pin-role-btn" id="prb-manager" onclick="switchPinRole('manager')">👤 Manager</button>
+  </div>
+</div>
+
+<div id="pin-screen">
+  <div class="pin-logo">ME</div>
+  <div class="pin-title">মিরন ইলেকট্রনিক্স</div>
+  <div style="color:rgba(255,255,255,.4);font-size:10px;margin-bottom:14px;letter-spacing:1px">⚡ AXIION TECHNOLOGY</div>
+  <div class="pin-sub" id="pin-role-label">👑 Owner PIN দিন</div>
+  <div class="pin-dots" id="pin-dots-row">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-err" id="pin-err"></div>
+  <div class="pin-pad">
+    <button class="pin-btn" onclick="pinKey('1')">১</button>
+    <button class="pin-btn" onclick="pinKey('2')">২</button>
+    <button class="pin-btn" onclick="pinKey('3')">৩</button>
+    <button class="pin-btn" onclick="pinKey('4')">৪</button>
+    <button class="pin-btn" onclick="pinKey('5')">৫</button>
+    <button class="pin-btn" onclick="pinKey('6')">৬</button>
+    <button class="pin-btn" onclick="pinKey('7')">৭</button>
+    <button class="pin-btn" onclick="pinKey('8')">৮</button>
+    <button class="pin-btn" onclick="pinKey('9')">৯</button>
+    <button class="pin-btn" style="background:transparent"></button>
+    <button class="pin-btn" onclick="pinKey('0')">০</button>
+    <button class="pin-btn del" onclick="pinDel()">⌫</button>
+  </div>
+  <div class="pin-role">
+    <button class="pin-role-btn active" id="prb-owner"   onclick="switchPinRole('owner')">👑 Owner</button>
+    <button class="pin-role-btn"        id="prb-manager" onclick="switchPinRole('manager')">🧑 Manager</button>
+    <button class="pin-role-btn"        id="prb-so"      onclick="switchPinRole('so')">📊 SO</button>
+    <button class="pin-role-btn"        id="prb-dsr"     onclick="switchPinRole('dsr')">🚚 DSR</button>
   </div>
 </div>
 </body>
