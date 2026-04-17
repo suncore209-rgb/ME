@@ -13,13 +13,17 @@ module.exports = async (req, res) => {
 
     if (req.method === 'POST') {
       const d = req.body;
+      const total = num(d.amount);
       const { error } = await supabase.from('sr_payments').insert({
-        sr_id:      d.srId    || '',
-        sr_name:    d.srName  || '',
-        date:       d.date,
-        amount:     num(d.amount),
-        note:       d.note    || '',
-        created_at: now_()
+        sr_id:        d.srId    || '',
+        sr_name:      d.srName  || '',
+        date:         d.date,
+        amount:       total,
+        cash_amount:  num(d.cash_amount)  || total, // fallback: full amount as cash
+        commission:   num(d.commission)   || 0,
+        discount:     num(d.discount)     || 0,
+        note:         d.note    || '',
+        created_at:   now_()
       });
       if (error) throw error;
       return res.json({ ok: true });
