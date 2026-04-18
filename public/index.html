@@ -1303,10 +1303,12 @@ function openSlipWin(slip) {
     +'<div class="ftr">Miron Electronics · Powered by AXIION | '+new Date().toLocaleString('bn-BD')+'</div>'
     +'<div class="btns"><button class="bp" onclick="setTimeout(function(){window.print();},300)">📄 PDF ডাউনলোড / প্রিন্ট</button><button class="bc" onclick="window.close()">✕ বন্ধ করুন</button></div>'
     +'</body></html>';
-  var win=window.open('','_blank','width=480,height=740,scrollbars=yes,toolbar=no');
-  if(win){win.document.write(html);win.document.close();}
-  else if(window.AndroidSlip){window.AndroidSlip.receiveSlip(html,'');}
-  else toast('পপআপ ব্লক — ব্রাউজারে অনুমতি দিন');
+  if(window.AndroidSlip){window.AndroidSlip.receiveSlip(html,'');}
+  else{
+    var win=window.open('','_blank','width=480,height=740,scrollbars=yes,toolbar=no');
+    if(win){win.document.write(html);win.document.close();}
+    else toast('পপআপ ব্লক — ব্রাউজারে অনুমতি দিন');
+  }
 }
 
 // ════════════════════════════════════════════════════
