@@ -6,8 +6,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0D47A1">
-<title> মিরন ইলেকট্রনিক্স স্টক ম্যানেজমেন্ট</title>
-<link href ="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Miron Electronics — স্টক ম্যানেজমেন্ট</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bl:#0D47A1;--bl2:#1565C0;--bll:#E3F2FD;
@@ -206,24 +206,55 @@ tr:hover td{background:#F5F7FF}
 .pin-btn:active{background:rgba(255,255,255,.35);transform:scale(.94)}
 .pin-btn.del{font-size:18px;background:rgba(255,82,82,.25)}
 .pin-hint{margin-top:20px;color:rgba(255,255,255,.3);font-size:10px;text-align:center}
+
+/* ME Logo */
+.me-logo{font-family:'Hind Siliguri',sans-serif;font-size:30px;font-weight:900;color:#0D47A1;letter-spacing:-1px;line-height:1}
+.me-logo-pin{font-family:'Hind Siliguri',sans-serif;font-size:26px;font-weight:900;color:#0D47A1;letter-spacing:-1px;line-height:1}
+.brand-axiion{color:#FFD700;font-weight:700;letter-spacing:1px}
+
+/* Due Calendar */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:8px}
+.cal-day-hdr{text-align:center;font-size:10px;font-weight:700;color:var(--mt);padding:4px 0}
+.cal-cell{min-height:42px;border-radius:8px;border:1.5px solid var(--bdr);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:3px 2px;position:relative;transition:.12s}
+.cal-cell:active{transform:scale(.95)}
+.cal-cell.empty{background:transparent;border-color:transparent;cursor:default}
+.cal-cell.today-cell{border-color:var(--bl);background:var(--bll)}
+.cal-cell.has-due{background:var(--rel);border-color:var(--re)}
+.cal-cell.has-due.all-paid{background:var(--grl);border-color:var(--gr)}
+.cal-cell.has-due.mixed{background:#FFF8E1;border-color:var(--am)}
+.cal-day-num{font-size:13px;font-weight:700;line-height:1}
+.cal-dot{width:6px;height:6px;border-radius:50%;margin-top:2px}
+.cal-dot-re{background:var(--re)}
+.cal-dot-gr{background:var(--gr)}
+.cal-dot-am{background:var(--am)}
+.cal-legend{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.cal-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mt)}
+.cal-leg-dot{width:10px;height:10px;border-radius:3px}
+.due-item{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:1px solid #EEF2FF}
+.due-item:last-child{border-bottom:none}
+.due-modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:5000;display:flex;align-items:flex-end;justify-content:center}
+.due-modal{background:#fff;border-radius:16px 16px 0 0;padding:20px 16px 30px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto}
+.due-modal-title{font-size:16px;font-weight:700;margin-bottom:14px;color:var(--bl)}
+.status-pending{color:var(--re);font-weight:700;font-size:11px}
+.status-cleared{color:var(--gr);font-weight:700;font-size:11px}
 </style>
 </head>
 <body>
 
 <!-- SPLASH -->
 <div id="spl">
-  <div class="sl-logo">⚡</div>
-  <div class="sl-nm">মিরন</div>
+  <div class="sl-logo"><div class="me-logo">ME</div></div>
+  <div class="sl-nm">Miron Electronics</div>
   <div class="sl-sb">স্টক ও সেলস ম্যানেজমেন্ট সিস্টেম</div>
   <div class="sl-bar"><div class="sl-prog"></div></div>
-  <div class="sl-dev">⚡ AXIION TECHNOLOGY ⚡</div>
+  <div class="sl-dev">⚡ <span class="brand-axiion">AXIION</span> TECHNOLOGY ⚡</div>
 </div>
 
 <!-- APP -->
 <div id="app">
   <div class="hdr">
     <div>
-      <h1>⚡মিরন ইলেকট্রনিক্স স্টক ম্যানেজমেন্ট</h1>
+      <h1>📦 Miron Electronics</h1>
       <div class="hdr-s" id="hdr-sub">লোড হচ্ছে...</div>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
@@ -240,14 +271,15 @@ tr:hover td{background:#F5F7FF}
     <div class="page" id="pg-tx"></div>
     <div class="page" id="pg-rep"></div>
     <div class="page" id="pg-exp"></div>
+    <div class="page" id="pg-cal"></div>
   </div>
   <nav class="nav">
     <button class="nb active" onclick="gTab('dash')" id="nb-dash"><span class="ni">🏠</span>হোম</button>
     <button class="nb" onclick="gTab('prod')" id="nb-prod"><span class="ni">📦</span>পণ্য</button>
-    <button class="nb" onclick="gTab('sr')" id="nb-sr"><span class="ni">👤</span>SR</button>
+    <button class="nb" onclick="gTab('sr')" id="nb-sr"><span class="ni">👤</span>DSR/SO</button>
     <button class="nb" onclick="gTab('tx')" id="nb-tx"><span class="ni">📝</span>লেনদেন</button>
     <button class="nb" onclick="gTab('rep')" id="nb-rep"><span class="ni">📊</span>রিপোর্ট</button>
-    <button class="nb" onclick="gTab('exp')" id="nb-exp"><span class="ni">💸</span>খরচ</button>
+    <button class="nb" onclick="gTab('cal')" id="nb-cal"><span class="ni">📅</span>ক্যালেন্ডার</button>
   </nav>
 </div>
 
@@ -256,9 +288,9 @@ tr:hover td{background:#F5F7FF}
 
 <!-- PIN SCREEN -->
 <div id="pin-screen">
-  <div class="pin-logo">⚡</div>
-  <div class="pin-title">মিরন ইলেকট্রনিক্স</div>
-  <div class="pin-co">AXIION TECHNOLOGY</div>
+  <div class="pin-logo"><div class="me-logo-pin">ME</div></div>
+  <div class="pin-title">Miron Electronics</div>
+  <div class="pin-co">⚡ <span class="brand-axiion">AXIION</span> TECHNOLOGY</div>
   <div class="pin-sub" id="pin-role-label">PIN দিয়ে প্রবেশ করুন</div>
   <div class="pin-dots">
     <div class="pin-dot" id="pd0"></div>
@@ -467,7 +499,7 @@ async function loadAll() {
   S.products = r.products || [];
   S.srs = r.srs || [];
   S.stockMap = r.stockMap || {};
-  document.getElementById('hdr-sub').textContent = S.products.length+'টি পণ্য · '+S.srs.length+' জন SR';
+  document.getElementById('hdr-sub').textContent = S.products.length+'টি পণ্য · '+S.srs.length+' জন DSR/SO';
   if (S.tab==='dash') loadDash();
   else if (S.tab==='prod') renderProd();
   else if (S.tab==='sr') renderSR();
@@ -480,7 +512,7 @@ async function refreshApp() {
   hideOvl();
   if (!r.ok) return toast('রিফ্রেশ ব্যর্থ');
   S.products = r.products||[]; S.srs = r.srs||[]; S.stockMap = r.stockMap||{};
-  document.getElementById('hdr-sub').textContent = S.products.length+'টি পণ্য · '+S.srs.length+' জন SR';
+  document.getElementById('hdr-sub').textContent = S.products.length+'টি পণ্য · '+S.srs.length+' জন DSR/SO';
   toast('✅ রিফ্রেশ সম্পন্ন');
   if (t==='dash') loadDash(true);
   else if (t==='prod') renderProd();
@@ -488,12 +520,13 @@ async function refreshApp() {
   else if (t==='tx') renderTx();
   else if (t==='rep') renderRep();
   else if (t==='exp') loadExpSetup();
+  else if (t==='cal') loadCal(CAL.month||null);
 }
 
 // ════════════════════════════════════════════════════
 //  NAV
 // ════════════════════════════════════════════════════
-var TABS = ['dash','prod','sr','tx','rep','exp'];
+var TABS = ['dash','prod','sr','tx','rep','exp','cal'];
 function gTab(t) {
   S.tab = t;
   TABS.forEach(function(id){
@@ -508,6 +541,7 @@ function gTab(t) {
   if (t==='tx')   renderTx();
   if (t==='rep')  renderRep();
   if (t==='exp')  loadExpSetup();
+  if (t==='cal')  loadCal();
 }
 
 // ════════════════════════════════════════════════════
@@ -577,7 +611,7 @@ function renderDash(d) {
   h+='</div>';
 
   // ── Dues
-  h+='<div class="ct">💰 SR বাকির তালিকা</div><div class="card" style="padding:0;overflow:hidden">';
+  h+='<div class="ct">💰 DSR/SO বাকির তালিকা</div><div class="card" style="padding:0;overflow:hidden">';
   var ad=dues.list.filter(function(s){return s.due!==0||s.givenUnits>0;});
   if (!ad.length) h+='<div style="padding:20px;text-align:center;color:var(--mt2)">কোনো বাকি নেই</div>';
   ad.forEach(function(sr){
@@ -594,7 +628,7 @@ function renderDash(d) {
   h+='<div class="ct">⏱ সাম্প্রতিক লেনদেন</div><div class="card" style="padding:0;overflow:hidden">';
   if (!d.recent||!d.recent.length) h+='<div style="padding:20px;text-align:center;color:var(--mt2)">কোনো লেনদেন নেই</div>';
   else {
-    h+='<div class="tbl-w"><table><thead><tr><th>ধরন</th><th>তারিখ</th><th>SR</th><th>পণ্য</th><th>পিস</th></tr></thead><tbody>';
+    h+='<div class="tbl-w"><table><thead><tr><th>ধরন</th><th>তারিখ</th><th>DSR/SO</th><th>পণ্য</th><th>পিস</th></tr></thead><tbody>';
     d.recent.forEach(function(r){
       h+='<tr><td>'+txBdg(r.type)+'</td><td>'+r.date+'</td><td>'+esc(r.srName||'—')+'</td>';
       h+='<td style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.productName||'—')+'</td>';
@@ -603,7 +637,7 @@ function renderDash(d) {
     h+='</tbody></table></div>';
   }
   h+='</div>';
-  h+='<div style="text-align:center;font-size:10px;color:var(--mt2);padding:8px">Developed by AXIION TECHNOLOGY</div>';
+  h+='<div style="text-align:center;font-size:10px;color:var(--mt2);padding:8px">Miron Electronics · Powered by <span style="color:#FFD700;font-weight:700">AXIION</span></div>';
   document.getElementById('pg-dash').innerHTML = h;
 }
 
@@ -642,7 +676,7 @@ function renderSoDash() {
   h+='<div style="display:flex;justify-content:space-between;font-weight:700;font-size:12px"><span>মোট স্টক</span><span style="color:var(--bl)">'+fn(totalPcs)+' পিস</span></div>';
   h+='<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:3px"><span>মোট মূল্য (বিক্রয়)</span><span style="color:var(--gr);font-weight:700">৳'+fm(totalVal)+'</span></div>';
   h+='</div></div>';
-  h+='<div style="text-align:center;font-size:10px;color:var(--mt2);padding:8px">Developed by AXIION TECHNOLOGY</div>';
+  h+='<div style="text-align:center;font-size:10px;color:var(--mt2);padding:8px">Miron Electronics · Powered by <span style="color:#FFD700;font-weight:700">AXIION</span></div>';
   document.getElementById('pg-dash').innerHTML = h;
   // Also render prod page for SO
   renderProd();
@@ -698,7 +732,7 @@ function renderDsrDash(txs, date) {
   } else {
     h+='<div class="card" style="text-align:center;color:var(--mt2);padding:24px">এই তারিখে কোনো লেনদেন নেই</div>';
   }
-  h+='<div style="text-align:center;font-size:10px;color:var(--mt2);padding:8px">Developed by AXIION TECHNOLOGY</div>';
+  h+='<div style="text-align:center;font-size:10px;color:var(--mt2);padding:8px">Miron Electronics · Powered by <span style="color:#FFD700;font-weight:700">AXIION</span></div>';
   document.getElementById('pg-dash').innerHTML = h;
 }
 
@@ -899,7 +933,7 @@ function renderSR() {
   }
 }
 function buildSRList(canEdit) {
-  if (!S.srs.length) return '<div style="padding:24px;text-align:center;color:var(--mt2)">কোনো SR নেই</div>';
+  if (!S.srs.length) return '<div style="padding:24px;text-align:center;color:var(--mt2)">কোনো DSR/SO নেই</div>';
   var h='<div class="card" style="padding:0;overflow:hidden">';
   S.srs.forEach(function(sr){
     var ti=thumbImg(sr,'50%'), letter=esc(sr.name.charAt(0)||'?');
@@ -930,13 +964,13 @@ function buildSRForm() {
     +'<label class="up-lbl" style="width:76px">📷 ছবি<input type="file" accept="image/*" id="sr-img-inp" style="display:none" onchange="pickImg(this.files[0],\'sr-prv\',\'sr\',5)"></label>'
     +'</div>'
     +'<div style="flex:1">'
-    +'<div class="fg"><label class="fl">SR এর নাম *</label><input id="sf-nm" value="'+(sr?esc(sr.name):'')+'" placeholder="যেমন: রহিম"></div>'
+    +'<div class="fg"><label class="fl">DSR/SO এর নাম *</label><input id="sf-nm" value="'+(sr?esc(sr.name):'')+'" placeholder="যেমন: রহিম"></div>'
     +'<div class="fg"><label class="fl">ভূমিকা (Role)</label><select id="sf-rl"><option value="dsr"'+((!sr||sr.role==='dsr')?' selected':'')+'">🚚 DSR</option><option value="so"'+((sr&&sr.role==='so')?' selected':'')+'">📊 SO</option></select></div>'
     +'<div class="g2"><div class="fg"><label class="fl">ফোন</label><input id="sf-ph" value="'+(sr?esc(sr.phone||''):'')+'" placeholder="017XXXXXXXX"></div>'
     +'<div class="fg"><label class="fl">এলাকা</label><input id="sf-ar" value="'+(sr?esc(sr.area||''):'')+'" placeholder="শাহজাদপুর"></div></div>'
     +'</div></div>'
     +'<div style="display:flex;gap:7px">'
-    +'<button class="btn btn-bl" style="flex:1" onclick="saveSR()">'+(S.editSRId?'✏️ আপডেট':'➕ SR যোগ করুন')+'</button>'
+    +'<button class="btn btn-bl" style="flex:1" onclick="saveSR()">'+(S.editSRId?'✏️ আপডেট':'➕ DSR/SO যোগ করুন')+'</button>'
     +(S.editSRId?'<button class="btn btn-gh" onclick="S.editSRId=null;IMG.sr={full:\'\',name:\'\',thumb:\'\',previewUrl:\'\'};S.srTab=\'list\';renderSR()">বাতিল</button>':'')
     +'</div></div>';
 }
@@ -945,8 +979,8 @@ function buildSRForm() {
 function buildPayForm() {
   var opts=S.srs.map(function(s){return '<option value="'+s.id+'">'+esc(s.name)+(s.area?' ('+esc(s.area)+')':'')+'</option>';}).join('');
   return '<div class="card">'
-    +'<div class="ib">SR থেকে পেমেন্ট পেলে রেকর্ড করুন। মোট = নগদ + কমিশন + ছাড় + ড্যামেজ</div>'
-    +'<div class="fg"><label class="fl">SR *</label><select id="pf-sr"><option value="">-- SR বাছাই করুন --</option>'+opts+'</select></div>'
+    +'<div class="ib">DSR/SO থেকে পেমেন্ট পেলে রেকর্ড করুন। মোট = নগদ + কমিশন + ছাড় + ড্যামেজ</div>'
+    +'<div class="fg"><label class="fl">DSR/SO *</label><select id="pf-sr"><option value="">-- DSR/SO বাছাই করুন --</option>'+opts+'</select></div>'
     +'<div class="fg"><label class="fl">তারিখ</label><input type="date" id="pf-dt" value="'+iso(new Date())+'"></div>'
     +'<div class="g2">'
     +'<div class="fg"><label class="fl">💵 নগদ (Cash)</label><input type="number" id="pf-cash" min="0" placeholder="০" oninput="updPayTotal()"></div>'
@@ -973,16 +1007,16 @@ async function saveSR() {
   showOvl('...');
   var r=S.editSRId?await apiPut('/api/srs',d):await apiPost('/api/srs',d);
   hideOvl();
-  if(r.ok){toast(S.editSRId?'আপডেট হয়েছে':'SR যোগ হয়েছে');S.editSRId=null;IMG.sr={full:'',name:'',thumb:'',previewUrl:''};S.srTab='list';loadAll();}
+  if(r.ok){toast(S.editSRId?'আপডেট হয়েছে':'DSR/SO যোগ হয়েছে');S.editSRId=null;IMG.sr={full:'',name:'',thumb:'',previewUrl:''};S.srTab='list';loadAll();}
   else toast(r.error||'ব্যর্থ');
 }
 async function delSR(id){
-  if(!confirm('SR সরাবেন?'))return;showOvl('...');
+  if(!confirm('DSR/SO সরাবেন?'))return;showOvl('...');
   var r=await apiDel('/api/srs',{id:id});hideOvl();
   if(r.ok){toast('সরানো হয়েছে');loadAll();}else toast(r.error);
 }
 async function savePay() {
-  var srId=v('pf-sr'); if(!srId) return toast('SR বাছাই করুন');
+  var srId=v('pf-sr'); if(!srId) return toast('DSR/SO বাছাই করুন');
   var cash=vn('pf-cash'),comm=vn('pf-comm'),disc=vn('pf-disc'),dmgAmt=vn('pf-dmg');
   var total=cash+comm+disc+dmgAmt;
   if(!total) return toast('কমপক্ষে একটি পরিমাণ দিন');
@@ -1002,8 +1036,8 @@ function renderTx() {
   var t=S.txType;
   document.getElementById('pg-tx').innerHTML='<div class="ct">📝 লেনদেন রেকর্ড করুন</div>'
     +'<div class="tbar">'
-    +'<button class="tb '+(t==='give'?'tg':'')+'\" onclick="S.txType=\'give\';S.giveStep=1;renderTx()">📤 দেওয়া<br><small>SR কে</small></button>'
-    +'<button class="tb '+(t==='return'?'tr_':'')+'\" onclick="S.txType=\'return\';renderTx()">↩️ ফেরত<br><small>SR থেকে</small></button>'
+    +'<button class="tb '+(t==='give'?'tg':'')+'\" onclick="S.txType=\'give\';S.giveStep=1;renderTx()">📤 দেওয়া<br><small>DSR/SO কে</small></button>'
+    +'<button class="tb '+(t==='return'?'tr_':'')+'\" onclick="S.txType=\'return\';renderTx()">↩️ ফেরত<br><small>DSR/SO থেকে</small></button>'
     +'<button class="tb '+(t==='damage'?'td_':'')+'\" onclick="S.txType=\'damage\';renderTx()">⚠️ ড্যামেজ<br><small>দাবি</small></button>'
     +'<button class="tb '+(t==='buy'?'tb_':'')+'\" onclick="S.txType=\'buy\';renderTx()">🛒 কেনা<br><small>কোম্পানি</small></button>'
     +'</div>'
@@ -1012,7 +1046,7 @@ function renderTx() {
 }
 
 function stepBar() {
-  var labs=['SR বাছাই','পণ্য বাছাই','পরিমাণ'], h='<div class="step-ind">';
+  var labs=['DSR/SO বাছাই','পণ্য বাছাই','পরিমাণ'], h='<div class="step-ind">';
   labs.forEach(function(l,i){
     h+='<div class="sdi '+(i<S.giveStep?'sdi-a':'sdi-i')+'">'+(i+1)+'</div>';
     if(i<labs.length-1)h+='<div class="sdl '+(i<S.giveStep-1?'done':'')+'" ></div>';
@@ -1023,8 +1057,8 @@ function stepBar() {
 function buildGiveWiz() {
   if (S.giveStep===1) {
     var opts=S.srs.map(function(s){return '<option value="'+s.id+'">'+esc(s.name)+(s.area?' ('+esc(s.area)+')':'')+'</option>';}).join('');
-    return stepBar()+'<div class="card"><div class="ib">SR কে পণ্য দেওয়াই আপনার বিক্রয়।</div>'
-      +'<div class="fg"><label class="fl">SR *</label><select id="gs-sr"><option value="">-- SR --</option>'+opts+'</select></div>'
+    return stepBar()+'<div class="card"><div class="ib">DSR/SO কে পণ্য দেওয়াই আপনার বিক্রয়।</div>'
+      +'<div class="fg"><label class="fl">DSR/SO *</label><select id="gs-sr"><option value="">-- DSR/SO --</option>'+opts+'</select></div>'
       +'<div class="fg"><label class="fl">তারিখ</label><input type="date" id="gs-dt" value="'+(S.giveDate||iso(new Date()))+'"></div>'
       +'<button class="btn btn-bl btn-w" onclick="gNext1()">পণ্য বাছাই করুন →</button></div>';
   }
@@ -1085,7 +1119,7 @@ function updGiveSub(i) {
   if(gEl)gEl.innerHTML='<span>মোট: '+grandU+' পিস</span><span>৳'+fm(grand)+'</span>';
 }
 
-function gNext1(){S.giveSRId=v('gs-sr');S.giveDate=v('gs-dt')||iso(new Date());if(!S.giveSRId)return toast('SR বাছাই করুন');var sr=S.srs.find(function(s){return s.id===S.giveSRId;});S.giveSRName=sr?sr.name:'';S.giveArea=sr?sr.area||'':'';S.giveStep=2;renderTx();}
+function gNext1(){S.giveSRId=v('gs-sr');S.giveDate=v('gs-dt')||iso(new Date());if(!S.giveSRId)return toast('DSR/SO বাছাই করুন');var sr=S.srs.find(function(s){return s.id===S.giveSRId;});S.giveSRName=sr?sr.name:'';S.giveArea=sr?sr.area||'':'';S.giveStep=2;renderTx();}
 function togProd(id){S.giveSelProd[id]=!S.giveSelProd[id];renderTx();}
 function selAll(){var el=document.getElementById('chk-all');if(!el)return;S.products.forEach(function(p){S.giveSelProd[p.id]=el.checked;});renderTx();}
 function gNext2(){var sel=S.products.filter(function(p){return S.giveSelProd[p.id];});if(!sel.length)return toast('কমপক্ষে একটি পণ্য বাছাই করুন');var ex={};S.giveItems.forEach(function(i){ex[i.productId]={cases:i.cases,pcs:i.pcs};});S.giveItems=sel.map(function(p){return{productId:p.id,cases:ex[p.id]?ex[p.id].cases:'',pcs:ex[p.id]?ex[p.id].pcs:''};});S.giveStep=3;renderTx();setTimeout(function(){S.giveItems.forEach(function(_,i){updGiveSub(i);});},0);}
@@ -1111,13 +1145,13 @@ async function saveGive(){
 function buildSimpleTx() {
   var t=S.txType;
   var info='';
-  if(t==='return')info='<div class="gib">SR অবিক্রীত পণ্য ফেরত দিলে রেকর্ড করুন।</div>';
+  if(t==='return')info='<div class="gib">DSR/SO অবিক্রীত পণ্য ফেরত দিলে রেকর্ড করুন।</div>';
   if(t==='damage')info='<div class="wb">⚠️ ড্যামেজ পণ্য — ক্রয় মূল্যে কোম্পানির কাছে দাবি হবে।</div>';
   if(t==='buy')info='<div class="gib">কোম্পানি থেকে পণ্য কিনলে রেকর্ড করুন। স্টক বাড়বে।</div>';
   var srOpts=S.srs.map(function(s){return '<option value="'+s.id+'">'+esc(s.name)+(s.area?' ('+esc(s.area)+')':'')+'</option>';}).join('');
   var nr=t==='return'||t==='damage';
   return info+'<div class="card">'
-    +(nr?'<div class="fg"><label class="fl">SR *</label><select id="tx-sr"><option value="">-- SR --</option>'+srOpts+'</select></div>':'')
+    +(nr?'<div class="fg"><label class="fl">DSR/SO *</label><select id="tx-sr"><option value="">-- DSR/SO --</option>'+srOpts+'</select></div>':'')
     +'<div class="g2" style="margin-bottom:10px"><div><label class="fl">তারিখ</label><input type="date" id="tx-dt" value="'+iso(new Date())+'"></div><div><label class="fl">নোট</label><input id="tx-nt" placeholder="ঐচ্ছিক"></div></div>'
     +'<label class="fl" style="margin-bottom:7px">পণ্য তালিকা</label>'
     +'<div id="tx-rows"></div>'
@@ -1172,7 +1206,7 @@ function addTxRow(){S.txItems.push({productId:'',cases:'',pcs:''});renderTxRows(
 
 async function saveTx(){
   var t=S.txType,nr=t==='return'||t==='damage';
-  var srId=nr?v('tx-sr'):''; if(nr&&!srId)return toast('SR বাছাই করুন');
+  var srId=nr?v('tx-sr'):''; if(nr&&!srId)return toast('DSR/SO বাছাই করুন');
   var valid=S.txItems.filter(function(i){return i.productId&&(num(i.cases)+num(i.pcs))>0;});
   if(!valid.length)return toast('পরিমাণ দিন');
   var sr=srId?S.srs.find(function(s){return s.id===srId;}):null;
@@ -1221,20 +1255,20 @@ function openSlipWin(slip) {
     +'.btns button{flex:1;padding:12px 0;border:none;border-radius:8px;font-size:13px;font-family:\'Hind Siliguri\',sans-serif;font-weight:700;cursor:pointer}'
     +'.bp{background:#0D47A1;color:#fff}.bc{background:#f0f0f0;color:#333}'
     +'@media print{.btns{display:none}body{padding:8px}}</style></head><body>'
-    +'<div class="hdr"><div class="logo">⚡</div><div class="co">'
-    +'<div class="co-name">AXIION স্টক ম্যানেজমেন্ট</div>'
-    +'<div style="font-size:11px;font-weight:700;color:#0D47A1;margin-top:2px">⚡ AXIION TECHNOLOGY</div>'
+    +'<div class="hdr"><div class="logo" style="font-size:18px;font-weight:900;color:#0D47A1">ME</div><div class="co">'
+    +'<div class="co-name">Miron Electronics</div>'
+    +'<div style="font-size:11px;font-weight:700;color:#FFD700;margin-top:2px;background:#0D47A1;padding:1px 6px;border-radius:4px;display:inline-block">⚡ AXIION</div>'
     +'<div class="co-addr">স্টক সরবরাহ ও বিক্রয় স্লিপ</div>'
     +'</div></div>'
     +'<div class="slip-t">— স্টক সরবরাহ স্লিপ —</div>'
     +'<table class="meta"><tr><td class="mk">স্লিপ নং</td><td class="mv">'+slip.slipNo+'</td></tr>'
     +'<tr><td class="mk">তারিখ</td><td class="mv">'+fmtBn(slip.date)+'</td></tr>'
-    +'<tr><td class="mk">SR নাম</td><td class="mv"><strong>'+esc(slip.srName)+'</strong>'+(slip.srArea?' | '+esc(slip.srArea):'')+'</td></tr></table>'
+    +'<tr><td class="mk">DSR/SO নাম</td><td class="mv"><strong>'+esc(slip.srName)+'</strong>'+(slip.srArea?' | '+esc(slip.srArea):'')+'</td></tr></table>'
     +'<table class="stbl"><thead><tr><th style="width:44%">পণ্য / SKU</th><th style="text-align:center;width:12%">কেস</th><th style="text-align:center;width:12%">পিস</th><th style="text-align:center;width:14%">মোট পিস</th><th style="text-align:right;width:18%">মূল্য</th></tr></thead>'
     +'<tbody>'+rows+'</tbody>'
     +'<tfoot><tr><td colspan="4" style="text-align:right;padding:7px 8px">মোট পরিমাণ →</td><td style="text-align:right;padding:7px 8px;color:#0D47A1;font-size:14px">৳'+fm(total)+'</td></tr></tfoot></table>'
     +'<div class="sigs"><div class="sig"><div class="sig-line">জারি করেছেন</div></div><div class="sig"><div class="sig-line">গ্রহণ করেছেন</div></div></div>'
-    +'<div class="ftr">Developed by AXIION TECHNOLOGY | '+new Date().toLocaleString('bn-BD')+'</div>'
+    +'<div class="ftr">Miron Electronics · Powered by AXIION | '+new Date().toLocaleString('bn-BD')+'</div>'
     +'<div class="btns"><button class="bp" onclick="setTimeout(function(){window.print();},300)">📄 PDF ডাউনলোড / প্রিন্ট</button><button class="bc" onclick="window.close()">✕ বন্ধ করুন</button></div>'
     +'</body></html>';
   var win=window.open('','_blank','width=480,height=740,scrollbars=yes,toolbar=no');
@@ -1302,7 +1336,7 @@ function renderRepResult(r) {
     +'</div>';
 
   if(r.srPerformance&&r.srPerformance.length){
-    h+='<div class="ct">🏆 SR পারফরম্যান্স</div><div class="card" style="padding:0;overflow:hidden">';
+    h+='<div class="ct">🏆 DSR/SO পারফরম্যান্স</div><div class="card" style="padding:0;overflow:hidden">';
     var maxS=r.srPerformance[0].soldUnits||1;
     r.srPerformance.forEach(function(sr,i){
       var pct=Math.round((sr.soldUnits/maxS)*100);
@@ -1442,7 +1476,7 @@ async function loadPayReport() {
   h+='<div class="pay-row" style="font-size:14px;padding-top:8px;border-top:2px solid var(--bl)"><span style="font-weight:700">সর্বমোট পেমেন্ট</span><span style="color:var(--bl);font-weight:700">৳'+fm(r.totalAmt)+'</span></div>';
   h+='</div>';
   if(r.rows&&r.rows.length){
-    h+='<div class="ct">বিস্তারিত তালিকা</div><div class="card" style="padding:0;overflow:hidden"><div class="tbl-w"><table><thead><tr><th>SR</th><th>তারিখ</th><th>নগদ</th><th>কমিশন</th><th>ছাড়</th><th>ড্যামেজ</th><th>মোট</th></tr></thead><tbody>';
+    h+='<div class="ct">বিস্তারিত তালিকা</div><div class="card" style="padding:0;overflow:hidden"><div class="tbl-w"><table><thead><tr><th>DSR/SO</th><th>তারিখ</th><th>নগদ</th><th>কমিশন</th><th>ছাড়</th><th>ড্যামেজ</th><th>মোট</th></tr></thead><tbody>';
     r.rows.forEach(function(row){
       h+='<tr><td>'+esc(row.srName)+'</td><td>'+row.date+'</td><td>'+fm(row.cashAmount)+'</td><td>'+fm(row.commissionAmt)+'</td><td>'+fm(row.discountAmt)+'</td><td style="color:var(--re)">'+fm(row.damageAmt)+'</td><td style="font-weight:700">৳'+fm(row.amount)+'</td></tr>';
     });
@@ -1576,6 +1610,248 @@ function showOvl(m){document.getElementById('ovl-m').textContent=m||'লোড �
 function hideOvl(){document.getElementById('ovl').style.display='none';clearTimeout(_ot);}
 var _tt;
 function toast(m){var e=document.getElementById('tst');e.textContent=m;e.style.display='block';clearTimeout(_tt);_tt=setTimeout(function(){e.style.display='none';},3200);}
+
+// ════════════════════════════════════════════════════
+//  DUE CALENDAR
+// ════════════════════════════════════════════════════
+var CAL = { month:'', dues:[], selDate:'' };
+
+function calMonthStr(offset) {
+  var d = new Date(); d.setDate(1);
+  d.setMonth(d.getMonth() + (offset||0));
+  return d.toISOString().slice(0,7);
+}
+
+async function loadCal(monthStr) {
+  if (!CAL.month) CAL.month = calMonthStr(0);
+  if (monthStr) CAL.month = monthStr;
+  showOvl('ক্যালেন্ডার লোড হচ্ছে...');
+  var r = await apiGet('/api/due-calendar?month=' + CAL.month);
+  hideOvl();
+  if (!r.ok) return toast('লোড ব্যর্থ: ' + (r.error||''));
+  CAL.dues = r.dues || [];
+  renderCal();
+}
+
+function renderCal() {
+  var el = document.getElementById('pg-cal');
+  var canEdit = S.role === 'owner' || S.role === 'manager';
+  var today = iso(new Date());
+  var [yr, mo] = CAL.month.split('-').map(Number);
+  var monthDate = new Date(yr, mo-1, 1);
+  var monthName = monthDate.toLocaleDateString('bn-BD', {year:'numeric', month:'long'});
+  var daysInMonth = new Date(yr, mo, 0).getDate();
+  var firstDay = new Date(yr, mo-1, 1).getDay(); // 0=Sun
+
+  // Build a map: date string -> dues array
+  var dueMap = {};
+  CAL.dues.forEach(function(d) {
+    if (!dueMap[d.dueDate]) dueMap[d.dueDate] = [];
+    dueMap[d.dueDate].push(d);
+  });
+
+  var totalPending = CAL.dues.filter(function(d){return d.status==='pending';}).reduce(function(s,d){return s+num(d.amount);},0);
+  var totalCleared = CAL.dues.filter(function(d){return d.status==='cleared';}).reduce(function(s,d){return s+num(d.amount);},0);
+
+  var h = '';
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
+  h += '<button class="btn btn-gh btn-sm" onclick="loadCal(prevCalMonth())">◀ আগের মাস</button>';
+  h += '<div style="font-size:15px;font-weight:700;color:var(--bl)">📅 '+monthName+'</div>';
+  h += '<button class="btn btn-gh btn-sm" onclick="loadCal(nextCalMonth())">পরের মাস ▶</button>';
+  h += '</div>';
+
+  // Summary
+  h += '<div class="mets" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:12px">';
+  h += '<div class="met"><div class="ml">মোট বাকি</div><div class="mv" style="color:var(--re);font-size:15px">৳'+fm(totalPending)+'</div></div>';
+  h += '<div class="met"><div class="ml">পরিশোধিত</div><div class="mv" style="color:var(--gr);font-size:15px">৳'+fm(totalCleared)+'</div></div>';
+  h += '<div class="met"><div class="ml">এন্ট্রি</div><div class="mv" style="font-size:15px">'+CAL.dues.length+'টি</div></div>';
+  h += '</div>';
+
+  // Legend
+  h += '<div class="cal-legend">';
+  h += '<div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--rel);border:1.5px solid var(--re)"></div> বাকি আছে</div>';
+  h += '<div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--grl);border:1.5px solid var(--gr)"></div> পরিশোধিত</div>';
+  h += '<div class="cal-leg-item"><div class="cal-leg-dot" style="background:#FFF8E1;border:1.5px solid var(--am)"></div> মিশ্র</div>';
+  h += '</div>';
+
+  // Calendar grid
+  h += '<div class="card" style="padding:10px;margin-bottom:10px">';
+  h += '<div class="cal-grid">';
+  var dayLabels = ['রবি','সোম','মঙ্গ','বুধ','বৃহ','শুক্র','শনি'];
+  dayLabels.forEach(function(d){ h += '<div class="cal-day-hdr">'+d+'</div>'; });
+
+  // Empty cells before first day
+  for (var i=0; i<firstDay; i++) h += '<div class="cal-cell empty"></div>';
+
+  // Day cells
+  for (var day=1; day<=daysInMonth; day++) {
+    var mm = String(mo).padStart(2,'0'), dd = String(day).padStart(2,'0');
+    var dateStr = yr+'-'+mm+'-'+dd;
+    var dayDues = dueMap[dateStr] || [];
+    var hasDue = dayDues.length > 0;
+    var allPaid = hasDue && dayDues.every(function(d){return d.status==='cleared';});
+    var allPending = hasDue && dayDues.every(function(d){return d.status==='pending';});
+    var isTdy = dateStr === today;
+
+    var cls = 'cal-cell';
+    if (isTdy) cls += ' today-cell';
+    if (hasDue && allPaid)    cls += ' has-due all-paid';
+    else if (hasDue && allPending) cls += ' has-due';
+    else if (hasDue)          cls += ' has-due mixed';
+
+    var dotHtml = '';
+    if (hasDue) {
+      if (allPaid)    dotHtml = '<div class="cal-dot cal-dot-gr"></div>';
+      else if (allPending) dotHtml = '<div class="cal-dot cal-dot-re"></div>';
+      else            dotHtml = '<div class="cal-dot cal-dot-am"></div>';
+    }
+
+    h += '<div class="'+cls+'" onclick="calDayClick(\''+dateStr+'\')">';
+    h += '<div class="cal-day-num" style="color:'+(isTdy?'var(--bl)':'var(--txt)')+'">'+(isTdy?'<strong>'+day+'</strong>':day)+'</div>';
+    h += dotHtml;
+    if (hasDue) h += '<div style="font-size:8px;color:var(--mt);margin-top:1px">'+dayDues.length+'টি</div>';
+    h += '</div>';
+  }
+  h += '</div></div>';
+
+  // Add new due button
+  if (canEdit) {
+    h += '<button class="btn btn-bl btn-w" onclick="calAddModal(\'\')">➕ নতুন বাকি যোগ করুন</button>';
+    h += '<div style="height:10px"></div>';
+  }
+
+  // All entries list for this month
+  if (CAL.dues.length) {
+    h += '<div class="ct">📋 এই মাসের সব এন্ট্রি</div>';
+    h += '<div class="card" style="padding:0;overflow:hidden">';
+    CAL.dues.slice().sort(function(a,b){return a.dueDate.localeCompare(b.dueDate);}).forEach(function(d){
+      var isPending = d.status === 'pending';
+      h += '<div class="due-item">';
+      h += '<div>';
+      h += '<div style="font-weight:700;font-size:13px">'+fmtBn(d.dueDate)+'</div>';
+      h += '<div style="font-size:11px;color:var(--mt)">'+(d.dsrName||'—')+(d.note?' · '+esc(d.note):'')+'</div>';
+      h += '<div class="'+(isPending?'status-pending':'status-cleared')+'">'+(isPending?'🔴 বাকি':'🟢 পরিশোধিত')+'</div>';
+      h += '</div>';
+      h += '<div style="text-align:right;min-width:80px">';
+      h += '<div style="font-size:16px;font-weight:700;color:'+(isPending?'var(--re)':'var(--gr)')+'">৳'+fm(d.amount)+'</div>';
+      if (canEdit) {
+        if (isPending) {
+          h += '<button class="btn btn-sm" style="background:var(--grl);color:var(--gr);margin-top:4px" onclick="calClear(\''+d.id+'\')">✅ পরিশোধ</button>';
+        } else {
+          h += '<button class="btn btn-sm btn-gh" style="margin-top:4px" onclick="calUndo(\''+d.id+'\')">↩️ পূর্বাবস্থা</button>';
+        }
+      }
+      h += '</div></div>';
+    });
+    h += '</div>';
+  }
+
+  h += '<div style="text-align:center;font-size:10px;color:var(--mt2);padding:8px">Miron Electronics · Powered by <span style="color:#FFD700;font-weight:700">AXIION</span></div>';
+  el.innerHTML = h;
+}
+
+function prevCalMonth() {
+  var [yr,mo] = CAL.month.split('-').map(Number);
+  mo--; if(mo<1){mo=12;yr--;}
+  return yr+'-'+String(mo).padStart(2,'0');
+}
+function nextCalMonth() {
+  var [yr,mo] = CAL.month.split('-').map(Number);
+  mo++; if(mo>12){mo=1;yr++;}
+  return yr+'-'+String(mo).padStart(2,'0');
+}
+
+function calDayClick(dateStr) {
+  var dayDues = CAL.dues.filter(function(d){return d.dueDate===dateStr;});
+  var canEdit = S.role==='owner'||S.role==='manager';
+  var modal = document.createElement('div');
+  modal.className = 'due-modal-bg';
+  modal.onclick = function(e){if(e.target===modal)document.body.removeChild(modal);};
+  var h = '<div class="due-modal">';
+  h += '<div class="due-modal-title">📅 '+fmtBn(dateStr)+'</div>';
+  if (!dayDues.length) {
+    h += '<div style="text-align:center;color:var(--mt2);padding:20px 0">এই দিনে কোনো বাকি নেই</div>';
+    if (canEdit) h += '<button class="btn btn-bl btn-w" onclick="document.body.removeChild(document.querySelector(\'.due-modal-bg\'));calAddModal(\''+dateStr+'\')">➕ এই দিনে বাকি যোগ করুন</button>';
+  } else {
+    dayDues.forEach(function(d){
+      var isPending = d.status==='pending';
+      h += '<div class="due-item">';
+      h += '<div><div style="font-weight:700">'+(d.dsrName||'—')+'</div>';
+      h += '<div style="font-size:11px;color:var(--mt)">'+(d.note||'')+'</div>';
+      h += '<div class="'+(isPending?'status-pending':'status-cleared')+'">'+(isPending?'🔴 বাকি':'🟢 পরিশোধিত')+'</div></div>';
+      h += '<div style="text-align:right">';
+      h += '<div style="font-size:16px;font-weight:700;color:'+(isPending?'var(--re)':'var(--gr)')+'">৳'+fm(d.amount)+'</div>';
+      if (canEdit) {
+        if (isPending) {
+          h += '<button class="btn btn-sm" style="background:var(--grl);color:var(--gr);margin-top:4px" onclick="document.body.removeChild(document.querySelector(\'.due-modal-bg\'));calClear(\''+d.id+'\')">✅ পরিশোধ</button>';
+        } else {
+          h += '<button class="btn btn-sm btn-gh" style="margin-top:4px" onclick="document.body.removeChild(document.querySelector(\'.due-modal-bg\'));calUndo(\''+d.id+'\')">↩️ পূর্বাবস্থা</button>';
+        }
+      }
+      h += '</div></div>';
+    });
+    if (canEdit) h += '<div style="margin-top:10px"><button class="btn btn-bl btn-w" onclick="document.body.removeChild(document.querySelector(\'.due-modal-bg\'));calAddModal(\''+dateStr+'\')">➕ আরো যোগ করুন</button></div>';
+  }
+  h += '<div style="margin-top:14px"><button class="btn btn-gh btn-w" onclick="document.body.removeChild(document.querySelector(\'.due-modal-bg\'))">বন্ধ করুন</button></div>';
+  h += '</div>';
+  modal.innerHTML = h;
+  document.body.appendChild(modal);
+}
+
+function calAddModal(prefillDate) {
+  var canEdit = S.role==='owner'||S.role==='manager';
+  if (!canEdit) return;
+  var modal = document.createElement('div');
+  modal.className = 'due-modal-bg';
+  modal.onclick = function(e){if(e.target===modal)document.body.removeChild(modal);};
+  var srOpts = S.srs.map(function(s){return '<option value="'+s.id+'|'+esc(s.name)+'">'+esc(s.name)+'</option>';}).join('');
+  var h = '<div class="due-modal">';
+  h += '<div class="due-modal-title">➕ নতুন বাকি এন্ট্রি</div>';
+  h += '<div class="fg"><label class="fl">DSR/SO বাছাই করুন</label><select id="cal-sr"><option value="">-- নির্বাচন করুন --</option>'+srOpts+'</select></div>';
+  h += '<div class="fg"><label class="fl">বাকির তারিখ *</label><input type="date" id="cal-dt" value="'+(prefillDate||iso(new Date()))+'"></div>';
+  h += '<div class="fg"><label class="fl">পরিমাণ (৳) *</label><input type="number" id="cal-am" min="0" placeholder="0"></div>';
+  h += '<div class="fg"><label class="fl">নোট</label><input id="cal-nt" placeholder="ঐচ্ছিক"></div>';
+  h += '<div style="display:flex;gap:8px;margin-top:4px">';
+  h += '<button class="btn btn-bl" style="flex:1" onclick="calSaveNew()">💾 সংরক্ষণ করুন</button>';
+  h += '<button class="btn btn-gh" onclick="document.body.removeChild(document.querySelector(\'.due-modal-bg\'))">বাতিল</button>';
+  h += '</div></div>';
+  modal.innerHTML = h;
+  document.body.appendChild(modal);
+}
+
+async function calSaveNew() {
+  var srVal = v('cal-sr'); var dsrId='', dsrName='';
+  if (srVal) { var pts=srVal.split('|'); dsrId=pts[0]; dsrName=pts.slice(1).join('|'); }
+  var dueDate = v('cal-dt');
+  var amount  = vn('cal-am');
+  var note    = v('cal-nt');
+  if (!dueDate) return toast('তারিখ দিন');
+  if (!amount)  return toast('পরিমাণ দিন');
+  var modal = document.querySelector('.due-modal-bg');
+  if (modal) document.body.removeChild(modal);
+  showOvl('সংরক্ষণ হচ্ছে...');
+  var r = await apiPost('/api/due-calendar', {dsrId:dsrId, dsrName:dsrName, dueDate:dueDate, amount:amount, note:note});
+  hideOvl();
+  if (r.ok) { toast('✅ বাকি এন্ট্রি যোগ হয়েছে'); loadCal(CAL.month); }
+  else toast(r.error||'ব্যর্থ');
+}
+
+async function calClear(id) {
+  if (!confirm('এই বাকি পরিশোধ হিসেবে চিহ্নিত করবেন?')) return;
+  showOvl('আপডেট হচ্ছে...');
+  var r = await apiPut('/api/due-calendar', {id:id, status:'cleared'});
+  hideOvl();
+  if (r.ok) { toast('🟢 পরিশোধিত চিহ্নিত হয়েছে'); loadCal(CAL.month); }
+  else toast(r.error||'ব্যর্থ');
+}
+
+async function calUndo(id) {
+  showOvl('আপডেট হচ্ছে...');
+  var r = await apiPut('/api/due-calendar', {id:id, status:'pending'});
+  hideOvl();
+  if (r.ok) { toast('🔴 বাকি হিসেবে পুনরায় চিহ্নিত'); loadCal(CAL.month); }
+  else toast(r.error||'ব্যর্থ');
+}
 </script>
 </body>
 </html>
