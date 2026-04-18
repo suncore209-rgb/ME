@@ -1415,11 +1415,15 @@ function _showSlipSharePanel(slipNo, slipBodyHtml) {
           }
 
           // JPG Download
+          var base64Only=jpgDataUrl.split(',')[1];
+
+          // JPG Download
           acts.appendChild(mkBtn('🖼️  JPG ডাউনলোড করুন','#1565C0',function(){
-            var a=document.createElement('a');
-            a.href=jpgDataUrl;
-            a.download='slip_'+slipNo+'.jpg';
-            a.click();
+            if(window.AndroidBridge){
+              window.AndroidBridge.saveJpg(base64Only,'slip_'+slipNo+'.jpg');
+            } else {
+              var a=document.createElement('a');a.href=jpgDataUrl;a.download='slip_'+slipNo+'.jpg';a.click();
+            }
           }));
 
           // PDF / Print
@@ -1428,22 +1432,17 @@ function _showSlipSharePanel(slipNo, slipBodyHtml) {
             if(w){w.document.write(pdfHtml);w.document.close();setTimeout(function(){w.print();},800);}
           }));
 
-          // WhatsApp share (works on mobile — shares the JPG as file via Web Share API if available, else wa.me)
+          // WhatsApp
           acts.appendChild(mkBtn('📲  WhatsApp এ পাঠান','#25D366',function(){
-            if(navigator.share&&navigator.canShare){
-              // Convert dataURL to Blob → File
+            if(window.AndroidBridge){
+              window.AndroidBridge.shareWhatsApp(base64Only,'slip_'+slipNo+'.jpg','com.whatsapp');
+            } else if(navigator.share&&navigator.canShare){
               fetch(jpgDataUrl).then(function(r){return r.blob();}).then(function(blob){
                 var file=new File([blob],'slip_'+slipNo+'.jpg',{type:'image/jpeg'});
-                if(navigator.canShare({files:[file]})){
-                  navigator.share({files:[file],title:'স্লিপ '+slipNo});
-                } else {
-                  // Fallback: download + open WA
-                  var a=document.createElement('a');a.href=jpgDataUrl;a.download='slip_'+slipNo+'.jpg';a.click();
-                  setTimeout(function(){window.open('https://wa.me/','_blank');},1000);
-                }
+                if(navigator.canShare({files:[file]})) navigator.share({files:[file],title:'স্লিপ '+slipNo});
+                else { var a=document.createElement('a');a.href=jpgDataUrl;a.download='slip_'+slipNo+'.jpg';a.click(); }
               });
             } else {
-              // Desktop fallback: download then open WA web
               var a=document.createElement('a');a.href=jpgDataUrl;a.download='slip_'+slipNo+'.jpg';a.click();
               setTimeout(function(){window.open('https://web.whatsapp.com/','_blank');},1000);
             }
@@ -1451,14 +1450,13 @@ function _showSlipSharePanel(slipNo, slipBodyHtml) {
 
           // WA Business
           acts.appendChild(mkBtn('💼  WA Business এ পাঠান','#075E54',function(){
-            if(navigator.share&&navigator.canShare){
+            if(window.AndroidBridge){
+              window.AndroidBridge.shareWhatsApp(base64Only,'slip_'+slipNo+'.jpg','com.whatsapp.w4b');
+            } else if(navigator.share&&navigator.canShare){
               fetch(jpgDataUrl).then(function(r){return r.blob();}).then(function(blob){
                 var file=new File([blob],'slip_'+slipNo+'.jpg',{type:'image/jpeg'});
-                if(navigator.canShare({files:[file]})){
-                  navigator.share({files:[file],title:'স্লিপ '+slipNo});
-                } else {
-                  var a=document.createElement('a');a.href=jpgDataUrl;a.download='slip_'+slipNo+'.jpg';a.click();
-                }
+                if(navigator.canShare({files:[file]})) navigator.share({files:[file],title:'স্লিপ '+slipNo});
+                else { var a=document.createElement('a');a.href=jpgDataUrl;a.download='slip_'+slipNo+'.jpg';a.click(); }
               });
             } else {
               var a=document.createElement('a');a.href=jpgDataUrl;a.download='slip_'+slipNo+'.jpg';a.click();
