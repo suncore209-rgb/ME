@@ -1288,11 +1288,11 @@ function openSlipWin(slip) {
     +'.bp{background:#111;color:#fff}.bc{background:#eee;color:#333}'
     +'@media print{.btns{display:none}body{padding:8px}* {-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}</style></head><body>'
     +'<div class="hdr"><div class="logo">ME</div><div class="co">'
-    +'<div class="co-name">মিরন ইলেকট্রনিক্স</div>'
-    +'<div style="font-size:11px;font-weight:700;color:#333;margin-top:2px;background:#e0e0e0;padding:1px 6px;border-radius:4px;display:inline-block"> ঠিকানা: বিসিক রোড, প্রগতি স্কুলের উত্তর পাশে, শাহজাদপুর, সিরাজগঞ্জ </div>'
+    +'<div class="co-name">Miron Electronics</div>'
+    +'<div style="font-size:11px;font-weight:700;color:#333;margin-top:2px;background:#e0e0e0;padding:1px 6px;border-radius:4px;display:inline-block">⚡ AXIION TECHNOLOGY</div>'
     +'<div class="co-addr">স্টক সরবরাহ ও বিক্রয় স্লিপ</div>'
     +'</div></div>'
-    +'<div class="slip-t">মোবাইল: ০১৭৪৭-২০৩০৫৫</div>'
+    +'<div class="slip-t">— স্টক সরবরাহ স্লিপ —</div>'
     +'<table class="meta"><tr><td class="mk">স্লিপ নং</td><td class="mv">'+slip.slipNo+'</td></tr>'
     +'<tr><td class="mk">তারিখ</td><td class="mv">'+fmtBn(slip.date)+'</td></tr>'
     +'<tr><td class="mk">DSR/SO নাম</td><td class="mv"><strong>'+esc(slip.srName)+'</strong>'+(slip.srArea?' | '+esc(slip.srArea):'')+'</td></tr></table>'
@@ -1303,9 +1303,14 @@ function openSlipWin(slip) {
     +'<div class="ftr">Miron Electronics · Powered by AXIION | '+new Date().toLocaleString('bn-BD')+'</div>'
     +'<div class="btns"><button class="bp" onclick="setTimeout(function(){window.print();},300)">📄 PDF ডাউনলোড / প্রিন্ট</button><button class="bc" onclick="window.close()">✕ বন্ধ করুন</button></div>'
     +'</body></html>';
+  // ── Android WebView: send HTML directly to native bridge ──
+  if (window.AndroidSlip && typeof window.AndroidSlip.receiveSlipHtml === 'function') {
+    window.AndroidSlip.receiveSlipHtml(html);
+    return;
+  }
+  // ── Browser: open print popup ──
   var win=window.open('','_blank','width=480,height=740,scrollbars=yes,toolbar=no');
   if(win){win.document.write(html);win.document.close();}
-  else if(window.AndroidSlip){window.AndroidSlip.receiveSlip(html,'');}
   else toast('পপআপ ব্লক — ব্রাউজারে অনুমতি দিন');
 }
 
