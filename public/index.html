@@ -1305,6 +1305,7 @@ function openSlipWin(slip) {
     +'</body></html>';
   var win=window.open('','_blank','width=480,height=740,scrollbars=yes,toolbar=no');
   if(win){win.document.write(html);win.document.close();}
+  else if(window.AndroidSlip){window.AndroidSlip.receiveSlip(html,'');}
   else toast('পপআপ ব্লক — ব্রাউজারে অনুমতি দিন');
 }
 
