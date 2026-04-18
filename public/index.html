@@ -47,8 +47,9 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--txt
 .pages{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .page{padding:12px 12px 72px;max-width:640px;margin:0 auto;display:none}
 .page.active{display:block}
-.nav{flex-shrink:0;background:#fff;border-top:1px solid var(--bdr);display:flex;height:56px}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:none;border:none;font-size:8px;color:var(--mt2);cursor:pointer;padding:3px 1px;font-family:'Hind Siliguri',sans-serif;transition:.15s}
+.nav{flex-shrink:0;background:#fff;border-top:1px solid var(--bdr);display:flex;height:56px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nb{flex:0 0 calc(100%/7);min-width:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:none;border:none;font-size:7.5px;color:var(--mt2);cursor:pointer;padding:3px 1px;font-family:'Hind Siliguri',sans-serif;transition:.15s}
 .nb.active{color:var(--bl)}.ni{font-size:18px;line-height:1}
 
 .card{background:var(--card);border-radius:var(--rad);box-shadow:var(--shad);padding:12px;margin-bottom:10px;border:1px solid var(--bdr)}
@@ -279,6 +280,7 @@ tr:hover td{background:#F5F7FF}
     <button class="nb" onclick="gTab('sr')" id="nb-sr"><span class="ni">👤</span>DSR/SO</button>
     <button class="nb" onclick="gTab('tx')" id="nb-tx"><span class="ni">📝</span>লেনদেন</button>
     <button class="nb" onclick="gTab('rep')" id="nb-rep"><span class="ni">📊</span>রিপোর্ট</button>
+    <button class="nb" onclick="gTab('exp')" id="nb-exp"><span class="ni">💸</span>খরচ</button>
     <button class="nb" onclick="gTab('cal')" id="nb-cal"><span class="ni">📅</span>ক্যালেন্ডার</button>
   </nav>
 </div>
@@ -386,12 +388,12 @@ function applyRole() {
   if (badge) badge.textContent = ROLE_LABELS[r] || r;
   // Nav visibility per role
   var show = {
-    owner:   ['dash','prod','sr','tx','rep','exp'],
-    manager: ['dash','prod','sr','tx','rep','exp'],
+    owner:   ['dash','prod','sr','tx','rep','exp','cal'],
+    manager: ['dash','prod','sr','tx','rep','exp','cal'],
     so:      ['dash','prod'],
     dsr:     ['dash']
   }[r] || ['dash'];
-  ['dash','prod','sr','tx','rep','exp'].forEach(function(t) {
+  ['dash','prod','sr','tx','rep','exp','cal'].forEach(function(t) {
     var el = document.getElementById('nb-'+t);
     if (el) el.style.display = show.indexOf(t) >= 0 ? '' : 'none';
   });
