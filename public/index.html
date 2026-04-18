@@ -401,7 +401,7 @@ function applyRole() {
 function logout() {
   if (!confirm('লগআউট করবেন?')) return;
   sessionStorage.removeItem('axiion_role');
-  S.role = ''; _pinBuf = ''; _dashCache = null;
+  S.role = ''; _pinBuf = ''; _dashCache = null; S.dsrMode = 'today';
   updatePinDots();
   document.getElementById('app').classList.remove('show');
   var spl = document.getElementById('spl');
@@ -467,8 +467,10 @@ var S = {
   prodTab:'list', editProdId:null,
   rptMode:'daily', rptDate:'', rptMonth:'', rptFrom:'', rptTo:'',
   lastSlip:null, expCats:[], expDate:'', expTab:'entry',
-  dsrDate: '', dsrData: null
+  dsrDate: '', dsrFrom: '', dsrTo: '', dsrMode: 'today', dsrData: null
 };
+
+function renderDsrFilter() { loadDsrDash(); }
 var _dashCache=null, _dashTime=0, DASH_TTL=60000;
 
 // ════════════════════════════════════════════════════
@@ -476,7 +478,7 @@ var _dashCache=null, _dashTime=0, DASH_TTL=60000;
 // ════════════════════════════════════════════════════
 window.addEventListener('load', function() {
   var n = new Date();
-  S.giveDate = S.rptDate = S.rptFrom = S.rptTo = S.expDate = S.dsrDate = iso(n);
+  S.giveDate = S.rptDate = S.rptFrom = S.rptTo = S.expDate = S.dsrDate = S.dsrFrom = S.dsrTo = iso(n);
   S.rptMonth = iso(n).slice(0,7);
   document.getElementById('hdr-date').textContent = fmtBn(iso(n));
   // Check saved session
@@ -653,14 +655,15 @@ function loadSoDash() {
   renderSoDash();
 }
 function renderSoDash() {
-  var totalVal=0, totalPcs=0;
+  var totalVal=0, totalPcs=0, totalBuyVal=0;
   var h='<div class="ct">📦 স্টক ওভারভিউ (SO ভিউ)</div>';
   h+='<div class="card" style="padding:0;overflow:hidden">';
   S.products.forEach(function(p){
     var stk=S.stockMap[p.id]||0, cs=num(p.caseSize)||1;
     var cases=Math.floor(stk/cs), rem=stk%cs;
     var sv=stk*num(p.sellingPrice);
-    totalVal+=sv; totalPcs+=stk;
+    var bv=stk*num(p.purchasePrice);
+    totalVal+=sv; totalPcs+=stk; totalBuyVal+=bv;
     var ti=thumbImg(p,'8px');
     var alert=num(p.lowStockAlert)>0&&stk<=num(p.lowStockAlert);
     var sc=stk>10?'var(--gr)':stk>0?'var(--am)':'var(--re)';
@@ -677,6 +680,7 @@ function renderSoDash() {
   h+='<div style="padding:10px 12px;background:var(--grl);border-top:2px solid var(--gr)">';
   h+='<div style="display:flex;justify-content:space-between;font-weight:700;font-size:12px"><span>মোট স্টক</span><span style="color:var(--bl)">'+fn(totalPcs)+' পিস</span></div>';
   h+='<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:3px"><span>মোট মূল্য (বিক্রয়)</span><span style="color:var(--gr);font-weight:700">৳'+fm(totalVal)+'</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:3px"><span>মোট মূল্য (ক্রয়)</span><span style="color:var(--mt);font-weight:700">৳'+fm(totalBuyVal)+'</span></div>';
   h+='</div></div>';
   h+='<div style="text-align:center;font-size:10px;color:var(--mt2);padding:8px">Miron Electronics · Powered by <span style="color:#FFD700;font-weight:700">AXIION</span></div>';
   document.getElementById('pg-dash').innerHTML = h;
@@ -686,15 +690,21 @@ function renderSoDash() {
 
 // ── DSR Dashboard ────────────────────────────────────
 async function loadDsrDash() {
-  var date = S.dsrDate || iso(new Date());
+  var mode = S.dsrMode || 'today';
+  var date  = S.dsrDate  || iso(new Date());
+  var from2 = S.dsrFrom  || iso(new Date());
+  var to2   = S.dsrTo    || iso(new Date());
+  var qFrom = mode==='range' ? from2 : date;
+  var qTo   = mode==='range' ? to2   : date;
   showOvl('লোড হচ্ছে...');
-  var r = await apiGet('/api/transactions?from='+date+'&to='+date);
+  var r = await apiGet('/api/transactions?from='+qFrom+'&to='+qTo);
   hideOvl();
   if (!Array.isArray(r)) return toast('লোড ব্যর্থ');
   S.dsrData = r;
-  renderDsrDash(r, date);
+  renderDsrDash(r, qFrom, qTo);
 }
-function renderDsrDash(txs, date) {
+function renderDsrDash(txs, fromDate, toDate) {
+  var mode = S.dsrMode || 'today';
   // Summarize given/return/damage in cases+pcs
   var given={cases:0,pcs:0}, ret={cases:0,pcs:0}, dmg={cases:0,pcs:0};
   txs.forEach(function(tx){
@@ -702,15 +712,32 @@ function renderDsrDash(txs, date) {
     if (tx.type==='return') { ret.cases+=num(tx.cases);   ret.pcs+=num(tx.pcs); }
     if (tx.type==='damage') { dmg.cases+=num(tx.cases);   dmg.pcs+=num(tx.pcs); }
   });
-  function stLine(d){ return (d.cases?d.cases+'কেস ':'')+( d.pcs?d.pcs+'পিস':'')+''; }
-  function orZero(d){ return (d.cases+d.pcs)?stLine(d):'০'; }
 
   var h='<div class="ct">🚚 DSR ড্যাশবোর্ড</div>';
-  // Date filter
-  h+='<div class="card"><div class="fg"><label class="fl">তারিখ</label><input type="date" id="dsr-dt" value="'+date+'" onchange="S.dsrDate=this.value;loadDsrDash()"></div></div>';
+
+  // Mode filter
+  h+='<div class="card" style="padding:10px">';
+  h+='<div class="seg" style="margin-bottom:10px">';
+  h+='<button class="sbt '+(mode==='today'?'active':'')+'" onclick="S.dsrMode=\'today\';S.dsrDate=\''+iso(new Date())+'\';loadDsrDash()">আজ</button>';
+  h+='<button class="sbt '+(mode==='custom'?'active':'')+'" onclick="S.dsrMode=\'custom\';renderDsrFilter()">তারিখ</button>';
+  h+='<button class="sbt '+(mode==='range'?'active':'')+'" onclick="S.dsrMode=\'range\';renderDsrFilter()">রেঞ্জ</button>';
+  h+='</div>';
+  if (mode==='custom') {
+    h+='<div class="fg"><label class="fl">তারিখ নির্বাচন</label><input type="date" id="dsr-dt" value="'+(S.dsrDate||iso(new Date()))+'" onchange="S.dsrDate=this.value;loadDsrDash()"></div>';
+  } else if (mode==='range') {
+    h+='<div class="g2">';
+    h+='<div class="fg"><label class="fl">শুরু</label><input type="date" id="dsr-fr" value="'+(S.dsrFrom||iso(new Date()))+'" onchange="S.dsrFrom=this.value"></div>';
+    h+='<div class="fg"><label class="fl">শেষ</label><input type="date" id="dsr-to" value="'+(S.dsrTo||iso(new Date()))+'" onchange="S.dsrTo=this.value"></div>';
+    h+='</div>';
+    h+='<button class="btn btn-bl btn-w btn-sm" onclick="S.dsrFrom=document.getElementById(\'dsr-fr\').value;S.dsrTo=document.getElementById(\'dsr-to\').value;loadDsrDash()">📊 দেখুন</button>';
+  }
+  h+='</div>';
+
+  // Date label
+  var dateLabel = (fromDate===toDate) ? fmtBn(fromDate) : fmtBn(fromDate)+' — '+fmtBn(toDate);
+  h+='<div style="font-size:12px;font-weight:700;color:var(--mt);margin-bottom:8px">লেনদেন সারসংক্ষেপ — '+dateLabel+'</div>';
 
   // Summary grid
-  h+='<div style="font-size:12px;font-weight:700;color:var(--mt);margin-bottom:8px">আজকের লেনদেন — '+fmtBn(date)+'</div>';
   h+='<div class="dsr-grid">';
   h+='<div class="dsr-cell" style="border-color:var(--bl)"><div style="font-size:11px;color:var(--bl);font-weight:700;margin-bottom:6px">📤 দেওয়া</div><div class="dv2" style="color:var(--bl)">'+given.cases+'<small style="font-size:12px">কেস</small></div><div class="ds2">'+given.pcs+' পিস</div></div>';
   h+='<div class="dsr-cell" style="border-color:var(--te)"><div style="font-size:11px;color:var(--te);font-weight:700;margin-bottom:6px">↩️ ফেরত</div><div class="dv2" style="color:var(--te)">'+ret.cases+'<small style="font-size:12px">কেস</small></div><div class="ds2">'+ret.pcs+' পিস</div></div>';
@@ -816,6 +843,7 @@ function filterProds(q) {
 function buildStockPage() {
   var totalSell=0, totalCost=0, totalPcs=0;
   var isOwner = S.role==='owner';
+  var isSO    = S.role==='so';
   var h='<div class="card" style="padding:0;overflow:hidden">';
   S.products.forEach(function(p){
     var stk=S.stockMap[p.id]||0, cs=num(p.caseSize)||1;
@@ -847,8 +875,10 @@ function buildStockPage() {
   h+='<div style="padding:10px 12px;background:var(--grl);border-top:2px solid var(--gr)">';
   h+='<div style="display:flex;justify-content:space-between;font-weight:700;font-size:12px;margin-bottom:3px"><span>মোট স্টক (পিস)</span><span style="color:var(--bl)">'+fn(totalPcs)+' পিস</span></div>';
   h+='<div style="display:flex;justify-content:space-between;font-weight:700;font-size:12px"><span>মোট মূল্য (বিক্রয়)</span><span style="color:var(--gr)">৳'+fm(totalSell)+'</span></div>';
+  if (isOwner || isSO) {
+    h+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mt);margin-top:2px"><span>মোট মূল্য (ক্রয়)</span><span>৳'+fm(totalCost)+'</span></div>';
+  }
   if (isOwner) {
-    h+='<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mt);margin-top:2px"><span>ক্রয় মূল্যমান</span><span>৳'+fm(totalCost)+'</span></div>';
     h+='<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:2px"><span style="font-weight:600">সম্ভাব্য লাভ</span><span style="color:var(--gr);font-weight:700">৳'+fm(totalSell-totalCost)+'</span></div>';
   }
   h+='</div></div>';
@@ -1240,26 +1270,26 @@ function openSlipWin(slip) {
     +'<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">'
     +'<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:\'Hind Siliguri\',sans-serif;background:#fff;color:#000;padding:14px;max-width:420px;margin:0 auto}'
     +'.hdr{display:flex;align-items:flex-start;gap:12px;padding-bottom:10px;border-bottom:3px double #000;margin-bottom:10px}'
-    +'.logo{width:56px;height:56px;background:#0D47A1;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;flex-shrink:0}'
-    +'.co-name{font-size:20px;font-weight:900;line-height:1.1}.co-phone{font-size:13px;font-weight:700;margin-top:4px}.co-addr{font-size:10px;color:#555;margin-top:2px;line-height:1.5}'
-    +'.slip-t{text-align:center;font-size:14px;font-weight:700;letter-spacing:2px;border:1px dashed #999;padding:6px 0;margin-bottom:10px}'
-    +'.meta{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:12px}.meta td{padding:5px 8px;border:1px solid #ccc}'
-    +'.mk{background:#f0f0f0;font-weight:700;width:72px;font-size:11px}.mv{font-weight:600}'
+    +'.logo{width:60px;height:60px;background:#000;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#fff;flex-shrink:0;letter-spacing:-1px;font-family:\'Hind Siliguri\',sans-serif}'
+    +'.co-name{font-size:20px;font-weight:900;line-height:1.1}.co-phone{font-size:13px;font-weight:700;margin-top:4px}.co-addr{font-size:10px;color:#444;margin-top:2px;line-height:1.5}'
+    +'.slip-t{text-align:center;font-size:13px;font-weight:700;letter-spacing:3px;border:1.5px dashed #555;padding:6px 0;margin-bottom:10px}'
+    +'.meta{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:12px}.meta td{padding:5px 8px;border:1px solid #999}'
+    +'.mk{background:#e8e8e8;font-weight:700;width:72px;font-size:11px}.mv{font-weight:600}'
     +'.stbl{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:12px}'
-    +'.stbl th{border:1px solid #888;padding:6px 8px;background:#0D47A1;color:#fff;text-align:left;font-size:11px;font-weight:700}'
-    +'.stbl td{border:1px solid #ccc;vertical-align:middle}'
-    +'.stbl tfoot td{border:1px solid #888;background:#e8e8e8;font-weight:700;font-size:13px}'
-    +'.sigs{display:flex;justify-content:space-between;margin-top:20px}'
-    +'.sig{text-align:center;font-size:11px;color:#555;width:130px}'
-    +'.sig-line{border-top:1px solid #000;padding-top:4px;margin-top:28px}'
-    +'.ftr{text-align:center;font-size:9px;color:#aaa;margin-top:10px;border-top:1px dotted #ddd;padding-top:5px}'
-    +'.btns{position:sticky;bottom:0;background:#fff;padding:10px;border-top:1px solid #eee;display:flex;gap:8px;margin:0 -14px -14px}'
+    +'.stbl th{border:1.5px solid #333;padding:6px 8px;background:#111;color:#fff;text-align:left;font-size:11px;font-weight:700}'
+    +'.stbl td{border:1px solid #bbb;vertical-align:middle}'
+    +'.stbl tfoot td{border:1.5px solid #333;background:#e0e0e0;font-weight:700;font-size:13px}'
+    +'.sigs{display:flex;justify-content:space-between;margin-top:22px}'
+    +'.sig{text-align:center;font-size:11px;color:#444;width:130px}'
+    +'.sig-line{border-top:1.5px solid #000;padding-top:4px;margin-top:30px}'
+    +'.ftr{text-align:center;font-size:9px;color:#888;margin-top:10px;border-top:1px dotted #bbb;padding-top:5px}'
+    +'.btns{position:sticky;bottom:0;background:#fff;padding:10px;border-top:1px solid #ddd;display:flex;gap:8px;margin:0 -14px -14px}'
     +'.btns button{flex:1;padding:12px 0;border:none;border-radius:8px;font-size:13px;font-family:\'Hind Siliguri\',sans-serif;font-weight:700;cursor:pointer}'
-    +'.bp{background:#0D47A1;color:#fff}.bc{background:#f0f0f0;color:#333}'
-    +'@media print{.btns{display:none}body{padding:8px}}</style></head><body>'
-    +'<div class="hdr"><div class="logo" style="font-size:18px;font-weight:900;color:#0D47A1">ME</div><div class="co">'
+    +'.bp{background:#111;color:#fff}.bc{background:#eee;color:#333}'
+    +'@media print{.btns{display:none}body{padding:8px}* {-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}</style></head><body>'
+    +'<div class="hdr"><div class="logo">ME</div><div class="co">'
     +'<div class="co-name">Miron Electronics</div>'
-    +'<div style="font-size:11px;font-weight:700;color:#FFD700;margin-top:2px;background:#0D47A1;padding:1px 6px;border-radius:4px;display:inline-block">⚡ AXIION</div>'
+    +'<div style="font-size:11px;font-weight:700;color:#333;margin-top:2px;background:#e0e0e0;padding:1px 6px;border-radius:4px;display:inline-block">⚡ AXIION TECHNOLOGY</div>'
     +'<div class="co-addr">স্টক সরবরাহ ও বিক্রয় স্লিপ</div>'
     +'</div></div>'
     +'<div class="slip-t">— স্টক সরবরাহ স্লিপ —</div>'
@@ -1268,7 +1298,7 @@ function openSlipWin(slip) {
     +'<tr><td class="mk">DSR/SO নাম</td><td class="mv"><strong>'+esc(slip.srName)+'</strong>'+(slip.srArea?' | '+esc(slip.srArea):'')+'</td></tr></table>'
     +'<table class="stbl"><thead><tr><th style="width:44%">পণ্য / SKU</th><th style="text-align:center;width:12%">কেস</th><th style="text-align:center;width:12%">পিস</th><th style="text-align:center;width:14%">মোট পিস</th><th style="text-align:right;width:18%">মূল্য</th></tr></thead>'
     +'<tbody>'+rows+'</tbody>'
-    +'<tfoot><tr><td colspan="4" style="text-align:right;padding:7px 8px">মোট পরিমাণ →</td><td style="text-align:right;padding:7px 8px;color:#0D47A1;font-size:14px">৳'+fm(total)+'</td></tr></tfoot></table>'
+    +'<tfoot><tr><td colspan="4" style="text-align:right;padding:7px 8px">মোট পরিমাণ →</td><td style="text-align:right;padding:7px 8px;font-weight:900;font-size:15px">৳'+fm(total)+'</td></tr></tfoot></table>'
     +'<div class="sigs"><div class="sig"><div class="sig-line">জারি করেছেন</div></div><div class="sig"><div class="sig-line">গ্রহণ করেছেন</div></div></div>'
     +'<div class="ftr">Miron Electronics · Powered by AXIION | '+new Date().toLocaleString('bn-BD')+'</div>'
     +'<div class="btns"><button class="bp" onclick="setTimeout(function(){window.print();},300)">📄 PDF ডাউনলোড / প্রিন্ট</button><button class="bc" onclick="window.close()">✕ বন্ধ করুন</button></div>'
