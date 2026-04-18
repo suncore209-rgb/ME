@@ -11,7 +11,10 @@ module.exports = async (req, res) => {
       const { month } = req.query; // e.g. "2026-04"
       let q = supabase.from('due_calendar').select('*').order('due_date');
       if (month) {
-        q = q.gte('due_date', month + '-01').lte('due_date', month + '-31');
+        const [calY, calM] = month.split('-').map(Number);
+        const lastDay  = new Date(calY, calM, 0).getDate(); // actual last day
+        const lastDate = month + '-' + String(lastDay).padStart(2, '0');
+        q = q.gte('due_date', month + '-01').lte('due_date', lastDate);
       }
       const { data, error } = await q;
       if (error) throw error;
