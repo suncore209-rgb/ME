@@ -1813,7 +1813,7 @@ function num(x){return Number(x)||0;}
 function fn(n){return Math.round(Number(n)||0);}
 function fm(n){return Math.round(Number(n)||0).toLocaleString('en-IN');}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function iso(d){return d instanceof Date?d.toISOString().slice(0,10):String(d).slice(0,10);}
+function iso(d){if(d instanceof Date){var y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+dd;}return String(d).slice(0,10);}
 function fmtBn(d){if(!d)return'';try{return new Date(String(d).slice(0,10)+'T00:00:00').toLocaleDateString('bn-BD',{year:'numeric',month:'long',day:'numeric'});}catch(e){return String(d).slice(0,10);}}
 function txBdg(t){var m={give:'<span class="bdg b-bl">দেওয়া</span>',return:'<span class="bdg b-te">ফেরত</span>',damage:'<span class="bdg b-re">ড্যামেজ</span>',buy:'<span class="bdg b-gr">কেনা</span>'};return m[t]||'<span class="bdg b-gy">'+t+'</span>';}
 var _ot;
