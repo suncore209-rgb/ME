@@ -141,6 +141,7 @@ function mapDue(r) {
     dsrName: r.dsr_name || '',
     dueDate: r.due_date ? String(r.due_date).slice(0,10) : '',
     amount: String(r.amount || 0),
+    paidAmount: String(r.paid_amount || 0),
     note: r.note || '',
     status: r.status || 'pending',
     clearedDate: r.cleared_date ? String(r.cleared_date).slice(0,10) : '',

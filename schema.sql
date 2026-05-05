@@ -138,8 +138,9 @@ CREATE TABLE IF NOT EXISTS due_calendar (
   dsr_name     TEXT DEFAULT '',
   due_date     DATE NOT NULL,
   amount       NUMERIC(14,2) DEFAULT 0,
+  paid_amount  NUMERIC(14,2) DEFAULT 0,   -- V5: tracks partial payments
   note         TEXT DEFAULT '',
-  status       TEXT DEFAULT 'pending' CHECK (status IN ('pending','cleared')),
+  status       TEXT DEFAULT 'pending' CHECK (status IN ('pending','partial','cleared')),
   cleared_date DATE,
   created_at   TIMESTAMPTZ DEFAULT NOW()
 );
@@ -166,3 +167,10 @@ ALTER TABLE due_calendar DISABLE ROW LEVEL SECURITY;
 -- ALTER TABLE sr_payments ADD COLUMN IF NOT EXISTS discount_amt   NUMERIC(14,2) DEFAULT 0;
 -- ALTER TABLE sr_payments ADD COLUMN IF NOT EXISTS damage_amt     NUMERIC(14,2) DEFAULT 0;
 -- CREATE TABLE IF NOT EXISTS due_calendar (...); -- see full definition above
+
+-- ════════════════════════════════════════════════════════
+--  MIGRATION — Run this if upgrading from V4 to V5
+-- ════════════════════════════════════════════════════════
+-- ALTER TABLE due_calendar ADD COLUMN IF NOT EXISTS paid_amount NUMERIC(14,2) DEFAULT 0;
+-- ALTER TABLE due_calendar DROP CONSTRAINT IF EXISTS due_calendar_status_check;
+-- ALTER TABLE due_calendar ADD CONSTRAINT due_calendar_status_check CHECK (status IN ('pending','partial','cleared'));

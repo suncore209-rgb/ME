@@ -1,94 +1,126 @@
-# ⚡ AXIION স্টক ম্যানেজমেন্ট সিস্টেম — V4
+# AXIION Stock Management — Miron Electronics
+### Version 5 (V5)
 
-**Developed by AXIION TECHNOLOGY**
-
-## 🔑 PIN লগইন (Auto Role Detection)
-
-| ভূমিকা    | PIN  |
-|-----------|------|
-| Owner     | 2713 |
-| Manager   | 5620 |
-| SO        | 1280 |
-| DSR       | 1275 |
-
-> PIN দিলে সিস্টেম স্বয়ংক্রিয়ভাবে ভূমিকা শনাক্ত করবে।
+A mobile-first stock & sales management web app built with **Vercel serverless functions** + **Supabase** (PostgreSQL).
 
 ---
 
-## 🚀 Vercel Deploy
+## 🆕 What's New in V5 — Smart Due Calendar
 
-1. GitHub-এ push করুন
-2. Vercel-এ import করুন
-3. Environment variables যোগ করুন:
+### Partial Payment (Installment) Support
+- Dues no longer need to be cleared all at once
+- Click **💳 পরিশোধ** to open the payment modal — enter any amount
+- Quick-fill buttons: **২৫% / ৫০% / ৭৫% / সম্পূর্ণ**
+- Status automatically becomes 🟠 **আংশিক** (partial) when partially paid, 🟢 **পরিশোধিত** when fully cleared
+- Progress bar shows what % of each due has been paid
+- Remaining balance always visible
+
+### Owner PIN Verification
+- Every payment action (full or partial) requires the **Owner PIN**
+- PIN is verified client-side against the existing login system — no extra API calls
+
+### Smarter Calendar Visuals
+- **Heat-map**: days with the highest remaining due get a thicker border (top 40% by amount)
+- **৳ amount badge** shown directly on each calendar cell so you can see which day has the most due at a glance
+- **4-state color coding**: 🔴 Pending · 🟠 Partial · 🟢 Cleared · 🟡 Mixed
+- **4-column summary strip**: Pending / Partial / Cleared / Total entries
+- Calendar cells are taller (52px) to accommodate the amount badge
+
+### New `status` State
+- `pending` — no payment made
+- `partial` — some payment made, balance remains
+- `cleared` — fully paid
+
+---
+
+## Stack
+
+| Layer       | Tech                              |
+|-------------|-----------------------------------|
+| Frontend    | Vanilla JS / HTML / CSS (SPA)     |
+| Backend     | Vercel Serverless Functions (Node) |
+| Database    | Supabase (PostgreSQL)             |
+| Auth        | PIN-based role system (client)    |
+
+---
+
+## Roles & PINs
+
+| Role    | PIN  | Access                                      |
+|---------|------|---------------------------------------------|
+| Owner   | 2713 | Full access + payment authorization         |
+| Manager | 5620 | Most features, cannot authorize payments    |
+| SO      | 1280 | View + limited entry                        |
+| DSR     | 1275 | View only                                   |
+
+---
+
+## Database Migration (V4 → V5)
+
+Run the following in your Supabase SQL editor:
+
+```sql
+-- Add paid_amount column
+ALTER TABLE due_calendar ADD COLUMN IF NOT EXISTS paid_amount NUMERIC(14,2) DEFAULT 0;
+
+-- Update status constraint to include 'partial'
+ALTER TABLE due_calendar DROP CONSTRAINT IF EXISTS due_calendar_status_check;
+ALTER TABLE due_calendar ADD CONSTRAINT due_calendar_status_check
+  CHECK (status IN ('pending','partial','cleared'));
+```
+
+For **fresh installs**, run the full `schema.sql` — the V5 table definition is already updated.
+
+---
+
+## Project Structure
+
+```
+ME-main/
+├── api/
+│   ├── _lib/db.js          # Supabase client, helpers, mappers
+│   ├── due-calendar.js     # ★ V5 updated — partial payment support
+│   ├── dashboard.js
+│   ├── transactions.js
+│   ├── products.js
+│   ├── srs.js
+│   ├── sr-payments.js
+│   ├── bonus.js
+│   ├── damage.js
+│   ├── expenses.js
+│   ├── report.js
+│   └── load-all.js
+├── public/
+│   └── index.html          # ★ V5 updated — smart due calendar UI
+├── schema.sql              # ★ V5 updated — includes migration notes
+├── vercel.json
+└── package.json
+```
+
+---
+
+## Deployment
+
+1. Push to GitHub
+2. Connect repo to Vercel
+3. Add environment variables in Vercel:
    - `SUPABASE_URL`
    - `SUPABASE_SERVICE_KEY`
-4. Deploy করুন
+4. Deploy — Vercel auto-deploys on every push
 
 ---
 
-## 🗄️ Supabase Setup
+## API Endpoints
 
-1. Supabase Dashboard → SQL Editor
-2. `schema.sql` ফাইলের পুরো কন্টেন্ট রান করুন
-3. **Upgrade করলে** — `schema.sql`-এর নিচের MIGRATION সেকশনের ALTER লাইনগুলো আনকমেন্ট করে রান করুন
+| Method | Endpoint           | Description                          |
+|--------|--------------------|--------------------------------------|
+| GET    | /api/due-calendar  | Fetch dues (filter by `?month=YYYY-MM`) |
+| POST   | /api/due-calendar  | Create a new due entry               |
+| PUT    | /api/due-calendar  | Pay (partial/full) or edit           |
+| DELETE | /api/due-calendar  | Delete a due entry                   |
 
----
-
-## 📡 API Routes (10টি — Hobby plan এর মধ্যে)
-
-| Route             | Method        | কাজ                           |
-|-------------------|---------------|-------------------------------|
-| `/api/load-all`   | GET           | Products, SRs, StockMap লোড  |
-| `/api/dashboard`  | GET           | Dashboard ডেটা               |
-| `/api/products`   | GET/POST/PUT/DELETE | পণ্য ব্যবস্থাপনা       |
-| `/api/srs`        | GET/POST/PUT/DELETE | SR ব্যবস্থাপনা         |
-| `/api/transactions`| GET/POST     | লেনদেন রেকর্ড               |
-| `/api/sr-payments`| GET/POST     | SR পেমেন্ট (4-type)          |
-| `/api/damage`     | GET/POST     | ড্যামেজ ক্লেইম               |
-| `/api/bonus`      | GET/POST     | বোনাস সিস্টেম               |
-| `/api/report`     | GET          | রিপোর্ট (তারিখ ভিত্তিক)     |
-| `/api/expenses`   | GET/POST/DELETE | খরচ + পেমেন্ট রিপোর্ট    |
-
----
-
-## 🆕 V4 পরিবর্তনসমূহ
-
-### ✅ Bug Fixes
-- **google.script.run সরানো হয়েছে** — এখন সব API calls `fetch()` দিয়ে হয়
-- **Keyboard auto-close ঠিক হয়েছে** — input-এ কোনো re-render নেই
-- **PIN auto role detection** — role button সরানো হয়েছে
-
-### ✨ নতুন ফিচার
-- **PIN Auto-detect**: শুধু PIN দিন, ভূমিকা নিজেই শনাক্ত হবে
-- **DSR Dashboard**: শুধু আজকের দেওয়া/ফেরত/ড্যামেজ (কেস+পিস আলাদা), তারিখ ফিল্টার
-- **SO Dashboard**: Product-wise স্টক (কেস+পিস), বিক্রয় মূল্য, মোট মূল্যমান
-- **Manager Daily Summary**: আজ বিক্রি + আজ লাভ ব্যানার
-- **4-type Payment**: নগদ + কমিশন + ছাড় + ড্যামেজ = মোট পেমেন্ট
-- **SKU স্টক page**: কেস + পিস আলাদা, নিচে মোট পিস
-- **Product Offer System**: ফ্রি পিস + ফ্রি টাকা (৳) per N কেস
-- **Low Stock Alert**: প্রতি পণ্যে threshold সেট, alert দেখাবে
-- **SR Role Field**: DSR বা SO সেট করুন
-- **ড্যামেজ/বোনাস**: নিচে মোট summary
-- **Payment Breakdown**: নগদ/কমিশন/ছাড়/ড্যামেজ আলাদা রিপোর্ট
-- **Reports**: শুধু PDF (Excel সরানো হয়েছে)
-
-### 🔤 টেক্সট পরিবর্তন
-- "ক্ষতি" → "ড্যামেজ"
-- "ইউ"/"ইউনিট" → "পিস"
-- ব্র্যান্ডিং: "AXIION TECHNOLOGY"
-
----
-
-## 🔐 ভূমিকা অনুযায়ী অ্যাক্সেস
-
-| ফিচার              | Owner | Manager | SO  | DSR |
-|--------------------|-------|---------|-----|-----|
-| ক্রয় মূল্য দেখা  | ✅    | ❌      | ❌  | ❌  |
-| বিক্রয় মূল্য      | ✅    | ✅      | ✅  | ❌  |
-| পণ্য যোগ/সম্পাদনা  | ✅    | ❌      | ❌  | ❌  |
-| SR যোগ/সম্পাদনা    | ✅    | ❌      | ❌  | ❌  |
-| লেনদেন রেকর্ড      | ✅    | ✅      | ❌  | ❌  |
-| রিপোর্ট            | ✅    | ✅      | ❌  | ❌  |
-| খরচ                | ✅    | ✅      | ❌  | ❌  |
-| স্টক দেখা          | ✅    | ✅      | ✅  | ❌  |
-| DSR Dashboard      | —     | —       | —   | ✅  |
+### PUT payload for payment:
+```json
+{ "id": "<uuid>", "payAmount": 5000 }
+```
+Response includes `{ ok, paidAmount, remaining, status }`.

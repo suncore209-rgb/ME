@@ -216,18 +216,22 @@ tr:hover td{background:#F5F7FF}
 /* Due Calendar */
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:8px}
 .cal-day-hdr{text-align:center;font-size:10px;font-weight:700;color:var(--mt);padding:4px 0}
-.cal-cell{min-height:42px;border-radius:8px;border:1.5px solid var(--bdr);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:3px 2px;position:relative;transition:.12s}
+.cal-cell{min-height:52px;border-radius:8px;border:1.5px solid var(--bdr);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:3px 2px;position:relative;transition:.12s}
 .cal-cell:active{transform:scale(.95)}
 .cal-cell.empty{background:transparent;border-color:transparent;cursor:default}
 .cal-cell.today-cell{border-color:var(--bl);background:var(--bll)}
 .cal-cell.has-due{background:var(--rel);border-color:var(--re)}
 .cal-cell.has-due.all-paid{background:var(--grl);border-color:var(--gr)}
+.cal-cell.has-due.partial{background:#FFF3E0;border-color:#FF9800}
 .cal-cell.has-due.mixed{background:#FFF8E1;border-color:var(--am)}
+.cal-cell.due-heavy{border-width:2.5px}
 .cal-day-num{font-size:13px;font-weight:700;line-height:1}
 .cal-dot{width:6px;height:6px;border-radius:50%;margin-top:2px}
 .cal-dot-re{background:var(--re)}
 .cal-dot-gr{background:var(--gr)}
 .cal-dot-am{background:var(--am)}
+.cal-dot-or{background:#FF9800}
+.cal-amt-badge{font-size:7.5px;color:var(--mt);margin-top:1px;font-weight:600;letter-spacing:-0.2px}
 .cal-legend{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
 .cal-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mt)}
 .cal-leg-dot{width:10px;height:10px;border-radius:3px}
@@ -238,6 +242,9 @@ tr:hover td{background:#F5F7FF}
 .due-modal-title{font-size:16px;font-weight:700;margin-bottom:14px;color:var(--bl)}
 .status-pending{color:var(--re);font-weight:700;font-size:11px}
 .status-cleared{color:var(--gr);font-weight:700;font-size:11px}
+.status-partial{color:#FF9800;font-weight:700;font-size:11px}
+.pay-prog-bar{height:6px;border-radius:3px;background:#eee;overflow:hidden;margin-top:4px}
+.pay-prog-fill{height:100%;border-radius:3px;background:var(--gr);transition:.3s}
 </style>
 </head>
 <body>
@@ -1852,17 +1859,23 @@ function renderCal() {
   var monthDate = new Date(yr, mo-1, 1);
   var monthName = monthDate.toLocaleDateString('bn-BD', {year:'numeric', month:'long'});
   var daysInMonth = new Date(yr, mo, 0).getDate();
-  var firstDay = new Date(yr, mo-1, 1).getDay(); // 0=Sun
+  var firstDay = new Date(yr, mo-1, 1).getDay();
 
-  // Build a map: date string -> dues array
   var dueMap = {};
   CAL.dues.forEach(function(d) {
     if (!dueMap[d.dueDate]) dueMap[d.dueDate] = [];
     dueMap[d.dueDate].push(d);
   });
 
-  var totalPending = CAL.dues.filter(function(d){return d.status==='pending';}).reduce(function(s,d){return s+num(d.amount);},0);
-  var totalCleared = CAL.dues.filter(function(d){return d.status==='cleared';}).reduce(function(s,d){return s+num(d.amount);},0);
+  var totalPending = CAL.dues.filter(function(d){return d.status==='pending';}).reduce(function(s,d){return s+num(d.amount)-num(d.paidAmount);},0);
+  var totalPartial  = CAL.dues.filter(function(d){return d.status==='partial';}).reduce(function(s,d){return s+num(d.paidAmount);},0);
+  var totalCleared  = CAL.dues.filter(function(d){return d.status==='cleared';}).reduce(function(s,d){return s+num(d.amount);},0);
+
+  var maxDayAmt = 0;
+  Object.keys(dueMap).forEach(function(date){
+    var dayAmt = dueMap[date].reduce(function(s,d){return s+num(d.amount)-num(d.paidAmount);},0);
+    if (dayAmt > maxDayAmt) maxDayAmt = dayAmt;
+  });
 
   var h = '';
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
@@ -1871,83 +1884,101 @@ function renderCal() {
   h += '<button class="btn btn-gh btn-sm" onclick="loadCal(nextCalMonth())">পরের মাস ▶</button>';
   h += '</div>';
 
-  // Summary
-  h += '<div class="mets" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:12px">';
-  h += '<div class="met"><div class="ml">মোট বাকি</div><div class="mv" style="color:var(--re);font-size:15px">৳'+fm(totalPending)+'</div></div>';
-  h += '<div class="met"><div class="ml">পরিশোধিত</div><div class="mv" style="color:var(--gr);font-size:15px">৳'+fm(totalCleared)+'</div></div>';
-  h += '<div class="met"><div class="ml">এন্ট্রি</div><div class="mv" style="font-size:15px">'+CAL.dues.length+'টি</div></div>';
+  h += '<div class="mets" style="grid-template-columns:1fr 1fr 1fr 1fr;margin-bottom:12px">';
+  h += '<div class="met"><div class="ml">বকেয়া</div><div class="mv" style="color:var(--re);font-size:14px">৳'+fm(totalPending)+'</div></div>';
+  h += '<div class="met"><div class="ml">আংশিক</div><div class="mv" style="color:#FF9800;font-size:14px">৳'+fm(totalPartial)+'</div></div>';
+  h += '<div class="met"><div class="ml">পরিশোধিত</div><div class="mv" style="color:var(--gr);font-size:14px">৳'+fm(totalCleared)+'</div></div>';
+  h += '<div class="met"><div class="ml">এন্ট্রি</div><div class="mv" style="font-size:14px">'+CAL.dues.length+'টি</div></div>';
   h += '</div>';
 
-  // Legend
   h += '<div class="cal-legend">';
-  h += '<div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--rel);border:1.5px solid var(--re)"></div> বাকি আছে</div>';
+  h += '<div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--rel);border:1.5px solid var(--re)"></div> বকেয়া</div>';
+  h += '<div class="cal-leg-item"><div class="cal-leg-dot" style="background:#FFF3E0;border:1.5px solid #FF9800"></div> আংশিক</div>';
   h += '<div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--grl);border:1.5px solid var(--gr)"></div> পরিশোধিত</div>';
   h += '<div class="cal-leg-item"><div class="cal-leg-dot" style="background:#FFF8E1;border:1.5px solid var(--am)"></div> মিশ্র</div>';
   h += '</div>';
 
-  // Calendar grid
   h += '<div class="card" style="padding:10px;margin-bottom:10px">';
   h += '<div class="cal-grid">';
   var dayLabels = ['রবি','সোম','মঙ্গ','বুধ','বৃহ','শুক্র','শনি'];
   dayLabels.forEach(function(d){ h += '<div class="cal-day-hdr">'+d+'</div>'; });
 
-  // Empty cells before first day
   for (var i=0; i<firstDay; i++) h += '<div class="cal-cell empty"></div>';
 
-  // Day cells
   for (var day=1; day<=daysInMonth; day++) {
     var mm = String(mo).padStart(2,'0'), dd = String(day).padStart(2,'0');
     var dateStr = yr+'-'+mm+'-'+dd;
-    var dayDues = dueMap[dateStr] || [];
-    var hasDue = dayDues.length > 0;
-    var allPaid = hasDue && dayDues.every(function(d){return d.status==='cleared';});
+    var dayDues  = dueMap[dateStr] || [];
+    var hasDue   = dayDues.length > 0;
+    var allPaid    = hasDue && dayDues.every(function(d){return d.status==='cleared';});
     var allPending = hasDue && dayDues.every(function(d){return d.status==='pending';});
-    var isTdy = dateStr === today;
+    var hasPartial = hasDue && dayDues.some(function(d){return d.status==='partial';});
+    var isTdy    = dateStr === today;
+    var dayRemaining = dayDues.reduce(function(s,d){return s+num(d.amount)-num(d.paidAmount);},0);
+    var heatRatio = maxDayAmt > 0 ? dayRemaining/maxDayAmt : 0;
+    var isHeavy = heatRatio >= 0.6;
 
     var cls = 'cal-cell';
     if (isTdy) cls += ' today-cell';
-    if (hasDue && allPaid)    cls += ' has-due all-paid';
+    if (hasDue && allPaid) cls += ' has-due all-paid';
+    else if (hasDue && hasPartial && !allPaid) cls += ' has-due partial';
     else if (hasDue && allPending) cls += ' has-due';
-    else if (hasDue)          cls += ' has-due mixed';
+    else if (hasDue) cls += ' has-due mixed';
+    if (hasDue && isHeavy && !allPaid) cls += ' due-heavy';
 
     var dotHtml = '';
     if (hasDue) {
-      if (allPaid)    dotHtml = '<div class="cal-dot cal-dot-gr"></div>';
+      if (allPaid)         dotHtml = '<div class="cal-dot cal-dot-gr"></div>';
+      else if (hasPartial) dotHtml = '<div class="cal-dot cal-dot-or"></div>';
       else if (allPending) dotHtml = '<div class="cal-dot cal-dot-re"></div>';
-      else            dotHtml = '<div class="cal-dot cal-dot-am"></div>';
+      else                 dotHtml = '<div class="cal-dot cal-dot-am"></div>';
     }
 
     h += '<div class="'+cls+'" onclick="calDayClick(\''+dateStr+'\')">';
     h += '<div class="cal-day-num" style="color:'+(isTdy?'var(--bl)':'var(--txt)')+'">'+(isTdy?'<strong>'+day+'</strong>':day)+'</div>';
     h += dotHtml;
-    if (hasDue) h += '<div style="font-size:8px;color:var(--mt);margin-top:1px">'+dayDues.length+'টি</div>';
+    if (hasDue) {
+      h += '<div style="font-size:7.5px;color:var(--mt);margin-top:1px">'+dayDues.length+'টি</div>';
+      if (!allPaid && dayRemaining > 0) h += '<div class="cal-amt-badge">৳'+fm(dayRemaining)+'</div>';
+    }
     h += '</div>';
   }
   h += '</div></div>';
 
-  // Add new due button
   if (canEdit) {
     h += '<button class="btn btn-bl btn-w" onclick="calAddModal(\'\')">➕ নতুন বাকি যোগ করুন</button>';
     h += '<div style="height:10px"></div>';
   }
 
-  // All entries list for this month
   if (CAL.dues.length) {
     h += '<div class="ct">📋 এই মাসের সব এন্ট্রি</div>';
     h += '<div class="card" style="padding:0;overflow:hidden">';
     CAL.dues.slice().sort(function(a,b){return a.dueDate.localeCompare(b.dueDate);}).forEach(function(d){
       var isPending = d.status === 'pending';
+      var isPartial = d.status === 'partial';
+      var isCleared = d.status === 'cleared';
+      var paid      = num(d.paidAmount);
+      var total     = num(d.amount);
+      var remaining = total - paid;
+      var pct       = total > 0 ? Math.round(paid/total*100) : 0;
+      var statusCls = isPending ? 'status-pending' : (isPartial ? 'status-partial' : 'status-cleared');
+      var statusLbl = isPending ? '🔴 বকেয়া' : (isPartial ? '🟠 আংশিক পরিশোধ' : '🟢 পরিশোধিত');
+
       h += '<div class="due-item">';
-      h += '<div>';
+      h += '<div style="flex:1;min-width:0">';
       h += '<div style="font-weight:700;font-size:13px">'+fmtBn(d.dueDate)+'</div>';
       h += '<div style="font-size:11px;color:var(--mt)">'+(d.dsrName||'—')+(d.note?' · '+esc(d.note):'')+'</div>';
-      h += '<div class="'+(isPending?'status-pending':'status-cleared')+'">'+(isPending?'🔴 বাকি':'🟢 পরিশোধিত')+'</div>';
+      h += '<div class="'+statusCls+'">'+statusLbl+'</div>';
+      if (isPartial) {
+        h += '<div class="pay-prog-bar"><div class="pay-prog-fill" style="width:'+pct+'%"></div></div>';
+        h += '<div style="font-size:10px;color:var(--mt)">পরিশোধ: ৳'+fm(paid)+' / বাকি: ৳'+fm(remaining)+'</div>';
+      }
       h += '</div>';
-      h += '<div style="text-align:right;min-width:80px">';
-      h += '<div style="font-size:16px;font-weight:700;color:'+(isPending?'var(--re)':'var(--gr)')+'">৳'+fm(d.amount)+'</div>';
+      h += '<div style="text-align:right;min-width:90px;margin-left:8px">';
+      h += '<div style="font-size:15px;font-weight:700;color:'+(isCleared?'var(--gr)':(isPartial?'#FF9800':'var(--re))'))+'">৳'+fm(total)+'</div>';
       if (canEdit) {
-        if (isPending) {
-          h += '<button class="btn btn-sm" style="background:var(--grl);color:var(--gr);margin-top:4px" onclick="calClear(\''+d.id+'\')">✅ পরিশোধ</button>';
+        if (!isCleared) {
+          h += '<button class="btn btn-sm" style="background:var(--grl);color:var(--gr);margin-top:4px" onclick="calPayModal(\''+d.id+'\')">💳 পরিশোধ</button>';
         } else {
           h += '<button class="btn btn-sm btn-gh" style="margin-top:4px" onclick="calUndo(\''+d.id+'\')">↩️ পূর্বাবস্থা</button>';
         }
@@ -1974,7 +2005,7 @@ function nextCalMonth() {
 
 function calDayClick(dateStr) {
   var dayDues = CAL.dues.filter(function(d){return d.dueDate===dateStr;});
-  var canEdit = S.role==='owner'||S.role==='manager';
+  var canEdit  = S.role==='owner'||S.role==='manager';
   var modal = document.createElement('div');
   modal.className = 'due-modal-bg';
   modal.onclick = function(e){if(e.target===modal)document.body.removeChild(modal);};
@@ -1986,15 +2017,29 @@ function calDayClick(dateStr) {
   } else {
     dayDues.forEach(function(d){
       var isPending = d.status==='pending';
+      var isPartial = d.status==='partial';
+      var isCleared = d.status==='cleared';
+      var paid      = num(d.paidAmount);
+      var total     = num(d.amount);
+      var remaining = total - paid;
+      var pct       = total > 0 ? Math.round(paid/total*100) : 0;
+      var statusCls = isPending?'status-pending':(isPartial?'status-partial':'status-cleared');
+      var statusLbl = isPending?'🔴 বকেয়া':(isPartial?'🟠 আংশিক পরিশোধ':'🟢 পরিশোধিত');
+
       h += '<div class="due-item">';
-      h += '<div><div style="font-weight:700">'+(d.dsrName||'—')+'</div>';
+      h += '<div style="flex:1;min-width:0"><div style="font-weight:700">'+(d.dsrName||'—')+'</div>';
       h += '<div style="font-size:11px;color:var(--mt)">'+(d.note||'')+'</div>';
-      h += '<div class="'+(isPending?'status-pending':'status-cleared')+'">'+(isPending?'🔴 বাকি':'🟢 পরিশোধিত')+'</div></div>';
-      h += '<div style="text-align:right">';
-      h += '<div style="font-size:16px;font-weight:700;color:'+(isPending?'var(--re)':'var(--gr)')+'">৳'+fm(d.amount)+'</div>';
+      h += '<div class="'+statusCls+'">'+statusLbl+'</div>';
+      if (isPartial) {
+        h += '<div class="pay-prog-bar"><div class="pay-prog-fill" style="width:'+pct+'%"></div></div>';
+        h += '<div style="font-size:10px;color:var(--mt)">পরিশোধ: ৳'+fm(paid)+' · বাকি: ৳'+fm(remaining)+'</div>';
+      }
+      h += '</div>';
+      h += '<div style="text-align:right;margin-left:8px">';
+      h += '<div style="font-size:15px;font-weight:700;color:'+(isCleared?'var(--gr)':(isPartial?'#FF9800':'var(--re))'))+'">৳'+fm(total)+'</div>';
       if (canEdit) {
-        if (isPending) {
-          h += '<button class="btn btn-sm" style="background:var(--grl);color:var(--gr);margin-top:4px" onclick="document.body.removeChild(document.querySelector(\'.due-modal-bg\'));calClear(\''+d.id+'\')">✅ পরিশোধ</button>';
+        if (!isCleared) {
+          h += '<button class="btn btn-sm" style="background:var(--grl);color:var(--gr);margin-top:4px" onclick="document.body.removeChild(document.querySelector(\'.due-modal-bg\'));calPayModal(\''+d.id+'\')">💳 পরিশোধ</button>';
         } else {
           h += '<button class="btn btn-sm btn-gh" style="margin-top:4px" onclick="document.body.removeChild(document.querySelector(\'.due-modal-bg\'));calUndo(\''+d.id+'\')">↩️ পূর্বাবস্থা</button>';
         }
@@ -2007,6 +2052,69 @@ function calDayClick(dateStr) {
   h += '</div>';
   modal.innerHTML = h;
   document.body.appendChild(modal);
+}
+
+function calPayModal(id) {
+  var due = CAL.dues.find(function(d){return d.id===id;});
+  if (!due) return;
+  var total     = num(due.amount);
+  var paid      = num(due.paidAmount);
+  var remaining = total - paid;
+  var modal = document.createElement('div');
+  modal.className = 'due-modal-bg';
+  modal.onclick = function(e){if(e.target===modal)document.body.removeChild(modal);};
+  var h = '<div class="due-modal">';
+  h += '<div class="due-modal-title">💳 পরিশোধ করুন</div>';
+  h += '<div style="background:#F8F9FA;border-radius:10px;padding:10px;margin-bottom:14px">';
+  h += '<div style="font-size:13px;font-weight:700">'+(due.dsrName||'—')+'</div>';
+  h += '<div style="font-size:12px;color:var(--mt)">'+fmtBn(due.dueDate)+(due.note?' · '+esc(due.note):'')+'</div>';
+  h += '<div style="margin-top:6px;display:flex;gap:16px">';
+  h += '<div><div style="font-size:10px;color:var(--mt)">মোট বাকি</div><div style="font-weight:700;color:var(--re)">৳'+fm(total)+'</div></div>';
+  h += '<div><div style="font-size:10px;color:var(--mt)">পরিশোধিত</div><div style="font-weight:700;color:var(--gr)">৳'+fm(paid)+'</div></div>';
+  h += '<div><div style="font-size:10px;color:var(--mt)">অবশিষ্ট</div><div style="font-weight:700;color:#FF9800">৳'+fm(remaining)+'</div></div>';
+  h += '</div>';
+  if (paid > 0) {
+    var pct = Math.round(paid/total*100);
+    h += '<div class="pay-prog-bar" style="margin-top:8px"><div class="pay-prog-fill" style="width:'+pct+'%"></div></div>';
+  }
+  h += '</div>';
+  h += '<div class="fg"><label class="fl">পরিশোধের পরিমাণ (৳) *</label>';
+  h += '<input type="number" id="pay-amt" min="1" max="'+remaining+'" placeholder="পরিমাণ লিখুন" style="font-size:16px;font-weight:700">';
+  h += '<div style="font-size:11px;color:var(--mt);margin-top:3px">সর্বোচ্চ অবশিষ্ট: ৳'+fm(remaining)+'</div></div>';
+  h += '<div style="display:flex;gap:6px;margin-bottom:12px">';
+  h += '<button class="btn btn-sm btn-gh" onclick="document.getElementById(\'pay-amt\').value='+Math.round(remaining/4)+'">২৫%</button>';
+  h += '<button class="btn btn-sm btn-gh" onclick="document.getElementById(\'pay-amt\').value='+Math.round(remaining/2)+'">৫০%</button>';
+  h += '<button class="btn btn-sm btn-gh" onclick="document.getElementById(\'pay-amt\').value='+Math.round(remaining*3/4)+'">৭৫%</button>';
+  h += '<button class="btn btn-sm" style="background:var(--grl);color:var(--gr)" onclick="document.getElementById(\'pay-amt\').value='+remaining+'">সম্পূর্ণ</button>';
+  h += '</div>';
+  h += '<div class="fg"><label class="fl">🔐 Owner পাসওয়ার্ড *</label>';
+  h += '<input type="password" id="pay-pin" placeholder="PIN দিন" maxlength="10" inputmode="numeric"></div>';
+  h += '<div style="display:flex;gap:8px;margin-top:4px">';
+  h += '<button class="btn btn-bl" style="flex:1" onclick="calDoPayment(\''+id+'\','+remaining+')">✅ নিশ্চিত করুন</button>';
+  h += '<button class="btn btn-gh" onclick="document.body.removeChild(document.querySelector(\'.due-modal-bg\'))">বাতিল</button>';
+  h += '</div></div>';
+  modal.innerHTML = h;
+  document.body.appendChild(modal);
+  setTimeout(function(){var el=document.getElementById('pay-amt');if(el)el.focus();},100);
+}
+
+async function calDoPayment(id, maxRemaining) {
+  var payAmt = parseFloat(document.getElementById('pay-amt').value);
+  var pin    = document.getElementById('pay-pin').value.trim();
+  if (!payAmt || payAmt <= 0) return toast('পরিমাণ দিন');
+  if (payAmt > maxRemaining + 0.01) return toast('পরিমাণ অবশিষ্ট বাকির বেশি হতে পারবে না');
+  if (!pin) return toast('Owner পাসওয়ার্ড দিন');
+  if (pin !== PINS.owner) return toast('❌ পাসওয়ার্ড ভুল');
+  var modal = document.querySelector('.due-modal-bg');
+  if (modal) document.body.removeChild(modal);
+  showOvl('পরিশোধ হচ্ছে...');
+  var r = await apiPut('/api/due-calendar', {id:id, payAmount:payAmt});
+  hideOvl();
+  if (r.ok) {
+    var msg = r.status==='cleared' ? '🟢 সম্পূর্ণ পরিশোধিত!' : '🟠 আংশিক পরিশোধ · অবশিষ্ট: ৳'+fm(r.remaining);
+    toast(msg);
+    loadCal(CAL.month);
+  } else toast(r.error||'ব্যর্থ');
 }
 
 function calAddModal(prefillDate) {
@@ -2047,20 +2155,12 @@ async function calSaveNew() {
   else toast(r.error||'ব্যর্থ');
 }
 
-async function calClear(id) {
-  if (!confirm('এই বাকি পরিশোধ হিসেবে চিহ্নিত করবেন?')) return;
-  showOvl('আপডেট হচ্ছে...');
-  var r = await apiPut('/api/due-calendar', {id:id, status:'cleared'});
-  hideOvl();
-  if (r.ok) { toast('🟢 পরিশোধিত চিহ্নিত হয়েছে'); loadCal(CAL.month); }
-  else toast(r.error||'ব্যর্থ');
-}
-
 async function calUndo(id) {
+  if (!confirm('এই এন্ট্রি বকেয়া হিসেবে পুনরায় চিহ্নিত করবেন? সমস্ত পরিশোধের তথ্য মুছে যাবে।')) return;
   showOvl('আপডেট হচ্ছে...');
   var r = await apiPut('/api/due-calendar', {id:id, status:'pending'});
   hideOvl();
-  if (r.ok) { toast('🔴 বাকি হিসেবে পুনরায় চিহ্নিত'); loadCal(CAL.month); }
+  if (r.ok) { toast('🔴 বকেয়া হিসেবে পুনরায় চিহ্নিত'); loadCal(CAL.month); }
   else toast(r.error||'ব্যর্থ');
 }
 </script>
