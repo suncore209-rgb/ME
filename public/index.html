@@ -181,6 +181,44 @@ tr:hover td{background:#F5F7FF}
 /* Low stock alert badge */
 .low-alert{background:var(--rel);color:var(--re);font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:4px}
 
+/* Product Showcase */
+.showcase-wrap{padding:0}
+.showcase-header{background:linear-gradient(135deg,#0D2137,#0D47A1);border-radius:var(--rad);padding:16px 14px 14px;margin-bottom:12px;color:#fff;text-align:center}
+.showcase-header h2{font-size:15px;font-weight:700;letter-spacing:1px;margin-bottom:2px}
+.showcase-header p{font-size:11px;opacity:.75}
+.showcase-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sc-card{background:#fff;border-radius:12px;border:1.5px solid var(--bdr);box-shadow:0 2px 10px rgba(13,71,161,.08);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:.15s}
+.sc-card:active{transform:scale(.97);box-shadow:0 1px 4px rgba(13,71,161,.12)}
+.sc-img{width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#EEF2FF,#E8EAF6);position:relative;display:flex;align-items:center;justify-content:center;font-size:44px;overflow:hidden}
+.sc-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block}
+.sc-no-img{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--mt2)}
+.sc-no-img span{font-size:36px}
+.sc-no-img small{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.sc-info{padding:9px 10px 10px}
+.sc-name{font-size:12px;font-weight:700;color:var(--txt);line-height:1.3;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-sku{display:inline-block;background:var(--bll);color:var(--bl);font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;margin-bottom:5px}
+.sc-price{font-size:13px;font-weight:700;color:var(--gr)}
+.sc-price-sub{font-size:9px;color:var(--mt2);font-weight:400}
+.sc-offer{font-size:9px;color:var(--am);font-weight:700;margin-top:3px;background:var(--aml);padding:2px 6px;border-radius:5px;display:inline-block}
+.sc-modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.72);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadein .18s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.sc-modal{background:#fff;border-radius:16px;width:100%;max-width:380px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.35);animation:modalup .2s cubic-bezier(.34,1.4,.64,1)}
+@keyframes modalup{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.sc-modal-img{width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#EEF2FF,#E8EAF6);position:relative;display:flex;align-items:center;justify-content:center;font-size:80px;overflow:hidden}
+.sc-modal-img img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;background:#fff}
+.sc-modal-body{padding:16px}
+.sc-modal-name{font-size:17px;font-weight:700;color:var(--txt);margin-bottom:6px}
+.sc-modal-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #EEF2FF;font-size:12px}
+.sc-modal-row:last-child{border-bottom:none}
+.sc-modal-label{color:var(--mt);font-weight:600}
+.sc-modal-val{font-weight:700;color:var(--txt)}
+.sc-close{position:absolute;top:10px;right:10px;width:32px;height:32px;background:rgba(255,255,255,.9);border:none;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:1}
+.sc-filter{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.sc-search{flex:1;min-width:120px}
+.sc-empty{text-align:center;padding:32px 16px;color:var(--mt2)}
+.sc-empty span{font-size:40px;display:block;margin-bottom:8px}
+.sc-empty p{font-size:12px;font-weight:600}
+
 /* Payment breakdown */
 .pay-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #EEF2FF;font-size:12px}
 .pay-row:last-child{border-bottom:none}
@@ -471,7 +509,7 @@ var S = {
   giveSelProd:{}, giveItems:[],
   txItems:[{productId:'',cases:'',pcs:''}],
   srTab:'list', editSRId:null,
-  prodTab:'list', editProdId:null,
+  prodTab:'list', editProdId:null, showcaseQ:'',
   rptMode:'daily', rptDate:'', rptMonth:'', rptFrom:'', rptTo:'',
   lastSlip:null, expCats:[], expDate:'', expTab:'entry',
   dsrDate: '', dsrFrom: '', dsrTo: '', dsrMode: 'today', dsrData: null
@@ -792,9 +830,10 @@ function renderProd() {
   tabs += '<button class="sbt '+(S.prodTab==='list'?'active':'')+'\" onclick="S.prodTab=\'list\';renderProd()">📋 তালিকা</button>';
   if (canEdit) tabs += '<button class="sbt '+(S.prodTab==='add'?'active':'')+'\" onclick="S.prodTab=\'add\';renderProd()">➕ যোগ করুন</button>';
   tabs += '<button class="sbt '+(S.prodTab==='stock'?'active':'')+'\" onclick="S.prodTab=\'stock\';renderProd()">🏪 SKU স্টক</button>';
+  tabs += '<button class="sbt '+(S.prodTab==='showcase'?'active':'')+'\" onclick="S.prodTab=\'showcase\';renderProd()">🖼️ শোকেস</button>';
   tabs += '</div>';
 
-  el.innerHTML = tabs + (S.prodTab==='add'?buildProdForm():S.prodTab==='stock'?buildStockPage():buildProdList(canEdit));
+  el.innerHTML = tabs + (S.prodTab==='add'?buildProdForm():S.prodTab==='stock'?buildStockPage():S.prodTab==='showcase'?buildShowcasePage():buildProdList(canEdit));
 
   if (S.prodTab==='add') {
     var p2 = S.editProdId ? S.products.find(function(x){return x.id===S.editProdId;}) : null;
@@ -805,6 +844,104 @@ function renderProd() {
       else if (p2 && getThumb(p2)) setContainerImg(prv, getThumb(p2));
     }, 0);
   }
+}
+
+function buildShowcasePage() {
+  if (!S.products.length) return '<div class="sc-empty"><span>📦</span><p>কোনো পণ্য নেই</p></div>';
+
+  var q = (S.showcaseQ||'').toLowerCase();
+  var filtered = q ? S.products.filter(function(p){
+    return p.name.toLowerCase().indexOf(q)>=0 || p.sku.toLowerCase().indexOf(q)>=0;
+  }) : S.products;
+
+  var h = '<div class="showcase-wrap">';
+
+  // Header banner
+  h += '<div class="showcase-header">';
+  h += '<h2>🖼️ পণ্য শোকেস</h2>';
+  h += '<p>ব্যবসায়িক অংশীদারদের জন্য পণ্য ক্যাটালগ</p>';
+  h += '</div>';
+
+  // Search filter
+  h += '<div class="sc-filter">';
+  h += '<input class="sc-search" placeholder="🔍 পণ্য খুঁজুন..." value="'+(q?esc(q):'')+'" oninput="S.showcaseQ=this.value;renderProd()">';
+  h += '</div>';
+
+  if (!filtered.length) {
+    h += '<div class="sc-empty"><span>🔍</span><p>কোনো পণ্য পাওয়া যায়নি</p></div>';
+    h += '</div>';
+    return h;
+  }
+
+  h += '<div class="showcase-grid">';
+  filtered.forEach(function(p) {
+    var thumb = getThumb(p);
+    var imgHtml = thumb
+      ? '<div class="sc-img"><img src="'+thumb+'" onerror="this.parentNode.innerHTML=\'<div class=\\\"sc-no-img\\\"><span>📦</span><small>NO IMG</small></div>\'" alt="'+esc(p.name)+'"></div>'
+      : '<div class="sc-img"><div class="sc-no-img"><span>📦</span><small>NO IMAGE</small></div></div>';
+
+    var offer = '';
+    if (num(p.bonusFreeUnits)) {
+      offer = '<div class="sc-offer">🎁 '+p.bonusCasesReq+'কেসে '+p.bonusFreeUnits+'পিস ফ্রি'+(num(p.bonusFreeMoney)?' + ৳'+fm(p.bonusFreeMoney):'')+'</div>';
+    }
+
+    h += '<div class="sc-card" onclick="openShowcaseModal(\''+p.id+'\')">';
+    h += imgHtml;
+    h += '<div class="sc-info">';
+    h += '<div class="sc-name">'+esc(p.name)+'</div>';
+    h += '<div><span class="sc-sku">'+esc(p.sku)+'</span></div>';
+    h += '<div class="sc-price">৳'+fm(p.sellingPrice)+' <span class="sc-price-sub">/ পিস</span></div>';
+    if (offer) h += offer;
+    h += '</div>';
+    h += '</div>';
+  });
+  h += '</div></div>';
+  return h;
+}
+
+function openShowcaseModal(id) {
+  var p = S.products.find(function(x){return x.id===id;});
+  if (!p) return;
+  var thumb = getThumb(p);
+  var stk = S.stockMap[p.id]||0;
+  var cs = num(p.caseSize)||1;
+  var cases = Math.floor(stk/cs), rem = stk%cs;
+  var sc = stk>10?'var(--gr)':stk>0?'var(--am)':'var(--re)';
+
+  var imgHtml = thumb
+    ? '<img src="'+thumb+'" onerror="this.style.display=\'none\'" alt="'+esc(p.name)+'">'
+    : '<span style="font-size:80px">📦</span>';
+
+  var offer = '';
+  if (num(p.bonusFreeUnits)) {
+    offer = '<div class="sc-modal-row"><span class="sc-modal-label">🎁 অফার</span><span class="sc-modal-val" style="color:var(--am)">'+p.bonusCasesReq+'কেসে '+p.bonusFreeUnits+'পিস ফ্রি'+(num(p.bonusFreeMoney)?' + ৳'+fm(p.bonusFreeMoney):'')+'</span></div>';
+  }
+
+  var stkTxt = stk>0?((cases>0?cases+' কেস ':'')+( rem>0?rem+' পিস':'')):'স্টক নেই';
+
+  var html = '<div class="sc-modal-bg" id="sc-modal-bg" onclick="closeShowcaseModal(event)">';
+  html += '<div class="sc-modal" onclick="event.stopPropagation()">';
+  html += '<div class="sc-modal-img" style="position:relative">'+imgHtml;
+  html += '<button class="sc-close" onclick="closeShowcaseModal()">✕</button>';
+  html += '</div>';
+  html += '<div class="sc-modal-body">';
+  html += '<div class="sc-modal-name">'+esc(p.name)+'</div>';
+  html += '<div class="sc-modal-row"><span class="sc-modal-label">SKU</span><span class="sc-modal-val"><span class="bdg b-bl">'+esc(p.sku)+'</span></span></div>';
+  html += '<div class="sc-modal-row"><span class="sc-modal-label">কেসে পিস</span><span class="sc-modal-val">'+p.caseSize+' পিস / কেস</span></div>';
+  html += '<div class="sc-modal-row"><span class="sc-modal-label">বিক্রয় মূল্য</span><span class="sc-modal-val" style="color:var(--gr);font-size:15px">৳'+fm(p.sellingPrice)+' / পিস</span></div>';
+  html += '<div class="sc-modal-row"><span class="sc-modal-label">কেস মূল্য</span><span class="sc-modal-val">৳'+fm(num(p.sellingPrice)*cs)+' / কেস</span></div>';
+  html += '<div class="sc-modal-row"><span class="sc-modal-label">স্টক</span><span class="sc-modal-val" style="color:'+sc+'">'+stkTxt+'</span></div>';
+  if (offer) html += offer;
+  html += '</div></div></div>';
+
+  var existing = document.getElementById('sc-modal-bg');
+  if (existing) existing.remove();
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closeShowcaseModal(e) {
+  if (e && e.target !== document.getElementById('sc-modal-bg')) return;
+  var m = document.getElementById('sc-modal-bg'); if (m) m.remove();
 }
 
 function buildProdList(canEdit) {
