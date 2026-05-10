@@ -42,23 +42,25 @@ module.exports = async (req, res) => {
       if (r.type === 'give')   stockMap[pid] -= u;
       if (r.type === 'return') stockMap[pid] += u;
       if (r.type === 'damage') stockMap[pid] -= u;
+      if (r.type === 'point_sale')          stockMap[pid] -= u;
+      if (r.type === 'point_damage_return') stockMap[pid] += u;
     });
 
     // ── TODAY stats ────────────────────────────────────────
-    const gU  = txToday.filter(r=>r.type==='give').reduce((s,r)=>s+num(r.totalUnits),0);
-    const rtU = txToday.filter(r=>r.type==='return').reduce((s,r)=>s+num(r.totalUnits),0);
-    const gR  = txToday.filter(r=>r.type==='give').reduce((s,r)=>s+num(r.totalRevenue),0);
-    const rtR = txToday.filter(r=>r.type==='return').reduce((s,r)=>s+num(r.totalRevenue),0);
-    const gC  = txToday.filter(r=>r.type==='give').reduce((s,r)=>s+num(r.totalCost),0);
-    const rtC = txToday.filter(r=>r.type==='return').reduce((s,r)=>s+num(r.totalCost),0);
+    const gU  = txToday.filter(r=>r.type==='give'||r.type==='point_sale').reduce((s,r)=>s+num(r.totalUnits),0);
+    const rtU = txToday.filter(r=>r.type==='return'||r.type==='point_damage_return').reduce((s,r)=>s+num(r.totalUnits),0);
+    const gR  = txToday.filter(r=>r.type==='give'||r.type==='point_sale').reduce((s,r)=>s+num(r.totalRevenue),0);
+    const rtR = txToday.filter(r=>r.type==='return'||r.type==='point_damage_return').reduce((s,r)=>s+num(r.totalRevenue),0);
+    const gC  = txToday.filter(r=>r.type==='give'||r.type==='point_sale').reduce((s,r)=>s+num(r.totalCost),0);
+    const rtC = txToday.filter(r=>r.type==='return'||r.type==='point_damage_return').reduce((s,r)=>s+num(r.totalCost),0);
     const todayRevenue = gR - rtR;
     const todayProfit  = todayRevenue - (gC - rtC);
 
     // ── MONTH stats ────────────────────────────────────────
-    const mgR  = txMonth.filter(r=>r.type==='give').reduce((s,r)=>s+num(r.totalRevenue),0);
-    const mrtR = txMonth.filter(r=>r.type==='return').reduce((s,r)=>s+num(r.totalRevenue),0);
-    const mgC  = txMonth.filter(r=>r.type==='give').reduce((s,r)=>s+num(r.totalCost),0);
-    const mrtC = txMonth.filter(r=>r.type==='return').reduce((s,r)=>s+num(r.totalCost),0);
+    const mgR  = txMonth.filter(r=>r.type==='give'||r.type==='point_sale').reduce((s,r)=>s+num(r.totalRevenue),0);
+    const mrtR = txMonth.filter(r=>r.type==='return'||r.type==='point_damage_return').reduce((s,r)=>s+num(r.totalRevenue),0);
+    const mgC  = txMonth.filter(r=>r.type==='give'||r.type==='point_sale').reduce((s,r)=>s+num(r.totalCost),0);
+    const mrtC = txMonth.filter(r=>r.type==='return'||r.type==='point_damage_return').reduce((s,r)=>s+num(r.totalCost),0);
     const monthRevenue = mgR - mrtR;
     const monthProfit  = monthRevenue - (mgC - mrtC);
     const monthPayments = payMonth.reduce((s,r)=>s+num(r.amount),0);
@@ -73,26 +75,10 @@ module.exports = async (req, res) => {
         lowStockAlert: num(p.lowStockAlert),
         thumb: p.thumb || '',
         units,
-        sellValue: units * num(p.sellingPrice),
-        costValue: units * num(p.purchasePrice)
+        sellValue: units * num(p.sellingPrice)
       };
     });
     const totalSell = stockList.reduce((s,p)=>s+p.sellValue,0);
-    const totalCostStock = stockList.reduce((s,p)=>s+p.costValue,0);
-
-    // ── TOP 3 best-selling products ─────────────────────────
-    const soldMap = {};
-    txAll.forEach(r => {
-      const pid = String(r.product_id || ''); if (!pid) return;
-      if (!soldMap[pid]) soldMap[pid] = 0;
-      if (r.type === 'give')   soldMap[pid] += num(r.total_units);
-      if (r.type === 'return') soldMap[pid] -= num(r.total_units);
-    });
-    const top3 = products
-      .map(p => ({ id: p.id, name: p.name, sku: p.sku, sold: soldMap[p.id] || 0 }))
-      .filter(p => p.sold > 0)
-      .sort((a,b) => b.sold - a.sold)
-      .slice(0, 3);
 
     // ── DUES (SR-wise) ─────────────────────────────────────
     const srDueMap = {};
@@ -160,15 +146,51 @@ module.exports = async (req, res) => {
     const recentRes = await supabase.from('transactions').select('*').order('created_at',{ascending:false}).limit(10);
     const recent = (recentRes.data||[]).map(mapTx);
 
+    // ── TOTAL STOCK VALUES (buy price & sell price) ────
+    const totalBuyValue  = stockList.reduce((s,p)=>s+(p.units*(products.find(pr=>pr.id===p.id)?num(products.find(pr=>pr.id===p.id).purchasePrice):0)),0);
+    const totalSellValue = totalSell;
+    const estimatedProfit = totalSellValue - totalBuyValue;
+
+    // ── LOW STOCK ALERTS ───────────────────────────────
+    const lowStockList = stockList.filter(p=>num(p.lowStockAlert)>0&&p.units<=num(p.lowStockAlert));
+
+    // ── TOP 3 SELLING PRODUCTS (all time, by units) ───
+    const prodSales = {};
+    txAll.forEach(r => {
+      const pid = String(r.product_id||''); if(!pid) return;
+      if(!prodSales[pid]) prodSales[pid] = { productId:pid, productName:'', units:0 };
+      if(r.type==='give'||r.type==='point_sale') prodSales[pid].units += num(r.total_units);
+      if(r.type==='return'||r.type==='point_damage_return') prodSales[pid].units -= num(r.total_units);
+    });
+    // attach product names
+    products.forEach(p=>{ if(prodSales[p.id]) prodSales[p.id].productName=p.name; });
+    const top3 = Object.values(prodSales).filter(p=>p.units>0).sort((a,b)=>b.units-a.units).slice(0,3)
+      .map(p=>({ ...p, thumb: (stockList.find(s=>s.id===p.productId)||{}).thumb||'' }));
+
+    // ── SR PERFORMANCE (this month) ────────────────────
+    const srPerf = {};
+    srs.forEach(sr=>{ srPerf[sr.id]={srId:sr.id,name:sr.name,area:sr.area||'',thumb:sr.thumb||'',soldUnits:0,returnUnits:0,revenue:0,due:0}; });
+    txMonth.forEach(r=>{
+      const sid=String(r.srId||''); if(!sid) return;
+      if(!srPerf[sid]) srPerf[sid]={srId:sid,name:r.srName||'',area:'',thumb:'',soldUnits:0,returnUnits:0,revenue:0,due:0};
+      if(r.type==='give'){srPerf[sid].soldUnits+=num(r.totalUnits);srPerf[sid].revenue+=num(r.totalRevenue);}
+      if(r.type==='return'){srPerf[sid].returnUnits+=num(r.totalUnits);srPerf[sid].revenue-=num(r.totalRevenue);}
+    });
+    // attach dues
+    duesList.forEach(d=>{ if(srPerf[d.srId]) srPerf[d.srId].due=d.due; });
+    const srPerfList = Object.values(srPerf).filter(s=>s.soldUnits>0||s.returnUnits>0).sort((a,b)=>b.revenue-a.revenue);
+
     res.json({
       ok: true,
       today: { revenue: todayRevenue, profit: todayProfit, givenUnits: gU, returnUnits: rtU },
       month: { revenue: monthRevenue, profit: monthProfit, payments: monthPayments },
-      stock: { list: stockList, totalSell, totalCost: totalCostStock },
+      stock: { list: stockList, totalSell, totalBuyValue, totalSellValue, estimatedProfit },
       dues:  { total: totalDue, list: duesList },
       damage: { pendingAmt: dmgPendingAmt },
       bonus:  { pendingAmt: bonusPendingAmt },
+      lowStock: lowStockList,
       top3,
+      srPerformance: srPerfList,
       recent
     });
 

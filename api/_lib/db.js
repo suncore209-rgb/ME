@@ -160,6 +160,8 @@ function calcStock(allTx) {
     if (r.type === 'give')   m[pid] -= u;
     if (r.type === 'return') m[pid] += u;
     if (r.type === 'damage') m[pid] -= u;
+    if (r.type === 'point_sale')          m[pid] -= u;
+    if (r.type === 'point_damage_return') m[pid] += u;
   });
   return m;
 }

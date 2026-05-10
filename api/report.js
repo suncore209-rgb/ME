@@ -28,9 +28,9 @@ module.exports = async (req, res) => {
     const sR = (a, t) => a.filter(r => r.type === t).reduce((s, r) => s + num(r.totalRevenue), 0);
     const sC = (a, t) => a.filter(r => r.type === t).reduce((s, r) => s + num(r.totalCost), 0);
 
-    const gU  = sU(txs,'give'), rtU = sU(txs,'return'), dmgU = sU(txs,'damage'), byU = sU(txs,'buy');
-    const gR  = sR(txs,'give'), rtR = sR(txs,'return');
-    const gC  = sC(txs,'give'), rtC = sC(txs,'return'), dmgC = sC(txs,'damage');
+    const gU  = sU(txs,'give')+sU(txs,'point_sale'), rtU = sU(txs,'return')+sU(txs,'point_damage_return'), dmgU = sU(txs,'damage'), byU = sU(txs,'buy');
+    const gR  = sR(txs,'give')+sR(txs,'point_sale'), rtR = sR(txs,'return')+sR(txs,'point_damage_return');
+    const gC  = sC(txs,'give')+sC(txs,'point_sale'), rtC = sC(txs,'return')+sC(txs,'point_damage_return'), dmgC = sC(txs,'damage');
     const netRev  = gR - rtR, netCost = gC - rtC;
     const totalPay = pays.reduce((s, r) => s + num(r.amount), 0);
 
@@ -104,8 +104,8 @@ module.exports = async (req, res) => {
       }
       const p = prodMap[r.productId], u = num(r.totalUnits);
       if (r.type === 'buy')    p.buy      += u;
-      if (r.type === 'give')   { p.given   += u; p.revenue += num(r.totalRevenue); p.cost += num(r.totalCost); }
-      if (r.type === 'return') { p.returned+= u; p.revenue -= num(r.totalRevenue); p.cost -= num(r.totalCost); }
+      if (r.type === 'give'   || r.type === 'point_sale')          { p.given   += u; p.revenue += num(r.totalRevenue); p.cost += num(r.totalCost); }
+      if (r.type === 'return' || r.type === 'point_damage_return') { p.returned+= u; p.revenue -= num(r.totalRevenue); p.cost -= num(r.totalCost); }
       if (r.type === 'damage') p.damage   += u;
     });
     Object.values(prodMap).forEach(p => { p.sold = p.given - p.returned - p.damage; p.profit = p.revenue - p.cost; });
@@ -116,8 +116,8 @@ module.exports = async (req, res) => {
       const d = ds(r.date);
       if (!dayMap[d]) dayMap[d] = { date: d, givenUnits: 0, returnUnits: 0, dmgUnits: 0, revenue: 0, cost: 0, profit: 0 };
       const day = dayMap[d], u = num(r.totalUnits);
-      if (r.type === 'give')   { day.givenUnits  += u; day.revenue += num(r.totalRevenue); day.cost += num(r.totalCost); }
-      if (r.type === 'return') { day.returnUnits += u; day.revenue -= num(r.totalRevenue); day.cost -= num(r.totalCost); }
+      if (r.type === 'give'   || r.type === 'point_sale')          { day.givenUnits  += u; day.revenue += num(r.totalRevenue); day.cost += num(r.totalCost); }
+      if (r.type === 'return' || r.type === 'point_damage_return') { day.returnUnits += u; day.revenue -= num(r.totalRevenue); day.cost -= num(r.totalCost); }
       if (r.type === 'damage')   day.dmgUnits    += u;
     });
     Object.values(dayMap).forEach(d => { d.profit = d.revenue - d.cost; });
