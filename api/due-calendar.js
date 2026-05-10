@@ -29,6 +29,8 @@ module.exports = async (req, res) => {
         id:          randomUUID(),
         dsr_id:      d.dsrId   || '',
         dsr_name:    d.dsrName || '',
+        client_type: d.clientType || 'dsr',
+        shop_name:   d.shopName || '',
         due_date:    d.dueDate,
         amount:      num(d.amount),
         paid_amount: 0,
@@ -86,11 +88,13 @@ module.exports = async (req, res) => {
         updates.paid_amount  = 0;
         updates.cleared_date = null;
       }
-      if (d.dueDate)            updates.due_date  = d.dueDate;
-      if (d.amount)             updates.amount    = num(d.amount);
-      if (d.dsrName)            updates.dsr_name  = d.dsrName;
-      if (d.dsrId)              updates.dsr_id    = d.dsrId;
-      if (d.note !== undefined) updates.note      = d.note;
+      if (d.dueDate)            updates.due_date    = d.dueDate;
+      if (d.amount)             updates.amount      = num(d.amount);
+      if (d.dsrName)            updates.dsr_name    = d.dsrName;
+      if (d.dsrId)              updates.dsr_id      = d.dsrId;
+      if (d.clientType)         updates.client_type = d.clientType;
+      if (d.shopName !== undefined) updates.shop_name = d.shopName;
+      if (d.note !== undefined) updates.note        = d.note;
 
       const { error } = await supabase.from('due_calendar').update(updates).eq('id', d.id);
       if (error) throw error;
