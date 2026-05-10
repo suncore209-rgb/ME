@@ -73,10 +73,26 @@ module.exports = async (req, res) => {
         lowStockAlert: num(p.lowStockAlert),
         thumb: p.thumb || '',
         units,
-        sellValue: units * num(p.sellingPrice)
+        sellValue: units * num(p.sellingPrice),
+        costValue: units * num(p.purchasePrice)
       };
     });
     const totalSell = stockList.reduce((s,p)=>s+p.sellValue,0);
+    const totalCostStock = stockList.reduce((s,p)=>s+p.costValue,0);
+
+    // ── TOP 3 best-selling products ─────────────────────────
+    const soldMap = {};
+    txAll.forEach(r => {
+      const pid = String(r.product_id || ''); if (!pid) return;
+      if (!soldMap[pid]) soldMap[pid] = 0;
+      if (r.type === 'give')   soldMap[pid] += num(r.total_units);
+      if (r.type === 'return') soldMap[pid] -= num(r.total_units);
+    });
+    const top3 = products
+      .map(p => ({ id: p.id, name: p.name, sku: p.sku, sold: soldMap[p.id] || 0 }))
+      .filter(p => p.sold > 0)
+      .sort((a,b) => b.sold - a.sold)
+      .slice(0, 3);
 
     // ── DUES (SR-wise) ─────────────────────────────────────
     const srDueMap = {};
@@ -148,10 +164,11 @@ module.exports = async (req, res) => {
       ok: true,
       today: { revenue: todayRevenue, profit: todayProfit, givenUnits: gU, returnUnits: rtU },
       month: { revenue: monthRevenue, profit: monthProfit, payments: monthPayments },
-      stock: { list: stockList, totalSell },
+      stock: { list: stockList, totalSell, totalCost: totalCostStock },
       dues:  { total: totalDue, list: duesList },
       damage: { pendingAmt: dmgPendingAmt },
       bonus:  { pendingAmt: bonusPendingAmt },
+      top3,
       recent
     });
 
