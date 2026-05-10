@@ -215,3 +215,8 @@ ALTER TABLE due_calendar ADD COLUMN IF NOT EXISTS paid_amount NUMERIC(14,2) DEFA
 ALTER TABLE due_calendar DROP CONSTRAINT IF EXISTS due_calendar_status_check;
 ALTER TABLE due_calendar ADD CONSTRAINT due_calendar_status_check
   CHECK (status IN ('pending','partial','cleared'));
+
+-- Due Calendar: client_type + shop_name columns (V8)
+ALTER TABLE due_calendar ADD COLUMN IF NOT EXISTS client_type TEXT DEFAULT 'dsr';
+ALTER TABLE due_calendar ADD COLUMN IF NOT EXISTS shop_name   TEXT DEFAULT '';
+
