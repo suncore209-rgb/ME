@@ -625,9 +625,9 @@ function renderDash(d) {
   var h='';
 
   // ── Daily summary banner
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">';
+  h+='<div style="display:grid;grid-template-columns:'+(isOwner?'1fr 1fr':'1fr')+';gap:8px;margin-bottom:10px">';
   h+='<div style="background:linear-gradient(135deg,var(--bl),var(--bl2));color:#fff;border-radius:10px;padding:12px;text-align:center"><div style="font-size:10px;opacity:.8">আজ বিক্রি</div><div style="font-size:22px;font-weight:700">৳'+fm(t.revenue)+'</div></div>';
-  h+='<div style="background:linear-gradient(135deg,'+(t.profit>=0?'var(--gr)':'var(--re)')+','+(t.profit>=0?'#388E3C':'#D32F2F')+');color:#fff;border-radius:10px;padding:12px;text-align:center"><div style="font-size:10px;opacity:.8">আজ '+(t.profit>=0?'লাভ':'ক্ষতি')+'</div><div style="font-size:22px;font-weight:700">৳'+fm(Math.abs(t.profit))+'</div></div>';
+  if(isOwner) h+='<div style="background:linear-gradient(135deg,'+(t.profit>=0?'var(--gr)':'var(--re)')+','+(t.profit>=0?'#388E3C':'#D32F2F')+');color:#fff;border-radius:10px;padding:12px;text-align:center"><div style="font-size:10px;opacity:.8">আজ '+(t.profit>=0?'লাভ':'ক্ষতি')+'</div><div style="font-size:22px;font-weight:700">৳'+fm(Math.abs(t.profit))+'</div></div>';
   h+='</div>';
 
   h+='<div class="ct">📅 আজকের বিক্রয়</div>';
@@ -640,7 +640,7 @@ function renderDash(d) {
   h+='<div class="ct">📆 এই মাস</div>';
   h+='<div class="mets">';
   h+='<div class="met met-b"><div class="ml">মোট বিক্রয়</div><div class="mv">৳'+fm(m.revenue)+'</div></div>';
-  h+='<div class="met" style="border-top:3px solid '+mpc+'"><div class="ml">'+(m.profit>=0?'মোট লাভ':'মোট ক্ষতি')+'</div><div class="mv" style="color:'+mpc+'">৳'+fm(Math.abs(m.profit))+'</div></div>';
+  if(isOwner) h+='<div class="met" style="border-top:3px solid '+mpc+'"><div class="ml">'+(m.profit>=0?'মোট লাভ':'মোট ক্ষতি')+'</div><div class="mv" style="color:'+mpc+'">৳'+fm(Math.abs(m.profit))+'</div></div>';
   h+='<div class="met met-a"><div class="ml">পেমেন্ট আদায়</div><div class="mv">৳'+fm(m.payments)+'</div></div>';
   h+='<div class="met met-r"><div class="ml">মোট বাকি</div><div class="mv">৳'+fm(dues.total)+'</div></div>';
   h+='</div>';
@@ -2486,6 +2486,32 @@ function renderCal() {
   h += '<div class="cal-leg-item"><div class="cal-leg-dot" style="background:#FFF8E1;border:1.5px solid var(--am)"></div> মিশ্র</div>';
   h += '</div>';
 
+  // ── Per-person monthly due summary ─────────────────────────
+  var personMap = {};
+  CAL.dues.forEach(function(d) {
+    var key = d.dsrName || '—';
+    if (!personMap[key]) personMap[key] = { name: key, clientType: d.clientType || 'dsr', total: 0, remaining: 0 };
+    personMap[key].total     += num(d.amount);
+    personMap[key].remaining += Math.max(0, num(d.amount) - num(d.paidAmount));
+  });
+  var personList = Object.values(personMap).filter(function(p){ return p.total > 0; });
+  if (personList.length) {
+    h += '<div class="ct">👤 ব্যক্তিভিত্তিক মাসিক বাকি সারাংশ</div>';
+    h += '<div class="card" style="padding:0;overflow:hidden;margin-bottom:10px">';
+    personList.forEach(function(p) {
+      var badge = p.clientType === 'custom'
+        ? '<span style="font-size:10px;background:#EDE7F6;color:#673AB7;border-radius:4px;padding:1px 5px;margin-left:4px">কাস্টম</span>'
+        : '<span style="font-size:10px;background:#E3F2FD;color:var(--bl);border-radius:4px;padding:1px 5px;margin-left:4px">DSR</span>';
+      var remColor = p.remaining > 0 ? 'var(--re)' : 'var(--gr)';
+      h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-bottom:1px solid #EEF2FF">';
+      h += '<div><span style="font-weight:700;font-size:13px">'+esc(p.name)+'</span>'+badge+'</div>';
+      h += '<div style="text-align:right"><div style="font-size:13px;font-weight:700;color:'+remColor+'">৳'+fm(p.remaining)+'</div>';
+      h += '<div style="font-size:10px;color:var(--mt2)">মোট: ৳'+fm(p.total)+'</div></div>';
+      h += '</div>';
+    });
+    h += '</div>';
+  }
+
   h += '<div class="card" style="padding:10px;margin-bottom:10px">';
   h += '<div class="cal-grid">';
   var dayLabels = ['রবি','সোম','মঙ্গ','বুধ','বৃহ','শুক্র','শনি'];
@@ -2556,6 +2582,7 @@ function renderCal() {
       h += '<div style="flex:1;min-width:0">';
       h += '<div style="font-weight:700;font-size:13px">'+fmtBn(d.dueDate)+'</div>';
       h += '<div style="font-size:11px;color:var(--mt)">'+(d.dsrName||'—')+(d.note?' · '+esc(d.note):'')+'</div>';
+      if (d.shopName) h += '<div style="font-size:11px;color:#673AB7;font-weight:600">🏪 '+esc(d.shopName)+'</div>';
       h += '<div class="'+statusCls+'">'+statusLbl+'</div>';
       if (isPartial) {
         h += '<div class="pay-prog-bar"><div class="pay-prog-fill" style="width:'+pct+'%"></div></div>';
@@ -2616,6 +2643,7 @@ function calDayClick(dateStr) {
 
       h += '<div class="due-item">';
       h += '<div style="flex:1;min-width:0"><div style="font-weight:700">'+(d.dsrName||'—')+'</div>';
+      if (d.shopName) h += '<div style="font-size:11px;color:#673AB7;font-weight:600">🏪 '+esc(d.shopName)+'</div>';
       h += '<div style="font-size:11px;color:var(--mt)">'+(d.note||'')+'</div>';
       h += '<div class="'+statusCls+'">'+statusLbl+'</div>';
       if (isPartial) {
@@ -2705,6 +2733,17 @@ async function calDoPayment(id, maxRemaining) {
   } else toast(r.error||'ব্যর্থ');
 }
 
+function calSwitchType(type) {
+  var isDsr = type === 'dsr';
+  document.getElementById('cal-type-dsr').style.background    = isDsr ? 'var(--bl)' : '#E8EAF6';
+  document.getElementById('cal-type-dsr').style.color         = isDsr ? '#fff' : 'var(--bl)';
+  document.getElementById('cal-type-custom').style.background = !isDsr ? '#673AB7' : '#EDE7F6';
+  document.getElementById('cal-type-custom').style.color      = !isDsr ? '#fff' : '#673AB7';
+  document.getElementById('cal-dsr-wrap').style.display    = isDsr  ? '' : 'none';
+  document.getElementById('cal-custom-wrap').style.display = !isDsr ? '' : 'none';
+  document.getElementById('cal-client-type').value = type;
+}
+
 function calAddModal(prefillDate) {
   var canEdit = S.role==='owner'||S.role==='manager';
   if (!canEdit) return;
@@ -2714,7 +2753,15 @@ function calAddModal(prefillDate) {
   var srOpts = S.srs.map(function(s){return '<option value="'+s.id+'|'+esc(s.name)+'">'+esc(s.name)+'</option>';}).join('');
   var h = '<div class="due-modal">';
   h += '<div class="due-modal-title">➕ নতুন বাকি এন্ট্রি</div>';
-  h += '<div class="fg"><label class="fl">DSR/SO বাছাই করুন</label><select id="cal-sr"><option value="">-- নির্বাচন করুন --</option>'+srOpts+'</select></div>';
+  h += '<input type="hidden" id="cal-client-type" value="dsr">';
+  h += '<div class="fg"><label class="fl">বাকি কার জন্য?</label>';
+  h += '<div style="display:flex;gap:8px">';
+  h += '<button id="cal-type-dsr" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--bl);color:#fff;font-size:13px;font-weight:700;cursor:pointer" onclick="calSwitchType(\'dsr\')">🚚 SR / DSR</button>';
+  h += '<button id="cal-type-custom" style="flex:1;padding:8px;border-radius:8px;border:none;background:#EDE7F6;color:#673AB7;font-size:13px;font-weight:700;cursor:pointer" onclick="calSwitchType(\'custom\')">👤 Custom Client</button>';
+  h += '</div></div>';
+  h += '<div id="cal-dsr-wrap" class="fg"><label class="fl">DSR/SO বাছাই করুন</label><select id="cal-sr"><option value="">-- নির্বাচন করুন --</option>'+srOpts+'</select></div>';
+  h += '<div id="cal-custom-wrap" class="fg" style="display:none"><label class="fl">কাস্টমার নাম *</label><input id="cal-custom-nm" placeholder="কাস্টমার নাম লিখুন"></div>';
+  h += '<div class="fg"><label class="fl">দোকানের নাম (ঐচ্ছিক)</label><input id="cal-shop" placeholder="যেমন: মা স্টোর"></div>';
   h += '<div class="fg"><label class="fl">বাকির তারিখ *</label><input type="date" id="cal-dt" value="'+(prefillDate||iso(new Date()))+'"></div>';
   h += '<div class="fg"><label class="fl">পরিমাণ (৳) *</label><input type="number" id="cal-am" min="0" placeholder="0"></div>';
   h += '<div class="fg"><label class="fl">নোট</label><input id="cal-nt" placeholder="ঐচ্ছিক"></div>';
@@ -2727,17 +2774,25 @@ function calAddModal(prefillDate) {
 }
 
 async function calSaveNew() {
-  var srVal = v('cal-sr'); var dsrId='', dsrName='';
-  if (srVal) { var pts=srVal.split('|'); dsrId=pts[0]; dsrName=pts.slice(1).join('|'); }
-  var dueDate = v('cal-dt');
-  var amount  = vn('cal-am');
-  var note    = v('cal-nt');
+  var clientType = v('cal-client-type') || 'dsr';
+  var dsrId = '', dsrName = '';
+  if (clientType === 'custom') {
+    dsrName = v('cal-custom-nm').trim();
+    if (!dsrName) return toast('কাস্টমার নাম দিন');
+  } else {
+    var srVal = v('cal-sr');
+    if (srVal) { var pts=srVal.split('|'); dsrId=pts[0]; dsrName=pts.slice(1).join('|'); }
+  }
+  var shopName = v('cal-shop').trim();
+  var dueDate  = v('cal-dt');
+  var amount   = vn('cal-am');
+  var note     = v('cal-nt');
   if (!dueDate) return toast('তারিখ দিন');
   if (!amount)  return toast('পরিমাণ দিন');
   var modal = document.querySelector('.due-modal-bg');
   if (modal) document.body.removeChild(modal);
   showOvl('সংরক্ষণ হচ্ছে...');
-  var r = await apiPost('/api/due-calendar', {dsrId:dsrId, dsrName:dsrName, dueDate:dueDate, amount:amount, note:note});
+  var r = await apiPost('/api/due-calendar', {dsrId:dsrId, dsrName:dsrName, clientType:clientType, shopName:shopName, dueDate:dueDate, amount:amount, note:note});
   hideOvl();
   if (r.ok) { toast('✅ বাকি এন্ট্রি যোগ হয়েছে'); loadCal(CAL.month); }
   else toast(r.error||'ব্যর্থ');
