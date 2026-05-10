@@ -69,6 +69,7 @@ module.exports = async (req, res) => {
       return {
         id: p.id, name: p.name, sku: p.sku,
         caseSize: num(p.caseSize) || 1,
+        unitType: p.unitType || 'কেস',
         lowStockAlert: num(p.lowStockAlert),
         thumb: p.thumb || '',
         units,

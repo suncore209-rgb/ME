@@ -17,11 +17,12 @@ CREATE TABLE IF NOT EXISTS products (
   name             TEXT NOT NULL,
   sku              TEXT NOT NULL,
   case_size        INTEGER DEFAULT 1,
+  unit_type        TEXT DEFAULT 'কেস',        -- big unit label: কেস | ডজন | কার্টুন | পলি
   purchase_price   NUMERIC(12,2) DEFAULT 0,
   selling_price    NUMERIC(12,2) DEFAULT 0,
-  bonus_free_units NUMERIC(10,2) DEFAULT 0,   -- free units per N cases
-  bonus_cases_req  NUMERIC(10,2) DEFAULT 1,   -- cases required to earn bonus
-  bonus_free_money NUMERIC(10,2) DEFAULT 0,   -- free money (৳) per N cases
+  bonus_free_units NUMERIC(10,2) DEFAULT 0,   -- free units per N big-units
+  bonus_cases_req  NUMERIC(10,2) DEFAULT 1,   -- big-units required to earn bonus
+  bonus_free_money NUMERIC(10,2) DEFAULT 0,   -- free money (৳) per N big-units
   low_stock_alert  NUMERIC(10,2) DEFAULT 0,   -- alert threshold in pcs (0 = off)
   thumb            TEXT DEFAULT '',
   created_at       TIMESTAMPTZ DEFAULT NOW()
@@ -177,6 +178,9 @@ ALTER TABLE due_calendar DISABLE ROW LEVEL SECURITY;
 -- Products: bonus money + low-stock alert columns
 ALTER TABLE products ADD COLUMN IF NOT EXISTS bonus_free_money NUMERIC(10,2) DEFAULT 0;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS low_stock_alert  NUMERIC(10,2) DEFAULT 0;
+
+-- V6: dynamic unit type per product (কেস | ডজন | কার্টুন | পলি)
+ALTER TABLE products ADD COLUMN IF NOT EXISTS unit_type TEXT DEFAULT 'কেস';
 
 -- SRs: role column
 ALTER TABLE srs ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'dsr';

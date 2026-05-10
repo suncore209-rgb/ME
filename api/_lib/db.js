@@ -22,6 +22,7 @@ function mapProduct(r) {
     name: r.name || '',
     sku: r.sku || '',
     caseSize: String(r.case_size || 1),
+    unitType: r.unit_type || 'কেস',
     purchasePrice: String(r.purchase_price || 0),
     sellingPrice: String(r.selling_price || 0),
     bonusFreeUnits: String(r.bonus_free_units || 0),
