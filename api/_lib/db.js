@@ -140,6 +140,8 @@ function mapDue(r) {
     id: String(r.id || ''),
     dsrId: String(r.dsr_id || ''),
     dsrName: r.dsr_name || '',
+    clientType: r.client_type || 'dsr',
+    shopName: r.shop_name || '',
     dueDate: r.due_date ? String(r.due_date).slice(0,10) : '',
     amount: String(r.amount || 0),
     paidAmount: String(r.paid_amount || 0),
