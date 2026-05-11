@@ -159,32 +159,33 @@ CREATE TABLE IF NOT EXISTS due_calendar (
 CREATE INDEX IF NOT EXISTS idx_due_date   ON due_calendar(due_date);
 CREATE INDEX IF NOT EXISTS idx_due_status ON due_calendar(status);
 
--- ── Disable RLS ───────────────────────────────────────────────────
-ALTER TABLE products     DISABLE ROW LEVEL SECURITY;
-ALTER TABLE srs          DISABLE ROW LEVEL SECURITY;
-ALTER TABLE transactions DISABLE ROW LEVEL SECURITY;
-ALTER TABLE dmg_claims   DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bonus        DISABLE ROW LEVEL SECURITY;
-ALTER TABLE sr_payments  DISABLE ROW LEVEL SECURITY;
-ALTER TABLE exp_cats     DISABLE ROW LEVEL SECURITY;
-ALTER TABLE exp_records  DISABLE ROW LEVEL SECURITY;
-ALTER TABLE due_calendar DISABLE ROW LEVEL SECURITY;
-
--- ══════════════════════════════════════════════════
---  v9 Auth additions — run these if upgrading from v8
--- ══════════════════════════════════════════════════
-
--- Add password column to srs (DSR/SO login passwords)
-ALTER TABLE srs ADD COLUMN IF NOT EXISTS password TEXT DEFAULT '1234';
-
--- App config table for owner/manager passwords
-CREATE TABLE IF NOT EXISTS app_config (
-  key   TEXT PRIMARY KEY,
-  value TEXT DEFAULT ''
+-- ── User Passwords ────────────────────────────────────────────────
+--   user_key: 'owner' | 'manager' | <srs.id>
+--   role:     'owner' | 'manager' | 'so' | 'dsr'
+--   Each password MUST be globally unique — role is auto-detected from it.
+CREATE TABLE IF NOT EXISTS user_passwords (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_key   TEXT NOT NULL UNIQUE,
+  user_name  TEXT DEFAULT '',
+  role       TEXT NOT NULL CHECK (role IN ('owner','manager','so','dsr')),
+  password   TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_up_password ON user_passwords(password);
 
--- Seed default passwords (owner=owner123, manager=manager123)
-INSERT INTO app_config (key, value) VALUES ('owner_password', 'owner123')
-  ON CONFLICT (key) DO NOTHING;
-INSERT INTO app_config (key, value) VALUES ('manager_password', 'manager123')
-  ON CONFLICT (key) DO NOTHING;
+-- Seed owner with initial password 1234 (owner must change on first login)
+INSERT INTO user_passwords (user_key, user_name, role, password)
+VALUES ('owner', 'Owner', 'owner', '1234')
+ON CONFLICT (user_key) DO NOTHING;
+
+-- ── Disable RLS ───────────────────────────────────────────────────
+ALTER TABLE products       DISABLE ROW LEVEL SECURITY;
+ALTER TABLE srs            DISABLE ROW LEVEL SECURITY;
+ALTER TABLE transactions   DISABLE ROW LEVEL SECURITY;
+ALTER TABLE dmg_claims     DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bonus          DISABLE ROW LEVEL SECURITY;
+ALTER TABLE sr_payments    DISABLE ROW LEVEL SECURITY;
+ALTER TABLE exp_cats       DISABLE ROW LEVEL SECURITY;
+ALTER TABLE exp_records    DISABLE ROW LEVEL SECURITY;
+ALTER TABLE due_calendar   DISABLE ROW LEVEL SECURITY;
+ALTER TABLE user_passwords DISABLE ROW LEVEL SECURITY;
