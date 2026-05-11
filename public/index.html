@@ -247,11 +247,7 @@ tr:hover td{background:#F5F7FF}
 .lgn-inp:focus{border-color:rgba(255,215,0,.7);background:rgba(255,255,255,.2)}
 .lgn-btn{width:100%;padding:12px;background:#FFD700;color:#0D2137;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer;transition:.12s}
 .lgn-btn:active{transform:scale(.97)}
-.lgn-sep{text-align:center;color:rgba(255,255,255,.4);font-size:11px;margin:8px 0}
-.lgn-owner-row{display:flex;gap:8px;margin-bottom:8px}
-.lgn-owner-btn{flex:1;padding:10px 6px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);border-radius:10px;color:#fff;font-size:12px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer;transition:.12s;text-align:center}
-.lgn-owner-btn:active{background:rgba(255,255,255,.25)}
-.lgn-owner-btn.sel-role{border-color:#FFD700;background:rgba(255,215,0,.15);color:#FFD700}
+.lgn-lbl{color:rgba(255,255,255,.65);font-size:11px;font-weight:600;margin-bottom:5px;display:block}
 
 /* ME Logo */
 .me-logo{font-family:'Hind Siliguri',sans-serif;font-size:30px;font-weight:900;color:#0D47A1;letter-spacing:-1px;line-height:1}
@@ -349,19 +345,12 @@ tr:hover td{background:#F5F7FF}
   <div class="pin-co">⚡ <span class="brand-axiion">AXIION</span> TECHNOLOGY</div>
   <div class="pin-sub">লগইন করুন</div>
   <div class="lgn-box">
-    <div class="lgn-owner-row">
-      <button class="lgn-owner-btn sel-role" id="lgn-role-owner" onclick="lgnSelectType('owner')">👑 Owner</button>
-      <button class="lgn-owner-btn" id="lgn-role-manager" onclick="lgnSelectType('manager')">🧑 Manager</button>
-      <button class="lgn-owner-btn" id="lgn-role-dsr" onclick="lgnSelectType('dsr')">👥 DSR/SO</button>
-    </div>
-    <div id="lgn-dsr-wrap" style="display:none">
-      <select class="lgn-sel" id="lgn-dsr-sel">
-        <option value="">-- DSR/SO বাছাই করুন --</option>
-      </select>
-    </div>
-    <input class="lgn-inp" type="password" id="lgn-pass" placeholder="পাসওয়ার্ড" onkeydown="if(event.key==='Enter')doLogin()">
+    <select class="lgn-sel" id="lgn-user-sel">
+      <option value="">⏳ লোড হচ্ছে...</option>
+    </select>
+    <input class="lgn-inp" type="password" id="lgn-pass" placeholder="পাসওয়ার্ড">
     <div class="pin-err" id="pin-err"></div>
-    <button class="lgn-btn" onclick="doLogin()">🔐 প্রবেশ করুন</button>
+    <button class="lgn-btn" id="lgn-submit-btn">🔐 প্রবেশ করুন</button>
   </div>
   <div class="pin-hint">Miron Electronics v9 · AXIION TECHNOLOGY</div>
 </div>
@@ -385,68 +374,66 @@ function apiPut(url, data) { return apiFetch(url, { method:'PUT', body: JSON.str
 function apiDel(url, data) { return apiFetch(url, { method:'DELETE', body: JSON.stringify(data) }); }
 
 // ════════════════════════════════════════════════════
-//  LOGIN SYSTEM — Username + Password
+//  LOGIN SYSTEM — Auto-detect role from password
 // ════════════════════════════════════════════════════
 var ROLE_LABELS = { owner:'👑 Owner', manager:'🧑 Manager', so:'📊 SO', dsr:'🚚 DSR' };
-var _lgnType = 'owner'; // 'owner' | 'manager' | 'dsr'
-var _lgnUsers = []; // loaded DSR/SO list
+var _lgnUsers = []; // all users loaded at startup
 
-function lgnSelectType(t) {
-  _lgnType = t;
-  ['owner','manager','dsr'].forEach(function(r){
-    var b = document.getElementById('lgn-role-'+r);
-    if (b) b.classList.toggle('sel-role', r===t);
-  });
-  var dsrWrap = document.getElementById('lgn-dsr-wrap');
-  if (dsrWrap) dsrWrap.style.display = (t==='dsr') ? '' : 'none';
-  document.getElementById('pin-err').textContent = '';
-  document.getElementById('lgn-pass').value = '';
-  if (t==='dsr' && !_lgnUsers.length) loadLoginUsers();
+// Wire up login button and Enter key AFTER DOM is ready
+// (called from window.load, not inline onclick)
+function initLoginUI() {
+  var btn = document.getElementById('lgn-submit-btn');
+  var inp = document.getElementById('lgn-pass');
+  if (btn) btn.addEventListener('click', doLogin);
+  if (inp) inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') doLogin(); });
 }
 
-async function loadLoginUsers() {
+async function loadLoginUserList() {
   var r = await apiGet('/api/auth?action=list-users');
-  if (!r.ok) return;
-  _lgnUsers = r.users || [];
-  var sel = document.getElementById('lgn-dsr-sel');
+  var sel = document.getElementById('lgn-user-sel');
   if (!sel) return;
-  sel.innerHTML = '<option value="">-- DSR/SO বাছাই করুন --</option>';
-  _lgnUsers.forEach(function(u){
-    var roleLbl = u.role==='so' ? '[SO]' : '[DSR]';
-    sel.innerHTML += '<option value="'+u.id+'">'+u.name+' '+roleLbl+(u.area?' · '+u.area:'')+'</option>';
+  if (!r || !r.ok) {
+    sel.innerHTML = '<option value="">-- ব্যবহারকারী লোড ব্যর্থ --</option>';
+    return;
+  }
+  _lgnUsers = r.users || [];
+  sel.innerHTML = '<option value="owner">👑 Owner</option>'
+                + '<option value="manager">🧑 Manager</option>';
+  _lgnUsers.forEach(function(u) {
+    var lbl = u.role === 'so' ? '📊 SO' : '🚚 DSR';
+    sel.innerHTML += '<option value="' + u.id + '">' + lbl + ' · ' + u.name + (u.area ? ' (' + u.area + ')' : '') + '</option>';
   });
 }
 
 async function doLogin() {
-  document.getElementById('pin-err').textContent = '';
-  var pass = document.getElementById('lgn-pass').value;
-  if (!pass) { document.getElementById('pin-err').textContent = 'পাসওয়ার্ড দিন'; return; }
+  var errEl = document.getElementById('pin-err');
+  errEl.textContent = '';
 
-  var username;
-  if (_lgnType === 'owner') username = 'owner';
-  else if (_lgnType === 'manager') username = 'manager';
-  else {
-    username = document.getElementById('lgn-dsr-sel').value;
-    if (!username) { document.getElementById('pin-err').textContent = 'DSR/SO বাছাই করুন'; return; }
-  }
+  var sel  = document.getElementById('lgn-user-sel');
+  var inp  = document.getElementById('lgn-pass');
+  var btn  = document.getElementById('lgn-submit-btn');
+  var username = sel ? sel.value : '';
+  var pass     = inp ? inp.value : '';
 
-  var lgBtn = document.querySelector('.lgn-btn');
-  if (lgBtn) { lgBtn.disabled = true; lgBtn.textContent = '⏳ লোড হচ্ছে...'; }
-  var r = await apiPost('/api/auth?action=login', { username, password: pass });
-  if (lgBtn) { lgBtn.disabled = false; lgBtn.textContent = '🔐 প্রবেশ করুন'; }
+  if (!username) { errEl.textContent = 'ব্যবহারকারী বাছাই করুন'; return; }
+  if (!pass)     { errEl.textContent = 'পাসওয়ার্ড দিন'; inp.focus(); return; }
 
-  if (!r.ok) {
-    document.getElementById('pin-err').textContent = r.error || '❌ লগইন ব্যর্থ';
-    document.getElementById('lgn-pass').value = '';
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ লোড হচ্ছে...'; }
+  var r = await apiPost('/api/auth?action=login', { username: username, password: pass });
+  if (btn) { btn.disabled = false; btn.textContent = '🔐 প্রবেশ করুন'; }
+
+  if (!r || !r.ok) {
+    errEl.textContent = (r && r.error) ? r.error : '❌ লগইন ব্যর্থ';
+    if (inp) { inp.value = ''; inp.focus(); }
     var box = document.querySelector('.lgn-box');
-    if (box) ['-8px','8px','-4px','0'].forEach(function(v,i){ setTimeout(function(){ box.style.transform='translateX('+v+')'; },i*80); });
+    if (box) { var steps=['-8px','8px','-4px','0']; steps.forEach(function(v,i){ setTimeout(function(){ box.style.transform='translateX('+v+')'; }, i*80); }); }
     return;
   }
 
-  // Success
-  S.role = r.role;
+  // ── Success
+  S.role    = r.role;
   S.userName = r.name;
-  S.userId = r.id;
+  S.userId  = r.id;
   sessionStorage.setItem('axiion_session', JSON.stringify({ role:r.role, name:r.name, id:r.id, area:r.area||'' }));
   document.getElementById('pin-screen').style.display = 'none';
   applyRole();
@@ -486,10 +473,8 @@ function logout() {
   if (!confirm('লগআউট করবেন?')) return;
   sessionStorage.removeItem('axiion_session');
   S.role = ''; S.userName = ''; S.userId = ''; _dashCache = null; S.dsrMode = 'today';
-  _lgnType = 'owner';
-  ['owner','manager','dsr'].forEach(function(r){ var b=document.getElementById('lgn-role-'+r); if(b) b.classList.toggle('sel-role', r==='owner'); });
-  var dsrWrap=document.getElementById('lgn-dsr-wrap'); if(dsrWrap) dsrWrap.style.display='none';
-  document.getElementById('lgn-pass').value='';
+  var lgnSel=document.getElementById('lgn-user-sel'); if(lgnSel) lgnSel.value='owner';
+  var lgnPass=document.getElementById('lgn-pass'); if(lgnPass) lgnPass.value='';
   document.getElementById('pin-err').textContent='';
   document.getElementById('app').classList.remove('show');
   var spl = document.getElementById('spl');
@@ -590,17 +575,9 @@ window.addEventListener('load', function() {
       }
     }
   } catch(e) { sessionStorage.removeItem('axiion_session'); }
-  // Pre-load DSR/SO list for login screen
-  apiGet('/api/auth?action=list-users').then(function(r){
-    if(!r||!r.ok) return;
-    _lgnUsers = r.users||[];
-    var sel=document.getElementById('lgn-dsr-sel'); if(!sel) return;
-    sel.innerHTML='<option value="">-- DSR/SO বাছাই করুন --</option>';
-    _lgnUsers.forEach(function(u){
-      var rl=u.role==='so'?'[SO]':'[DSR]';
-      sel.innerHTML+='<option value="'+u.id+'">'+u.name+' '+rl+(u.area?' · '+u.area:'')+'</option>';
-    });
-  });
+  // Wire up login UI and load user list for dropdown
+  initLoginUI();
+  loadLoginUserList();
 });
 
 async function loadAll() {
