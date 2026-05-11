@@ -169,3 +169,22 @@ ALTER TABLE sr_payments  DISABLE ROW LEVEL SECURITY;
 ALTER TABLE exp_cats     DISABLE ROW LEVEL SECURITY;
 ALTER TABLE exp_records  DISABLE ROW LEVEL SECURITY;
 ALTER TABLE due_calendar DISABLE ROW LEVEL SECURITY;
+
+-- ══════════════════════════════════════════════════
+--  v9 Auth additions — run these if upgrading from v8
+-- ══════════════════════════════════════════════════
+
+-- Add password column to srs (DSR/SO login passwords)
+ALTER TABLE srs ADD COLUMN IF NOT EXISTS password TEXT DEFAULT '1234';
+
+-- App config table for owner/manager passwords
+CREATE TABLE IF NOT EXISTS app_config (
+  key   TEXT PRIMARY KEY,
+  value TEXT DEFAULT ''
+);
+
+-- Seed default passwords (owner=owner123, manager=manager123)
+INSERT INTO app_config (key, value) VALUES ('owner_password', 'owner123')
+  ON CONFLICT (key) DO NOTHING;
+INSERT INTO app_config (key, value) VALUES ('manager_password', 'manager123')
+  ON CONFLICT (key) DO NOTHING;
