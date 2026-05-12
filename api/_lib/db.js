@@ -42,7 +42,6 @@ function mapSR(r) {
     area: r.area || '',
     role: r.role || 'dsr',
     thumb: r.thumb || '',
-    password: r.password || '1234',   // ← v9: included for client-side auth
     createdAt: r.created_at || ''
   };
 }
