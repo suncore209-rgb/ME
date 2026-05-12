@@ -69,13 +69,12 @@ module.exports = async (req, res) => {
       return res.json({ ok: true, txId });
     }
 
-    // GET — list transactions with optional date + srId filter
+    // GET — list transactions with optional date filter
     if (req.method === 'GET') {
-      const { from, to, srId } = req.query;
+      const { from, to } = req.query;
       let q = supabase.from('transactions').select('*').order('created_at');
-      if (from)  q = q.gte('date', from);
-      if (to)    q = q.lte('date', to);
-      if (srId)  q = q.eq('sr_id', srId);
+      if (from) q = q.gte('date', from);
+      if (to)   q = q.lte('date', to);
       const { data, error } = await q;
       if (error) throw error;
       return res.json((data || []).map(mapTx));

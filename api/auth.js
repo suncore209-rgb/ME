@@ -1,125 +1,112 @@
-const { supabase, cors } = require('./_lib/db');
-const crypto = require('crypto');
+const { supabase, cors, now_ } = require('./_lib/db');
 
-function hashPw(pw) {
-  return crypto.createHash('sha256').update(String(pw) + 'axiion_salt_v9').digest('hex');
-}
-
-function mapUser(r) {
-  return {
-    id:           String(r.id || ''),
-    name:         r.name || '',
-    role:         r.role || '',
-    srId:         String(r.sr_id || ''),
-    supervisorId: String(r.supervisor_id || ''),
-    createdAt:    r.created_at || ''
-  };
-}
+// Fixed credentials for owner/manager (stored in env or hardcoded)
+// Owner: username "owner", Manager: username "manager"
+// Passwords stored in a simple config table or env
+// For simplicity: owner/manager passwords stored in Supabase "app_config" table
 
 module.exports = async (req, res) => {
   cors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    const action = req.query.action || (req.body && req.body.action) || '';
+    const action = req.query.action || req.body?.action || '';
 
-    // ── LOGIN ──────────────────────────────────────────────
-    if (action === 'login') {
-      const pw = String((req.body && req.body.password) || '').trim();
-      if (!pw) return res.json({ ok: false, error: 'পাসওয়ার্ড দিন' });
-      const hash = hashPw(pw);
+    // ── GET /api/auth?action=list-users → return DSR/SO names for login dropdown
+    if (req.method === 'GET' && action === 'list-users') {
       const { data, error } = await supabase
-        .from('app_users').select('*').eq('password', hash).maybeSingle();
-      if (error || !data) return res.json({ ok: false, error: 'ভুল পাসওয়ার্ড' });
+        .from('srs')
+        .select('id, name, role, area')
+        .order('name');
+      if (error) throw error;
+      return res.json({ ok: true, users: data || [] });
+    }
+
+    // ── POST /api/auth?action=login → validate credentials
+    if (req.method === 'POST' && action === 'login') {
+      const { username, password } = req.body || {};
+      if (!username || !password) return res.json({ ok: false, error: 'username ও password আবশ্যক' });
+
+      // Owner / Manager: fixed users with passwords in app_config
+      if (username === 'owner' || username === 'manager') {
+        const { data: cfg } = await supabase
+          .from('app_config')
+          .select('value')
+          .eq('key', username + '_password')
+          .single();
+        const stored = cfg?.value || (username === 'owner' ? 'owner123' : 'manager123');
+        if (password !== stored) return res.json({ ok: false, error: '❌ ভুল পাসওয়ার্ড' });
+        return res.json({ ok: true, role: username, name: username === 'owner' ? 'Owner' : 'Manager', id: username });
+      }
+
+      // DSR / SO: look up by id in srs table
+      const { data: sr, error: sErr } = await supabase
+        .from('srs')
+        .select('id, name, role, area, password')
+        .eq('id', username)
+        .single();
+      if (sErr || !sr) return res.json({ ok: false, error: '❌ ব্যবহারকারী পাওয়া যায়নি' });
+
+      const storedPw = sr.password || '1234'; // default password
+      if (password !== storedPw) return res.json({ ok: false, error: '❌ ভুল পাসওয়ার্ড' });
+      return res.json({ ok: true, role: sr.role, name: sr.name, id: sr.id, area: sr.area || '' });
+    }
+
+    // ── POST /api/auth?action=change-password → change password
+    if (req.method === 'POST' && action === 'change-password') {
+      const { userId, role, oldPassword, newPassword } = req.body || {};
+      if (!userId || !newPassword) return res.json({ ok: false, error: 'তথ্য অসম্পূর্ণ' });
+
+      if (role === 'owner' || role === 'manager') {
+        // Verify old password
+        const { data: cfg } = await supabase
+          .from('app_config')
+          .select('value')
+          .eq('key', role + '_password')
+          .single();
+        const stored = cfg?.value || (role === 'owner' ? 'owner123' : 'manager123');
+        if (oldPassword !== stored) return res.json({ ok: false, error: '❌ পুরানো পাসওয়ার্ড ভুল' });
+        // Upsert new password
+        await supabase.from('app_config').upsert({ key: role + '_password', value: newPassword });
+        return res.json({ ok: true });
+      }
+
+      // DSR/SO: owner can set without old password, user must verify old
+      if (oldPassword !== undefined) {
+        const { data: sr } = await supabase.from('srs').select('password').eq('id', userId).single();
+        const stored = sr?.password || '1234';
+        if (oldPassword !== stored) return res.json({ ok: false, error: '❌ পুরানো পাসওয়ার্ড ভুল' });
+      }
+      const { error } = await supabase.from('srs').update({ password: newPassword }).eq('id', userId);
+      if (error) throw error;
+      return res.json({ ok: true });
+    }
+
+    // ── POST /api/auth?action=set-password → owner sets password for any user (no old-pw check)
+    if (req.method === 'POST' && action === 'set-password') {
+      const { userId, role, newPassword } = req.body || {};
+      if (!userId || !newPassword) return res.json({ ok: false, error: 'তথ্য অসম্পূর্ণ' });
+      if (role === 'owner' || role === 'manager') {
+        await supabase.from('app_config').upsert({ key: role + '_password', value: newPassword });
+      } else {
+        const { error } = await supabase.from('srs').update({ password: newPassword }).eq('id', userId);
+        if (error) throw error;
+      }
+      return res.json({ ok: true });
+    }
+
+    // ── GET /api/auth?action=get-passwords → owner fetch all stored passwords (masked)
+    if (req.method === 'GET' && action === 'get-passwords') {
+      const { data: cfgs } = await supabase.from('app_config').select('key, value').in('key', ['owner_password', 'manager_password']);
+      const { data: srs } = await supabase.from('srs').select('id, name, role, password').order('name');
       return res.json({
         ok: true,
-        role:         data.role,
-        name:         data.name,
-        srId:         data.sr_id || '',
-        supervisorId: data.supervisor_id || '',
-        userId:       String(data.id)
+        ownerPass: cfgs?.find(c => c.key === 'owner_password')?.value || 'owner123',
+        managerPass: cfgs?.find(c => c.key === 'manager_password')?.value || 'manager123',
+        srs: (srs || []).map(s => ({ id: s.id, name: s.name, role: s.role, password: s.password || '1234' }))
       });
     }
 
-    // ── LIST USERS ─────────────────────────────────────────
-    if (action === 'list') {
-      const { data } = await supabase
-        .from('app_users')
-        .select('id,name,role,sr_id,supervisor_id,created_at')
-        .order('created_at');
-      return res.json((data || []).map(mapUser));
-    }
-
-    // ── CREATE USER ────────────────────────────────────────
-    if (action === 'create') {
-      const d = req.body || {};
-      if (!d.name || !d.role || !d.password)
-        return res.json({ ok: false, error: 'নাম, ভূমিকা ও পাসওয়ার্ড দিন' });
-      if (String(d.password).length < 4)
-        return res.json({ ok: false, error: 'পাসওয়ার্ড কমপক্ষে ৪ অক্ষর' });
-      const hash = hashPw(d.password);
-      const { data, error } = await supabase.from('app_users').insert({
-        name:          String(d.name).trim(),
-        role:          d.role,
-        password:      hash,
-        sr_id:         d.srId || '',
-        supervisor_id: d.supervisorId || ''
-      }).select().single();
-      if (error) throw error;
-      return res.json({ ok: true, id: data.id });
-    }
-
-    // ── RESET PASSWORD (owner resets any user) ─────────────
-    if (action === 'reset') {
-      const d = req.body || {};
-      if (!d.id || !d.password)
-        return res.json({ ok: false, error: 'id ও পাসওয়ার্ড দিন' });
-      if (String(d.password).length < 4)
-        return res.json({ ok: false, error: 'পাসওয়ার্ড কমপক্ষে ৪ অক্ষর' });
-      const hash = hashPw(d.password);
-      const { error } = await supabase.from('app_users').update({ password: hash }).eq('id', d.id);
-      if (error) throw error;
-      return res.json({ ok: true });
-    }
-
-    // ── CHANGE OWN PASSWORD ────────────────────────────────
-    if (action === 'change') {
-      const d = req.body || {};
-      if (!d.userId || !d.oldPassword || !d.newPassword)
-        return res.json({ ok: false, error: 'পুরোনো ও নতুন পাসওয়ার্ড দিন' });
-      if (String(d.newPassword).length < 4)
-        return res.json({ ok: false, error: 'নতুন পাসওয়ার্ড কমপক্ষে ৪ অক্ষর' });
-      const oldHash = hashPw(d.oldPassword);
-      const { data: u } = await supabase.from('app_users')
-        .select('id').eq('id', d.userId).eq('password', oldHash).maybeSingle();
-      if (!u) return res.json({ ok: false, error: 'পুরোনো পাসওয়ার্ড ভুল' });
-      const newHash = hashPw(d.newPassword);
-      const { error } = await supabase.from('app_users').update({ password: newHash }).eq('id', d.userId);
-      if (error) throw error;
-      return res.json({ ok: true });
-    }
-
-    // ── DELETE USER ────────────────────────────────────────
-    if (action === 'delete') {
-      const id = (req.body && req.body.id) || req.query.id;
-      if (!id) return res.json({ ok: false, error: 'id দিন' });
-      const { error } = await supabase.from('app_users').delete().eq('id', id);
-      if (error) throw error;
-      return res.json({ ok: true });
-    }
-
-    // ── ASSIGN SUPERVISOR (SO assigns DSR) ─────────────────
-    if (action === 'assign') {
-      const d = req.body || {};
-      if (!d.dsrUserId) return res.json({ ok: false, error: 'dsrUserId দিন' });
-      const { error } = await supabase.from('app_users')
-        .update({ supervisor_id: d.supervisorId || '' }).eq('id', d.dsrUserId);
-      if (error) throw error;
-      return res.json({ ok: true });
-    }
-
-    res.status(400).json({ ok: false, error: 'Unknown action: ' + action });
-  } catch (e) {
-    res.status(500).json({ ok: false, error: e.message });
-  }
+    res.status(405).json({ ok: false, error: 'Method not allowed' });
+  } catch (e) { res.json({ ok: false, error: e.message }); }
 };

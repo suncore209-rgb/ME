@@ -8,9 +8,8 @@ module.exports = async (req, res) => {
   try {
     // GET — fetch dues for a month or all
     if (req.method === 'GET') {
-      const { month, srId } = req.query; // e.g. "2026-04"
+      const { month } = req.query; // e.g. "2026-04"
       let q = supabase.from('due_calendar').select('*').order('due_date');
-      if (srId) q = q.eq('dsr_id', srId);
       if (month) {
         const [calY, calM] = month.split('-').map(Number);
         const lastDay  = new Date(calY, calM, 0).getDate();

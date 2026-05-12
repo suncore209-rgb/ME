@@ -170,25 +170,21 @@ ALTER TABLE exp_cats     DISABLE ROW LEVEL SECURITY;
 ALTER TABLE exp_records  DISABLE ROW LEVEL SECURITY;
 ALTER TABLE due_calendar DISABLE ROW LEVEL SECURITY;
 
--- ═══════════════════════════════════════════════════
--- v9: app_users — multi-user auth system
--- ═══════════════════════════════════════════════════
-CREATE TABLE IF NOT EXISTS app_users (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name          TEXT NOT NULL,
-  role          TEXT NOT NULL CHECK (role IN ('owner','manager','so','dsr')),
-  password      TEXT NOT NULL,
-  sr_id         TEXT DEFAULT '',
-  supervisor_id TEXT DEFAULT '',
-  created_at    TIMESTAMPTZ DEFAULT NOW()
-);
-ALTER TABLE app_users DISABLE ROW LEVEL SECURITY;
+-- ══════════════════════════════════════════════════
+--  v9 Auth additions — run these if upgrading from v8
+-- ══════════════════════════════════════════════════
 
--- Default accounts (passwords hashed: SHA-256 of password+'axiion_salt_v9')
--- owner  → default password: owner1234
--- manager → default password: mgr1234
--- CHANGE THESE IMMEDIATELY via Password Manager after first login!
-INSERT INTO app_users (name, role, password) VALUES
-  ('Owner',   'owner',   '617580c2a967657def2d0ba69d488fc1f1534ced22d7590f4e22865889a0d185'),
-  ('Manager', 'manager', '86aa9ac7934087872f007069b155ade87f42d918baf0a633ab76ac2fb2a702b8')
-ON CONFLICT DO NOTHING;
+-- Add password column to srs (DSR/SO login passwords)
+ALTER TABLE srs ADD COLUMN IF NOT EXISTS password TEXT DEFAULT '1234';
+
+-- App config table for owner/manager passwords
+CREATE TABLE IF NOT EXISTS app_config (
+  key   TEXT PRIMARY KEY,
+  value TEXT DEFAULT ''
+);
+
+-- Seed default passwords (owner=owner123, manager=manager123)
+INSERT INTO app_config (key, value) VALUES ('owner_password', 'owner123')
+  ON CONFLICT (key) DO NOTHING;
+INSERT INTO app_config (key, value) VALUES ('manager_password', 'manager123')
+  ON CONFLICT (key) DO NOTHING;
