@@ -345,11 +345,8 @@ tr:hover td{background:#F5F7FF}
   <div class="pin-co">⚡ <span class="brand-axiion">AXIION</span> TECHNOLOGY</div>
   <div class="pin-sub">লগইন করুন</div>
   <div class="lgn-box">
-    <select class="lgn-sel" id="lgn-user-sel">
-      <option value="owner">👑 Owner</option>
-      <option value="manager">🧑 Manager</option>
-    </select>
-    <input class="lgn-inp" type="password" id="lgn-pass" placeholder="পাসওয়ার্ড">
+    <div class="lgn-lbl">পাসওয়ার্ড দিয়ে প্রবেশ করুন</div>
+    <input class="lgn-inp" type="password" id="lgn-pass" placeholder="আপনার পাসওয়ার্ড লিখুন" autocomplete="current-password">
     <div class="pin-err" id="pin-err"></div>
     <button class="lgn-btn" id="lgn-submit-btn">🔐 প্রবেশ করুন</button>
   </div>
@@ -375,83 +372,90 @@ function apiPut(url, data) { return apiFetch(url, { method:'PUT', body: JSON.str
 function apiDel(url, data) { return apiFetch(url, { method:'DELETE', body: JSON.stringify(data) }); }
 
 // ════════════════════════════════════════════════════
-//  LOGIN SYSTEM v9
-//  - Owner/Manager passwords validated via /api/auth
-//  - DSR/SO list populated from S.srs after loadAll
-//  - All event listeners attached in initLoginUI()
+//  LOGIN SYSTEM v9 — password only, auto role detect
+//  Passwords stored in S.loginCfg (loaded at startup)
+//  No dropdown. No API call at login time.
 // ════════════════════════════════════════════════════
 var ROLE_LABELS = { owner:'👑 Owner', manager:'🧑 Manager', so:'📊 SO', dsr:'🚚 DSR' };
+// Populated by fetchLoginConfig() on page load
+S.loginCfg = { ownerPass:'owner123', managerPass:'manager123' };
 
 function initLoginUI() {
   var btn = document.getElementById('lgn-submit-btn');
   var inp = document.getElementById('lgn-pass');
-  if (btn) btn.addEventListener('click', doLogin);
-  if (inp) inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') doLogin(); });
-}
-
-// Called after S.srs is populated by loadAll — adds DSR/SO to dropdown
-function populateLoginDropdown() {
-  var sel = document.getElementById('lgn-user-sel');
-  if (!sel || !S.srs || !S.srs.length) return;
-  // Remove any existing DSR/SO options first
-  var toRemove = [];
-  for (var i = 0; i < sel.options.length; i++) {
-    var v = sel.options[i].value;
-    if (v !== 'owner' && v !== 'manager') toRemove.push(i);
+  if (btn) {
+    btn.onclick = doLogin;
   }
-  for (var j = toRemove.length - 1; j >= 0; j--) sel.remove(toRemove[j]);
-  // Add DSR/SO
-  S.srs.forEach(function(u) {
-    var opt = document.createElement('option');
-    opt.value = u.id;
-    opt.textContent = (u.role === 'so' ? '📊 SO' : '🚚 DSR') + ' · ' + u.name + (u.area ? ' (' + u.area + ')' : '');
-    sel.appendChild(opt);
-  });
+  if (inp) {
+    inp.onkeydown = function(e) { if (e.key === 'Enter') { e.preventDefault(); doLogin(); } };
+  }
 }
 
-async function doLogin() {
+// Fetch owner/manager passwords from app_config at startup
+async function fetchLoginConfig() {
+  try {
+    var r = await apiGet('/api/auth?action=get-passwords');
+    if (r && r.ok) {
+      S.loginCfg.ownerPass   = r.ownerPass   || 'owner123';
+      S.loginCfg.managerPass = r.managerPass || 'manager123';
+      // Also cache DSR/SO passwords into S.srs if returned
+      if (r.srs && r.srs.length) {
+        r.srs.forEach(function(rs) {
+          var found = S.srs.filter(function(s){ return String(s.id)===String(rs.id); })[0];
+          if (found) found.password = rs.password || '1234';
+        });
+      }
+    }
+  } catch(e) {}
+}
+
+// No-op kept for compatibility
+function populateLoginDropdown() {}
+
+function doLogin() {
   var errEl = document.getElementById('pin-err');
-  var sel   = document.getElementById('lgn-user-sel');
   var inp   = document.getElementById('lgn-pass');
   var btn   = document.getElementById('lgn-submit-btn');
   if (errEl) errEl.textContent = '';
 
-  var username = sel ? sel.value : '';
-  var pass     = inp ? inp.value : '';
-
-  if (!username) { if(errEl) errEl.textContent = 'ব্যবহারকারী বাছাই করুন'; return; }
-  if (!pass)     { if(errEl) errEl.textContent = 'পাসওয়ার্ড দিন'; if(inp) inp.focus(); return; }
-
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ যাচাই হচ্ছে...'; }
-
-  // ── DSR / SO: validate client-side from S.srs (already loaded)
-  if (username !== 'owner' && username !== 'manager') {
-    var sr = null;
-    for (var i = 0; i < S.srs.length; i++) {
-      if (String(S.srs[i].id) === String(username)) { sr = S.srs[i]; break; }
-    }
-    if (btn) { btn.disabled = false; btn.textContent = '🔐 প্রবেশ করুন'; }
-    if (!sr) { if(errEl) errEl.textContent = '❌ ব্যবহারকারী পাওয়া যায়নি'; return; }
-    var stored = sr.password || '1234';
-    if (pass !== stored) {
-      if(errEl) errEl.textContent = '❌ ভুল পাসওয়ার্ড';
-      if(inp) { inp.value = ''; inp.focus(); }
-      return;
-    }
-    loginSuccess(sr.role, sr.name, sr.id, sr.area || '');
+  var pass = inp ? inp.value.trim() : '';
+  if (!pass) {
+    if (errEl) errEl.textContent = 'পাসওয়ার্ড দিন';
+    if (inp) inp.focus();
     return;
   }
 
-  // ── Owner / Manager: validate via API
-  var r = null;
-  try { r = await apiPost('/api/auth?action=login', { username: username, password: pass }); } catch(e) {}
-  if (btn) { btn.disabled = false; btn.textContent = '🔐 প্রবেশ করুন'; }
-  if (!r || !r.ok) {
-    if(errEl) errEl.textContent = (r && r.error) ? r.error : '❌ ভুল পাসওয়ার্ড';
-    if(inp) { inp.value = ''; inp.focus(); }
+  // Check owner
+  if (pass === S.loginCfg.ownerPass) {
+    loginSuccess('owner', 'Owner', 'owner', '');
     return;
   }
-  loginSuccess(r.role, r.name, r.id, r.area || '');
+  // Check manager
+  if (pass === S.loginCfg.managerPass) {
+    loginSuccess('manager', 'Manager', 'manager', '');
+    return;
+  }
+  // Check each DSR/SO
+  var matched = null;
+  for (var i = 0; i < S.srs.length; i++) {
+    var u = S.srs[i];
+    var pw = u.password || '1234';
+    if (pass === pw) { matched = u; break; }
+  }
+  if (matched) {
+    loginSuccess(matched.role, matched.name, matched.id, matched.area || '');
+    return;
+  }
+
+  // No match
+  if (errEl) errEl.textContent = '❌ ভুল পাসওয়ার্ড';
+  if (inp) { inp.value = ''; inp.focus(); }
+  // Shake
+  var box = document.querySelector('.lgn-box');
+  if (box) {
+    var steps = ['-10px','10px','-6px','6px','0'];
+    steps.forEach(function(v,i){ setTimeout(function(){ box.style.transform='translateX('+v+')'; }, i*70); });
+  }
 }
 
 function loginSuccess(role, name, id, area) {
@@ -492,7 +496,6 @@ function logout() {
   if (!confirm('লগআউট করবেন?')) return;
   sessionStorage.removeItem('axiion_session');
   S.role = ''; S.userName = ''; S.userId = ''; _dashCache = null; S.dsrMode = 'today';
-  var lgnSel=document.getElementById('lgn-user-sel'); if(lgnSel) lgnSel.value='owner';
   var lgnPass=document.getElementById('lgn-pass'); if(lgnPass) lgnPass.value='';
   document.getElementById('pin-err').textContent='';
   document.getElementById('app').classList.remove('show');
@@ -595,19 +598,19 @@ window.addEventListener('load', function() {
       }
     }
   } catch(e) { sessionStorage.removeItem('axiion_session'); }
-  // If no session: hide splash (it blocks login inputs) and wire up login UI
+  // If no session: hide splash, wire login, preload passwords + srs in background
   if (!S.role) {
     var splEl = document.getElementById('spl');
     if (splEl) splEl.style.display = 'none';
     initLoginUI();
-    // Load srs list for DSR/SO login dropdown (runs in background)
+    // Preload srs passwords and owner/manager config for auto-detect login
     apiGet('/api/load-all').then(function(r) {
       if (!r || !r.ok) return;
       S.products = r.products || [];
       S.srs      = r.srs      || [];
       S.stockMap = r.stockMap || {};
-      populateLoginDropdown();
     }).catch(function(){});
+    fetchLoginConfig();
   }
 });
 
@@ -620,7 +623,6 @@ async function loadAll() {
   S.products = r.products || [];
   S.srs = r.srs || [];
   S.stockMap = r.stockMap || {};
-  populateLoginDropdown(); // keep dropdown fresh (no-op when not on login screen)
   document.getElementById('hdr-sub').textContent = S.products.length+'টি পণ্য · '+S.srs.length+' জন DSR/SO';
   if (S.tab==='dash') loadDash();
   else if (S.tab==='prod') renderProd();
