@@ -231,7 +231,7 @@ tr:hover td{background:#F5F7FF}
 @keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
 /* PIN Screen */
-#pin-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(145deg,#0D2137,#0D47A1);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;padding:24px}
+#pin-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(145deg,#0D2137,#0D47A1);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;padding:24px;touch-action:manipulation;overflow:hidden}
 .pin-logo{width:80px;height:80px;background:#fff;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:14px;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
 .pin-title{color:#fff;font-size:26px;font-weight:700;margin-bottom:2px;letter-spacing:3px}
 .pin-co{color:rgba(255,215,0,.85);font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:4px}
@@ -240,8 +240,8 @@ tr:hover td{background:#F5F7FF}
 .pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:transparent;transition:.2s}
 .pin-dot.filled{background:#FFD700;border-color:#FFD700}
 .pin-err{color:#FF5252;font-size:12px;font-weight:700;margin-bottom:12px;min-height:16px;text-align:center}
-.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:240px}
-.pin-btn{height:64px;border-radius:14px;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:22px;font-weight:700;cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center;font-family:'Hind Siliguri',sans-serif}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:240px;touch-action:manipulation}
+.pin-btn{height:64px;border-radius:14px;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:22px;font-weight:700;cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center;font-family:'Hind Siliguri',sans-serif;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 .pin-btn:active{background:rgba(255,255,255,.35);transform:scale(.94)}
 .pin-btn.del{font-size:18px;background:rgba(255,82,82,.25)}
 .pin-hint{margin-top:20px;color:rgba(255,255,255,.3);font-size:10px;text-align:center}
@@ -356,18 +356,18 @@ tr:hover td{background:#F5F7FF}
   </div>
   <div class="pin-err" id="pin-err"></div>
   <div class="pin-pad">
-    <button class="pin-btn" onclick="pinKey('1')">১</button>
-    <button class="pin-btn" onclick="pinKey('2')">২</button>
-    <button class="pin-btn" onclick="pinKey('3')">৩</button>
-    <button class="pin-btn" onclick="pinKey('4')">৪</button>
-    <button class="pin-btn" onclick="pinKey('5')">৫</button>
-    <button class="pin-btn" onclick="pinKey('6')">৬</button>
-    <button class="pin-btn" onclick="pinKey('7')">৭</button>
-    <button class="pin-btn" onclick="pinKey('8')">৮</button>
-    <button class="pin-btn" onclick="pinKey('9')">৯</button>
+    <button class="pin-btn" ontouchstart="pinKey('1');event.preventDefault()" onclick="pinKey('1')">১</button>
+    <button class="pin-btn" ontouchstart="pinKey('2');event.preventDefault()" onclick="pinKey('2')">২</button>
+    <button class="pin-btn" ontouchstart="pinKey('3');event.preventDefault()" onclick="pinKey('3')">৩</button>
+    <button class="pin-btn" ontouchstart="pinKey('4');event.preventDefault()" onclick="pinKey('4')">৪</button>
+    <button class="pin-btn" ontouchstart="pinKey('5');event.preventDefault()" onclick="pinKey('5')">৫</button>
+    <button class="pin-btn" ontouchstart="pinKey('6');event.preventDefault()" onclick="pinKey('6')">৬</button>
+    <button class="pin-btn" ontouchstart="pinKey('7');event.preventDefault()" onclick="pinKey('7')">৭</button>
+    <button class="pin-btn" ontouchstart="pinKey('8');event.preventDefault()" onclick="pinKey('8')">৮</button>
+    <button class="pin-btn" ontouchstart="pinKey('9');event.preventDefault()" onclick="pinKey('9')">৯</button>
     <button class="pin-btn" style="background:transparent"></button>
-    <button class="pin-btn" onclick="pinKey('0')">০</button>
-    <button class="pin-btn del" onclick="pinDel()">⌫</button>
+    <button class="pin-btn" ontouchstart="pinKey('0');event.preventDefault()" onclick="pinKey('0')">০</button>
+    <button class="pin-btn del" ontouchstart="pinDel();event.preventDefault()" onclick="pinDel()">⌫</button>
   </div>
   <div class="pin-hint">Owner · Manager · SO · DSR — আপনার ৫ সংখ্যার PIN দিন</div>
 </div>
