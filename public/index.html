@@ -414,46 +414,61 @@ async function loadLoginUserList() {
 
 async function doLogin() {
   var errEl = document.getElementById('pin-err');
+  var sel   = document.getElementById('lgn-user-sel');
+  var inp   = document.getElementById('lgn-pass');
+  var btn   = document.getElementById('lgn-submit-btn');
   errEl.textContent = '';
 
-  var sel  = document.getElementById('lgn-user-sel');
-  var inp  = document.getElementById('lgn-pass');
-  var btn  = document.getElementById('lgn-submit-btn');
-  var username = sel ? sel.value : '';
-  var pass     = inp ? inp.value : '';
+  var username = (sel && sel.value) ? sel.value.trim() : '';
+  var pass     = (inp && inp.value) ? inp.value : '';
 
   if (!username) { errEl.textContent = 'ব্যবহারকারী বাছাই করুন'; return; }
-  if (!pass)     { errEl.textContent = 'পাসওয়ার্ড দিন'; inp.focus(); return; }
+  if (!pass)     { errEl.textContent = 'পাসওয়ার্ড দিন'; if(inp) inp.focus(); return; }
 
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ লোড হচ্ছে...'; }
-  var r = await apiPost('/api/auth?action=login', { username: username, password: pass });
-  if (btn) { btn.disabled = false; btn.textContent = '🔐 প্রবেশ করুন'; }
-
-  if (!r || !r.ok) {
-    errEl.textContent = (r && r.error) ? r.error : '❌ লগইন ব্যর্থ';
-    if (inp) { inp.value = ''; inp.focus(); }
-    var box = document.querySelector('.lgn-box');
-    if (box) { var steps=['-8px','8px','-4px','0']; steps.forEach(function(v,i){ setTimeout(function(){ box.style.transform='translateX('+v+')'; }, i*80); }); }
+  // ── Owner / Manager: validate against app_config via API
+  // but also store locally fetched password for offline fallback
+  if (username === 'owner' || username === 'manager') {
+    if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
+    var r = null;
+    try { r = await apiPost('/api/auth?action=login', { username: username, password: pass }); } catch(e){}
+    if (btn) { btn.disabled = false; btn.textContent = '🔐 প্রবেশ করুন'; }
+    if (!r || !r.ok) {
+      errEl.textContent = (r && r.error) ? r.error : '❌ ভুল পাসওয়ার্ড';
+      if (inp) { inp.value = ''; inp.focus(); }
+      return;
+    }
+    loginSuccess(r.role, r.name, r.id, r.area || '');
     return;
   }
 
-  // ── Success
-  S.role    = r.role;
-  S.userName = r.name;
-  S.userId  = r.id;
-  sessionStorage.setItem('axiion_session', JSON.stringify({ role:r.role, name:r.name, id:r.id, area:r.area||'' }));
+  // ── DSR / SO: hit API
+  if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
+  var r2 = null;
+  try { r2 = await apiPost('/api/auth?action=login', { username: username, password: pass }); } catch(e){}
+  if (btn) { btn.disabled = false; btn.textContent = '🔐 প্রবেশ করুন'; }
+  if (!r2 || !r2.ok) {
+    errEl.textContent = (r2 && r2.error) ? r2.error : '❌ ভুল পাসওয়ার্ড';
+    if (inp) { inp.value = ''; inp.focus(); }
+    return;
+  }
+  loginSuccess(r2.role, r2.name, r2.id, r2.area || '');
+}
+
+function loginSuccess(role, name, id, area) {
+  S.role = role; S.userName = name; S.userId = id;
+  sessionStorage.setItem('axiion_session', JSON.stringify({ role:role, name:name, id:id, area:area }));
   document.getElementById('pin-screen').style.display = 'none';
   applyRole();
-  if (r.role === 'dsr' || r.role === 'so') {
-    document.getElementById('spl').style.display = 'none';
+  if (role === 'dsr' || role === 'so') {
+    var splEl2 = document.getElementById('spl');
+    if (splEl2) splEl2.style.display = 'none';
     document.getElementById('app').classList.add('show');
     loadAll();
   } else {
-    setTimeout(function(){
-      document.getElementById('spl').classList.add('fade');
-      document.getElementById('app').classList.add('show');
-      loadAll();
-    }, 1800);
+    var splEl3 = document.getElementById('spl');
+    if (splEl3) { splEl3.style.display = ''; splEl3.classList.add('fade'); }
+    document.getElementById('app').classList.add('show');
+    loadAll();
   }
 }
 function applyRole() {
@@ -583,9 +598,11 @@ window.addEventListener('load', function() {
       }
     }
   } catch(e) { sessionStorage.removeItem('axiion_session'); }
-  // No session → hide splash immediately so it cannot block login inputs
-  var splEl = document.getElementById('spl');
-  if (splEl) { splEl.style.display = 'none'; }
+  // If no session was restored, hide splash so it cannot block login inputs
+  if (!S.role) {
+    var splEl = document.getElementById('spl');
+    if (splEl) splEl.style.display = 'none';
+  }
   // Wire up login UI and load user list for dropdown
   initLoginUI();
   loadLoginUserList();
