@@ -400,7 +400,7 @@ function pinKey(k) {
   if (_pinBuf.length >= 5) return;
   _pinBuf += k; updatePinDots();
   document.getElementById('pin-err').textContent = '';
-  if (_pinBuf.length === 5) setTimeout(checkPin, 150);
+  if (_pinBuf.length === 5) checkPin();
 }
 function pinDel() {
   _pinBuf = _pinBuf.slice(0,-1); updatePinDots();
@@ -423,18 +423,15 @@ async function checkPin() {
     sessionStorage.setItem('axiion_session', JSON.stringify({ role: r.role, userId: r.userId, userName: r.userName }));
     document.getElementById('pin-screen').style.display = 'none';
     applyRole();
-    if (r.role === 'dsr' || r.role === 'so') {
-      document.getElementById('spl').style.display = 'none';
-      document.getElementById('app').classList.add('show');
-      loadAll();
-    } else {
-      setTimeout(function(){
-        document.getElementById('spl').classList.add('fade');
-        document.getElementById('app').classList.add('show');
-        loadAll();
-      }, 2200);
-    }
+    // Always skip splash on login — go straight to app
+    var spl = document.getElementById('spl');
+    spl.classList.add('fade');
+    spl.style.opacity = '0';
+    spl.style.pointerEvents = 'none';
+    document.getElementById('app').classList.add('show');
+    loadAll();
   } else {
+    _pinBuf = ''; updatePinDots();
     document.getElementById('pin-err').textContent = '❌ ' + ((r && r.error) || 'ভুল PIN');
     var d = document.querySelector('.pin-dots');
     if (d) ['-8px','8px','-4px','0'].forEach(function(v,i){ setTimeout(function(){ d.style.transform='translateX('+v+')'; }, i*80); });
@@ -466,8 +463,12 @@ function logout() {
   S.role = ''; S.userId = ''; S.userName = ''; _dashCache = null; S.dsrMode = 'today';
   _pinBuf = ''; updatePinDots();
   document.getElementById('app').classList.remove('show');
+  // Fully reset splash so re-login works correctly
   var spl = document.getElementById('spl');
-  spl.style.display = 'flex'; spl.style.opacity = '1';
+  spl.classList.remove('fade');
+  spl.style.opacity = '1';
+  spl.style.pointerEvents = '';
+  spl.style.display = 'flex';
   document.getElementById('pin-screen').style.display = 'flex';
   document.getElementById('pin-err').textContent = '';
 }
@@ -475,25 +476,33 @@ function logout() {
 // ════════════════════════════════════════════════════
 //  EXTRA TAB — Password Manager (Owner) + Change Pass
 // ════════════════════════════════════════════════════
-function renderExtraTab() {
+var _extraTab = 'pin';
+function renderExtraTab(sub) {
+  if (sub) _extraTab = sub;
   var el = document.getElementById('pg-extra');
-  var h = '<div class="ct">⚙️ অতিরিক্ত ফিচার</div>';
 
-  // Change Password section (all roles)
-  h += '<div class="card" style="margin-bottom:10px">';
-  h += '<div style="font-weight:700;font-size:13px;margin-bottom:10px">🔑 PIN পরিবর্তন করুন</div>';
-  h += '<div class="fg"><label class="fl">পুরানো PIN (৫ সংখ্যা)</label><input type="number" id="cp-old" placeholder="বর্তমান PIN" maxlength="5" oninput="this.value=this.value.slice(0,5)"></div>';
-  h += '<div class="fg" style="margin-top:8px"><label class="fl">নতুন PIN (৫ সংখ্যা)</label><input type="number" id="cp-new" placeholder="নতুন PIN" maxlength="5" oninput="this.value=this.value.slice(0,5)"></div>';
-  h += '<div class="fg" style="margin-top:8px"><label class="fl">নিশ্চিত করুন</label><input type="number" id="cp-con" placeholder="আবার লিখুন" maxlength="5" oninput="this.value=this.value.slice(0,5)"></div>';
-  h += '<button class="btn btn-bl btn-w" style="margin-top:12px" onclick="doChangePass()">✅ PIN পরিবর্তন করুন</button>';
+  // ── Sub-tab bar (expandable for future features) ──
+  var h = '<div class="seg" style="margin-bottom:0">';
+  h += '<button class="sbt '+(_extraTab==='pin'?'active':'')+'" ontouchstart="renderExtraTab(\'pin\');event.preventDefault()" onclick="renderExtraTab(\'pin\')">🔑 PIN ম্যানেজ</button>';
+  // Future tabs go here — e.g. settings, reports, etc.
   h += '</div>';
 
-  // Password Manager — only for owner
-  if (S.role === 'owner') {
-    h += '<div class="ct" style="margin-top:4px">👑 পাসওয়ার্ড ম্যানেজার</div>';
-    h += '<div id="pw-mgr-list"><div style="text-align:center;padding:20px;color:var(--mt2)">লোড হচ্ছে...</div></div>';
-    h += '<button class="btn btn-bl btn-w" style="margin-top:10px" onclick="loadPwMgr()">🔄 রিফ্রেশ</button>';
-    setTimeout(loadPwMgr, 0);
+  // ── PIN ম্যানেজ tab ───────────────────────────────
+  if (_extraTab === 'pin') {
+    h += '<div class="ct" style="margin-top:10px">🔑 নিজের PIN পরিবর্তন করুন</div>';
+    h += '<div class="card" style="margin-bottom:12px">';
+    h += '<div class="fg"><label class="fl">পুরানো PIN (৫ সংখ্যা)</label><input type="number" id="cp-old" placeholder="বর্তমান PIN" maxlength="5" oninput="this.value=this.value.slice(0,5)"></div>';
+    h += '<div class="fg" style="margin-top:8px"><label class="fl">নতুন PIN (৫ সংখ্যা)</label><input type="number" id="cp-new" placeholder="নতুন PIN" maxlength="5" oninput="this.value=this.value.slice(0,5)"></div>';
+    h += '<div class="fg" style="margin-top:8px"><label class="fl">নিশ্চিত করুন</label><input type="number" id="cp-con" placeholder="আবার লিখুন" maxlength="5" oninput="this.value=this.value.slice(0,5)"></div>';
+    h += '<button class="btn btn-bl btn-w" style="margin-top:12px" ontouchstart="doChangePass();event.preventDefault()" onclick="doChangePass()">✅ PIN পরিবর্তন করুন</button>';
+    h += '</div>';
+
+    if (S.role === 'owner') {
+      h += '<div class="ct">👑 সবার PIN ম্যানেজ করুন</div>';
+      h += '<div id="pw-mgr-list"><div style="text-align:center;padding:20px;color:var(--mt2)">লোড হচ্ছে...</div></div>';
+      h += '<button class="btn btn-gh btn-w" style="margin-top:10px" ontouchstart="loadPwMgr();event.preventDefault()" onclick="loadPwMgr()">🔄 রিফ্রেশ</button>';
+      setTimeout(loadPwMgr, 0);
+    }
   }
 
   el.innerHTML = h;
@@ -668,7 +677,10 @@ window.addEventListener('load', function() {
         S.role = sess.role; S.userId = sess.userId || ''; S.userName = sess.userName || '';
         document.getElementById('pin-screen').style.display = 'none';
         applyRole();
-        document.getElementById('spl').classList.add('fade');
+        var spl2 = document.getElementById('spl');
+        spl2.classList.add('fade');
+        spl2.style.opacity = '0';
+        spl2.style.pointerEvents = 'none';
         document.getElementById('app').classList.add('show');
         loadAll();
       }
