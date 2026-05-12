@@ -159,33 +159,36 @@ CREATE TABLE IF NOT EXISTS due_calendar (
 CREATE INDEX IF NOT EXISTS idx_due_date   ON due_calendar(due_date);
 CREATE INDEX IF NOT EXISTS idx_due_status ON due_calendar(status);
 
--- ── User Passwords ────────────────────────────────────────────────
---   user_key: 'owner' | 'manager' | <srs.id>
---   role:     'owner' | 'manager' | 'so' | 'dsr'
---   Each password MUST be globally unique — role is auto-detected from it.
-CREATE TABLE IF NOT EXISTS user_passwords (
-  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_key   TEXT NOT NULL UNIQUE,
-  user_name  TEXT DEFAULT '',
-  role       TEXT NOT NULL CHECK (role IN ('owner','manager','so','dsr')),
-  password   TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-CREATE INDEX IF NOT EXISTS idx_up_password ON user_passwords(password);
-
--- Seed owner with initial password 1234 (owner must change on first login)
-INSERT INTO user_passwords (user_key, user_name, role, password)
-VALUES ('owner', 'Owner', 'owner', '1234')
-ON CONFLICT (user_key) DO NOTHING;
-
 -- ── Disable RLS ───────────────────────────────────────────────────
-ALTER TABLE products       DISABLE ROW LEVEL SECURITY;
-ALTER TABLE srs            DISABLE ROW LEVEL SECURITY;
-ALTER TABLE transactions   DISABLE ROW LEVEL SECURITY;
-ALTER TABLE dmg_claims     DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bonus          DISABLE ROW LEVEL SECURITY;
-ALTER TABLE sr_payments    DISABLE ROW LEVEL SECURITY;
-ALTER TABLE exp_cats       DISABLE ROW LEVEL SECURITY;
-ALTER TABLE exp_records    DISABLE ROW LEVEL SECURITY;
-ALTER TABLE due_calendar   DISABLE ROW LEVEL SECURITY;
-ALTER TABLE user_passwords DISABLE ROW LEVEL SECURITY;
+ALTER TABLE products     DISABLE ROW LEVEL SECURITY;
+ALTER TABLE srs          DISABLE ROW LEVEL SECURITY;
+ALTER TABLE transactions DISABLE ROW LEVEL SECURITY;
+ALTER TABLE dmg_claims   DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bonus        DISABLE ROW LEVEL SECURITY;
+ALTER TABLE sr_payments  DISABLE ROW LEVEL SECURITY;
+ALTER TABLE exp_cats     DISABLE ROW LEVEL SECURITY;
+ALTER TABLE exp_records  DISABLE ROW LEVEL SECURITY;
+ALTER TABLE due_calendar DISABLE ROW LEVEL SECURITY;
+
+-- ═══════════════════════════════════════════════════
+-- v9: app_users — multi-user auth system
+-- ═══════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS app_users (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name          TEXT NOT NULL,
+  role          TEXT NOT NULL CHECK (role IN ('owner','manager','so','dsr')),
+  password      TEXT NOT NULL,
+  sr_id         TEXT DEFAULT '',
+  supervisor_id TEXT DEFAULT '',
+  created_at    TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE app_users DISABLE ROW LEVEL SECURITY;
+
+-- Default accounts (passwords hashed: SHA-256 of password+'axiion_salt_v9')
+-- owner  → default password: owner1234
+-- manager → default password: mgr1234
+-- CHANGE THESE IMMEDIATELY via Password Manager after first login!
+INSERT INTO app_users (name, role, password) VALUES
+  ('Owner',   'owner',   '617580c2a967657def2d0ba69d488fc1f1534ced22d7590f4e22865889a0d185'),
+  ('Manager', 'manager', '86aa9ac7934087872f007069b155ade87f42d918baf0a633ab76ac2fb2a702b8')
+ON CONFLICT DO NOTHING;

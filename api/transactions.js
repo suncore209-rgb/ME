@@ -73,9 +73,9 @@ module.exports = async (req, res) => {
     if (req.method === 'GET') {
       const { from, to, srId } = req.query;
       let q = supabase.from('transactions').select('*').order('created_at');
-      if (from) q = q.gte('date', from);
-      if (to)   q = q.lte('date', to);
-      if (srId) q = q.eq('sr_id', srId);
+      if (from)  q = q.gte('date', from);
+      if (to)    q = q.lte('date', to);
+      if (srId)  q = q.eq('sr_id', srId);
       const { data, error } = await q;
       if (error) throw error;
       return res.json((data || []).map(mapTx));
