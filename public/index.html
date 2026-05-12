@@ -252,6 +252,29 @@ tr:hover td{background:#F5F7FF}
 .pw-badge-so{background:#E1F5EE;color:#0F6E56}
 .pw-badge-dsr{background:#FAECE7;color:#993C1D}
 
+/* ── Group Chat ───────────────────────────────────────────── */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:320px;background:#ECE5DD;border-radius:10px;overflow:hidden}
+.chat-msgs{flex:1;overflow-y:auto;padding:10px 8px;display:flex;flex-direction:column;gap:6px}
+.chat-msg{max-width:80%;padding:7px 10px;border-radius:10px;font-size:12px;line-height:1.4;position:relative;word-break:break-word}
+.chat-msg.mine{align-self:flex-end;background:#DCF8C6;border-bottom-right-radius:2px}
+.chat-msg.theirs{align-self:flex-start;background:#fff;border-bottom-left-radius:2px}
+.chat-msg-name{font-size:10px;font-weight:700;color:var(--bl);margin-bottom:2px}
+.chat-msg-role{font-size:9px;color:var(--mt2);margin-left:4px;font-weight:400}
+.chat-msg-time{font-size:9px;color:var(--mt2);text-align:right;margin-top:2px}
+.chat-input-bar{display:flex;gap:8px;padding:8px 10px;background:#F0F0F0;align-items:center;border-top:1px solid #ddd}
+.chat-input-bar input{flex:1;border:none;border-radius:20px;padding:8px 14px;font-size:13px;background:#fff;outline:none;font-family:'Hind Siliguri',sans-serif}
+.chat-send-btn{width:38px;height:38px;border-radius:50%;background:var(--bl);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;touch-action:manipulation}
+.chat-date-sep{text-align:center;font-size:10px;color:var(--mt2);padding:4px 0}
+
+/* ── Important Numbers ───────────────────────────────────── */
+.num-card{background:#fff;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;border:1px solid #EEF2FF;margin-bottom:8px}
+.num-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#0D47A1,#1565C0);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}
+.num-info{flex:1;min-width:0}
+.num-name{font-weight:700;font-size:13px;color:#1a1a2e}
+.num-role-tag{font-size:10px;color:var(--mt2);margin-top:1px}
+.num-phone{font-size:13px;font-weight:600;color:var(--bl);margin-top:3px}
+.num-actions{display:flex;gap:6px}
+
 /* ME Logo */
 .me-logo{font-family:'Hind Siliguri',sans-serif;font-size:30px;font-weight:900;color:#0D47A1;letter-spacing:-1px;line-height:1}
 .me-logo-pin{font-family:'Hind Siliguri',sans-serif;font-size:26px;font-weight:900;color:#0D47A1;letter-spacing:-1px;line-height:1}
@@ -476,19 +499,29 @@ function logout() {
 // ════════════════════════════════════════════════════
 //  EXTRA TAB — Password Manager (Owner) + Change Pass
 // ════════════════════════════════════════════════════
-var _extraTab = 'pin';
+var _extraTab = 'passwords';
+var _chatPollTimer = null;
+var _chatLastTs = '';
+
 function renderExtraTab(sub) {
   if (sub) _extraTab = sub;
+  // Stop chat poll when leaving chat tab
+  if (sub && sub !== 'chat' && _chatPollTimer) { clearInterval(_chatPollTimer); _chatPollTimer = null; }
   var el = document.getElementById('pg-extra');
 
-  // ── Sub-tab bar (expandable for future features) ──
-  var h = '<div class="seg" style="margin-bottom:0">';
-  h += '<button class="sbt '+(_extraTab==='pin'?'active':'')+'" ontouchstart="renderExtraTab(\'pin\');event.preventDefault()" onclick="renderExtraTab(\'pin\')">🔑 PIN ম্যানেজ</button>';
-  // Future tabs go here — e.g. settings, reports, etc.
+  var tabs = [
+    ['passwords','🔑 পাসওয়ার্ড'],
+    ['chat','💬 গ্রুপ চ্যাট'],
+    ['numbers','📞 গুরুত্বপূর্ণ নম্বর']
+  ];
+  var h = '<div class="seg" style="margin-bottom:0;flex-wrap:wrap;gap:4px">';
+  tabs.forEach(function(tb){
+    h += '<button class="sbt '+(_extraTab===tb[0]?'active':'')+'" ontouchstart="renderExtraTab(''+tb[0]+'');event.preventDefault()" onclick="renderExtraTab(''+tb[0]+'')">'+ tb[1] +'</button>';
+  });
   h += '</div>';
 
-  // ── PIN ম্যানেজ tab ───────────────────────────────
-  if (_extraTab === 'pin') {
+  // ── পাসওয়ার্ড ম্যানেজার ──────────────────────────────────
+  if (_extraTab === 'passwords') {
     h += '<div class="ct" style="margin-top:10px">🔑 নিজের PIN পরিবর্তন করুন</div>';
     h += '<div class="card" style="margin-bottom:12px">';
     h += '<div class="fg"><label class="fl">পুরানো PIN (৫ সংখ্যা)</label><input type="number" id="cp-old" placeholder="বর্তমান PIN" maxlength="5" oninput="this.value=this.value.slice(0,5)"></div>';
@@ -496,16 +529,157 @@ function renderExtraTab(sub) {
     h += '<div class="fg" style="margin-top:8px"><label class="fl">নিশ্চিত করুন</label><input type="number" id="cp-con" placeholder="আবার লিখুন" maxlength="5" oninput="this.value=this.value.slice(0,5)"></div>';
     h += '<button class="btn btn-bl btn-w" style="margin-top:12px" ontouchstart="doChangePass();event.preventDefault()" onclick="doChangePass()">✅ PIN পরিবর্তন করুন</button>';
     h += '</div>';
-
     if (S.role === 'owner') {
       h += '<div class="ct">👑 সবার PIN ম্যানেজ করুন</div>';
+      h += '<div class="ib" style="margin-bottom:6px;font-size:11px">DSR ও SO উভয়ই এখানে দেখা যাবে। নতুন এনরোলমেন্টে ইউনিক ডিফল্ট PIN স্বয়ংক্রিয়ভাবে তৈরি হয়।</div>';
       h += '<div id="pw-mgr-list"><div style="text-align:center;padding:20px;color:var(--mt2)">লোড হচ্ছে...</div></div>';
       h += '<button class="btn btn-gh btn-w" style="margin-top:10px" ontouchstart="loadPwMgr();event.preventDefault()" onclick="loadPwMgr()">🔄 রিফ্রেশ</button>';
       setTimeout(loadPwMgr, 0);
     }
   }
 
+  // ── গ্রুপ চ্যাট ──────────────────────────────────────────
+  if (_extraTab === 'chat') {
+    h += '<div style="margin-top:10px">';
+    h += '<div class="ct">💬 গ্রুপ চ্যাট — ' + esc(S.userName || '') + '</div>';
+    h += '<div class="chat-wrap">';
+    h += '<div class="chat-msgs" id="chat-msgs-box"><div style="text-align:center;padding:20px;color:var(--mt2)">লোড হচ্ছে...</div></div>';
+    h += '<div class="chat-input-bar">';
+    h += '<input id="chat-inp" placeholder="মেসেজ লিখুন..." onkeydown="if(event.key==='Enter')sendChatMsg()">';
+    h += '<button class="chat-send-btn" ontouchstart="sendChatMsg();event.preventDefault()" onclick="sendChatMsg()">➤</button>';
+    h += '</div></div></div>';
+    setTimeout(function(){ loadChatMsgs(true); startChatPoll(); }, 0);
+  }
+
+  // ── গুরুত্বপূর্ণ নম্বর ───────────────────────────────────
+  if (_extraTab === 'numbers') {
+    var canEditNum = (S.role === 'owner' || S.role === 'manager');
+    h += '<div style="margin-top:10px">';
+    h += '<div class="ct">📞 গুরুত্বপূর্ণ নম্বর</div>';
+    if (canEditNum) {
+      h += '<div class="card" style="margin-bottom:12px">';
+      h += '<div class="g2"><div><label class="fl">নাম *</label><input id="num-name" placeholder="ব্যক্তির নাম"></div>';
+      h += '<div><label class="fl">পদবি/ভূমিকা</label><input id="num-role" placeholder="যেমন: Owner, DSR, Manager"></div></div>';
+      h += '<div class="fg" style="margin-top:8px"><label class="fl">মোবাইল নম্বর *</label><input id="num-phone" type="tel" placeholder="01XXXXXXXXX" inputmode="numeric"></div>';
+      h += '<div class="fg" style="margin-top:8px"><label class="fl">নোট (ঐচ্ছিক)</label><input id="num-note" placeholder="যেকোনো তথ্য"></div>';
+      h += '<button class="btn btn-bl btn-w" style="margin-top:10px" ontouchstart="saveNumber();event.preventDefault()" onclick="saveNumber()">➕ নম্বর যোগ করুন</button>';
+      h += '</div>';
+    }
+    h += '<div id="num-list"><div style="text-align:center;padding:20px;color:var(--mt2)">লোড হচ্ছে...</div></div>';
+    h += '</div>';
+    setTimeout(loadNumbers, 0);
+  }
+
   el.innerHTML = h;
+}
+
+// ── Chat functions ────────────────────────────────────────────
+function startChatPoll() {
+  if (_chatPollTimer) clearInterval(_chatPollTimer);
+  _chatPollTimer = setInterval(function(){ loadChatMsgs(false); }, 5000);
+}
+async function loadChatMsgs(scroll) {
+  var box = document.getElementById('chat-msgs-box');
+  if (!box) { if (_chatPollTimer) { clearInterval(_chatPollTimer); _chatPollTimer = null; } return; }
+  var url = '/api/extras?type=chat' + (_chatLastTs ? '&after=' + encodeURIComponent(_chatLastTs) : '');
+  var r = await apiGet(url);
+  if (!r || !r.ok) { if (!_chatLastTs) box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--mt2)">লোড ব্যর্থ</div>'; return; }
+  var msgs = r.messages || [];
+  if (!msgs.length && _chatLastTs) return; // no new messages
+
+  if (!_chatLastTs) {
+    // First load — render all
+    box.innerHTML = '';
+  }
+  if (msgs.length) {
+    _chatLastTs = msgs[msgs.length-1].created_at;
+    var lastDate = '';
+    msgs.forEach(function(m) {
+      var d = (m.created_at||'').slice(0,10);
+      if (d && d !== lastDate) {
+        lastDate = d;
+        var sep = document.createElement('div');
+        sep.className = 'chat-date-sep';
+        sep.textContent = d;
+        box.appendChild(sep);
+      }
+      var mine = m.sender_id === S.userId;
+      var div = document.createElement('div');
+      div.className = 'chat-msg ' + (mine ? 'mine' : 'theirs');
+      var time = (m.created_at||'').slice(11,16);
+      var roleL = ROLE_LABELS[m.sender_role] || m.sender_role || '';
+      div.innerHTML = (!mine ? '<div class="chat-msg-name">'+esc(m.sender_name)+'<span class="chat-msg-role">'+esc(roleL)+'</span></div>' : '') +
+        '<div>'+esc(m.message)+'</div>' +
+        '<div class="chat-msg-time">'+time+'</div>';
+      box.appendChild(div);
+    });
+  }
+  if (scroll) box.scrollTop = box.scrollHeight;
+}
+async function sendChatMsg() {
+  var inp = document.getElementById('chat-inp');
+  if (!inp) return;
+  var msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  var r = await apiPost('/api/extras?type=chat', {
+    senderId: S.userId, senderName: S.userName || 'User',
+    senderRole: S.role || 'dsr', message: msg
+  });
+  if (r && r.ok) { _chatLastTs = ''; loadChatMsgs(true); }
+  else { toast('❌ মেসেজ পাঠানো ব্যর্থ'); inp.value = msg; }
+}
+
+// ── Important Numbers functions ───────────────────────────────
+async function loadNumbers() {
+  var el = document.getElementById('num-list');
+  if (!el) return;
+  var r = await apiGet('/api/extras?type=numbers');
+  if (!r || !r.ok) { el.innerHTML = '<div class="rib">লোড ব্যর্থ</div>'; return; }
+  var nums = r.numbers || [];
+  if (!nums.length) { el.innerHTML = '<div class="ib">এখনো কোনো নম্বর যোগ করা হয়নি।</div>'; return; }
+  var canDel = (S.role === 'owner' || S.role === 'manager');
+  var h = '';
+  nums.forEach(function(n) {
+    var initials = (n.name||'?').charAt(0).toUpperCase();
+    h += '<div class="num-card">';
+    h += '<div class="num-avatar">'+esc(initials)+'</div>';
+    h += '<div class="num-info">';
+    h += '<div class="num-name">'+esc(n.name)+'</div>';
+    if (n.role_label) h += '<div class="num-role-tag">'+esc(n.role_label)+'</div>';
+    h += '<div class="num-phone">📱 '+esc(n.phone)+'</div>';
+    if (n.note) h += '<div style="font-size:11px;color:var(--mt2);margin-top:2px">'+esc(n.note)+'</div>';
+    h += '</div>';
+    h += '<div class="num-actions">';
+    h += '<a href="tel:'+esc(n.phone)+'" class="btn btn-bl btn-sm" style="text-decoration:none;font-size:11px;padding:5px 8px">📞</a>';
+    if (canDel) h += '<button class="btn btn-re btn-sm" style="padding:5px 8px;font-size:11px" onclick="delNumber(''+n.id+'')" ontouchstart="delNumber(''+n.id+'');event.preventDefault()">🗑️</button>';
+    h += '</div></div>';
+  });
+  el.innerHTML = h;
+}
+async function saveNumber() {
+  var name = (document.getElementById('num-name')||{}).value||'';
+  var role = (document.getElementById('num-role')||{}).value||'';
+  var phone = (document.getElementById('num-phone')||{}).value||'';
+  var note = (document.getElementById('num-note')||{}).value||'';
+  if (!name.trim()) return toast('নাম দিন');
+  if (!phone.trim()) return toast('নম্বর দিন');
+  var r = await apiPost('/api/extras?type=numbers', {
+    name: name.trim(), roleLabel: role.trim(),
+    phone: phone.trim(), note: note.trim(),
+    addedBy: S.userName || S.userId
+  });
+  if (r && r.ok) {
+    toast('✅ নম্বর যোগ হয়েছে');
+    ['num-name','num-role','num-phone','num-note'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+    loadNumbers();
+  } else toast('❌ ' + (r&&r.error||'ব্যর্থ'));
+}
+async function delNumber(id) {
+  if (!confirm('এই নম্বরটি মুছবেন?')) return;
+  var r = await apiDel('/api/extras', {id:id, type:'numbers'});
+  if (r && r.ok) { toast('মুছে গেছে'); loadNumbers(); }
+  else toast('❌ ' + (r&&r.error||'ব্যর্থ'));
 }
 
 async function loadPwMgr() {
@@ -1384,6 +1558,12 @@ function updPayTotal() {
   var el=document.getElementById('pay-total-val'); if(el) el.textContent='৳'+fm(t);
 }
 
+function makeDefaultPin(uuid) {
+  // Generate a unique 5-digit PIN from a UUID string so every new SR gets a distinct default PIN
+  var h = 0;
+  for (var i = 0; i < (uuid||'').length; i++) { h = ((h << 5) - h + (uuid||'').charCodeAt(i)) | 0; }
+  return String(10000 + Math.abs(h) % 90000);
+}
 async function saveSR() {
   var nm=v('sf-nm').trim(); if(!nm) return toast('নাম আবশ্যক');
   var existSR=S.editSRId?S.srs.find(function(s){return s.id===S.editSRId;}):null;
@@ -1395,14 +1575,19 @@ async function saveSR() {
   var r=S.editSRId?await apiPut('/api/srs',d):await apiPost('/api/srs',d);
   hideOvl();
   if(r.ok){
-    // Auto-create password entry for new DSR/SO (default pass = 0000, owner must set proper pass)
+    // Auto-create password entry for new DSR/SO — use UUID-based unique PIN
     if (!S.editSRId && r.id) {
-      await apiPut('/api/auth', { action:'upsert', userKey: r.id, userName: nm, role: role, password: '0000' });
+      var defPin = makeDefaultPin(r.id);
+      await apiPut('/api/auth', { action:'upsert', userKey: r.id, userName: nm, role: role, password: defPin });
+      toast('DSR/SO যোগ হয়েছে (ডিফল্ট PIN: ' + defPin + ')');
     } else if (S.editSRId) {
-      // Update name in password table if exists
-      await apiPut('/api/auth', { action:'upsert', userKey: S.editSRId, userName: nm, role: role, password: existSR ? (existSR._pass||'0000') : '0000' });
+      // Update name/role in password table — preserve existing password
+      var existing = await apiGet('/api/auth');
+      var existPwEntry = (existing && existing.users || []).find(function(u){ return u.user_key === S.editSRId; });
+      var keepPass = existPwEntry ? existPwEntry.password : makeDefaultPin(S.editSRId);
+      await apiPut('/api/auth', { action:'upsert', userKey: S.editSRId, userName: nm, role: role, password: keepPass });
+      toast('আপডেট হয়েছে');
     }
-    toast(S.editSRId?'আপডেট হয়েছে':'DSR/SO যোগ হয়েছে (পাসওয়ার্ড: 0000)');
     S.editSRId=null;IMG.sr={full:'',name:'',thumb:'',previewUrl:''};S.srTab='list';loadAll();
   } else toast(r.error||'ব্যর্থ');
 }
@@ -1422,7 +1607,7 @@ async function savePay() {
   if(!total) return toast('কমপক্ষে একটি পরিমাণ দিন');
   var sr=S.srs.find(function(s){return s.id===srId;});
   showOvl('...');
-  var r=await apiPost('/api/sr-payments',{srId:srId,srName:sr?sr.name:'',date:v('pf-dt')||iso(new Date()),
+  var r=await apiPost('/api/srs?sub=payments',{srId:srId,srName:sr?sr.name:'',date:v('pf-dt')||iso(new Date()),
     cashAmount:cash,commissionAmt:comm,discountAmt:disc,damageAmt:dmgAmt,amount:total,note:v('pf-nt')});
   hideOvl();
   if(r.ok){toast('পেমেন্ট রেকর্ড হয়েছে');sv('pf-cash','');sv('pf-comm','');sv('pf-disc','');sv('pf-dmg','');sv('pf-nt','');updPayTotal();}
