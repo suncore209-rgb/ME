@@ -346,7 +346,8 @@ tr:hover td{background:#F5F7FF}
   <div class="pin-sub">লগইন করুন</div>
   <div class="lgn-box">
     <select class="lgn-sel" id="lgn-user-sel">
-      <option value="">⏳ লোড হচ্ছে...</option>
+      <option value="owner">👑 Owner</option>
+      <option value="manager">🧑 Manager</option>
     </select>
     <input class="lgn-inp" type="password" id="lgn-pass" placeholder="পাসওয়ার্ড">
     <div class="pin-err" id="pin-err"></div>
@@ -374,13 +375,13 @@ function apiPut(url, data) { return apiFetch(url, { method:'PUT', body: JSON.str
 function apiDel(url, data) { return apiFetch(url, { method:'DELETE', body: JSON.stringify(data) }); }
 
 // ════════════════════════════════════════════════════
-//  LOGIN SYSTEM — Auto-detect role from password
+//  LOGIN SYSTEM v9
+//  - Owner/Manager passwords validated via /api/auth
+//  - DSR/SO list populated from S.srs after loadAll
+//  - All event listeners attached in initLoginUI()
 // ════════════════════════════════════════════════════
 var ROLE_LABELS = { owner:'👑 Owner', manager:'🧑 Manager', so:'📊 SO', dsr:'🚚 DSR' };
-var _lgnUsers = []; // all users loaded at startup
 
-// Wire up login button and Enter key AFTER DOM is ready
-// (called from window.load, not inline onclick)
 function initLoginUI() {
   var btn = document.getElementById('lgn-submit-btn');
   var inp = document.getElementById('lgn-pass');
@@ -388,28 +389,24 @@ function initLoginUI() {
   if (inp) inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') doLogin(); });
 }
 
-async function loadLoginUserList() {
+// Called after S.srs is populated by loadAll — adds DSR/SO to dropdown
+function populateLoginDropdown() {
   var sel = document.getElementById('lgn-user-sel');
-  if (!sel) return;
-  // Always show owner & manager immediately — no waiting
-  sel.innerHTML = '<option value="owner">👑 Owner</option>'
-                + '<option value="manager">🧑 Manager</option>';
-  // Then try loading DSR/SO list from server
-  try {
-    var r = await apiGet('/api/auth?action=list-users');
-    if (r && r.ok && r.users && r.users.length) {
-      _lgnUsers = r.users;
-      r.users.forEach(function(u) {
-        var lbl = u.role === 'so' ? '📊 SO' : '🚚 DSR';
-        var opt = document.createElement('option');
-        opt.value = u.id;
-        opt.textContent = lbl + ' · ' + u.name + (u.area ? ' (' + u.area + ')' : '');
-        sel.appendChild(opt);
-      });
-    }
-  } catch(e) {
-    // Network error — owner/manager still available
+  if (!sel || !S.srs || !S.srs.length) return;
+  // Remove any existing DSR/SO options first
+  var toRemove = [];
+  for (var i = 0; i < sel.options.length; i++) {
+    var v = sel.options[i].value;
+    if (v !== 'owner' && v !== 'manager') toRemove.push(i);
   }
+  for (var j = toRemove.length - 1; j >= 0; j--) sel.remove(toRemove[j]);
+  // Add DSR/SO
+  S.srs.forEach(function(u) {
+    var opt = document.createElement('option');
+    opt.value = u.id;
+    opt.textContent = (u.role === 'so' ? '📊 SO' : '🚚 DSR') + ' · ' + u.name + (u.area ? ' (' + u.area + ')' : '');
+    sel.appendChild(opt);
+  });
 }
 
 async function doLogin() {
@@ -417,41 +414,44 @@ async function doLogin() {
   var sel   = document.getElementById('lgn-user-sel');
   var inp   = document.getElementById('lgn-pass');
   var btn   = document.getElementById('lgn-submit-btn');
-  errEl.textContent = '';
+  if (errEl) errEl.textContent = '';
 
-  var username = (sel && sel.value) ? sel.value.trim() : '';
-  var pass     = (inp && inp.value) ? inp.value : '';
+  var username = sel ? sel.value : '';
+  var pass     = inp ? inp.value : '';
 
-  if (!username) { errEl.textContent = 'ব্যবহারকারী বাছাই করুন'; return; }
-  if (!pass)     { errEl.textContent = 'পাসওয়ার্ড দিন'; if(inp) inp.focus(); return; }
+  if (!username) { if(errEl) errEl.textContent = 'ব্যবহারকারী বাছাই করুন'; return; }
+  if (!pass)     { if(errEl) errEl.textContent = 'পাসওয়ার্ড দিন'; if(inp) inp.focus(); return; }
 
-  // ── Owner / Manager: validate against app_config via API
-  // but also store locally fetched password for offline fallback
-  if (username === 'owner' || username === 'manager') {
-    if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
-    var r = null;
-    try { r = await apiPost('/api/auth?action=login', { username: username, password: pass }); } catch(e){}
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ যাচাই হচ্ছে...'; }
+
+  // ── DSR / SO: validate client-side from S.srs (already loaded)
+  if (username !== 'owner' && username !== 'manager') {
+    var sr = null;
+    for (var i = 0; i < S.srs.length; i++) {
+      if (String(S.srs[i].id) === String(username)) { sr = S.srs[i]; break; }
+    }
     if (btn) { btn.disabled = false; btn.textContent = '🔐 প্রবেশ করুন'; }
-    if (!r || !r.ok) {
-      errEl.textContent = (r && r.error) ? r.error : '❌ ভুল পাসওয়ার্ড';
-      if (inp) { inp.value = ''; inp.focus(); }
+    if (!sr) { if(errEl) errEl.textContent = '❌ ব্যবহারকারী পাওয়া যায়নি'; return; }
+    var stored = sr.password || '1234';
+    if (pass !== stored) {
+      if(errEl) errEl.textContent = '❌ ভুল পাসওয়ার্ড';
+      if(inp) { inp.value = ''; inp.focus(); }
       return;
     }
-    loginSuccess(r.role, r.name, r.id, r.area || '');
+    loginSuccess(sr.role, sr.name, sr.id, sr.area || '');
     return;
   }
 
-  // ── DSR / SO: hit API
-  if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
-  var r2 = null;
-  try { r2 = await apiPost('/api/auth?action=login', { username: username, password: pass }); } catch(e){}
+  // ── Owner / Manager: validate via API
+  var r = null;
+  try { r = await apiPost('/api/auth?action=login', { username: username, password: pass }); } catch(e) {}
   if (btn) { btn.disabled = false; btn.textContent = '🔐 প্রবেশ করুন'; }
-  if (!r2 || !r2.ok) {
-    errEl.textContent = (r2 && r2.error) ? r2.error : '❌ ভুল পাসওয়ার্ড';
-    if (inp) { inp.value = ''; inp.focus(); }
+  if (!r || !r.ok) {
+    if(errEl) errEl.textContent = (r && r.error) ? r.error : '❌ ভুল পাসওয়ার্ড';
+    if(inp) { inp.value = ''; inp.focus(); }
     return;
   }
-  loginSuccess(r2.role, r2.name, r2.id, r2.area || '');
+  loginSuccess(r.role, r.name, r.id, r.area || '');
 }
 
 function loginSuccess(role, name, id, area) {
@@ -459,17 +459,14 @@ function loginSuccess(role, name, id, area) {
   sessionStorage.setItem('axiion_session', JSON.stringify({ role:role, name:name, id:id, area:area }));
   document.getElementById('pin-screen').style.display = 'none';
   applyRole();
+  var spl = document.getElementById('spl');
   if (role === 'dsr' || role === 'so') {
-    var splEl2 = document.getElementById('spl');
-    if (splEl2) splEl2.style.display = 'none';
-    document.getElementById('app').classList.add('show');
-    loadAll();
+    if (spl) spl.style.display = 'none';
   } else {
-    var splEl3 = document.getElementById('spl');
-    if (splEl3) { splEl3.style.display = ''; splEl3.classList.add('fade'); }
-    document.getElementById('app').classList.add('show');
-    loadAll();
+    if (spl) { spl.style.display = ''; spl.classList.add('fade'); }
   }
+  document.getElementById('app').classList.add('show');
+  loadAll();
 }
 function applyRole() {
   var r = S.role;
@@ -598,14 +595,20 @@ window.addEventListener('load', function() {
       }
     }
   } catch(e) { sessionStorage.removeItem('axiion_session'); }
-  // If no session was restored, hide splash so it cannot block login inputs
+  // If no session: hide splash (it blocks login inputs) and wire up login UI
   if (!S.role) {
     var splEl = document.getElementById('spl');
     if (splEl) splEl.style.display = 'none';
+    initLoginUI();
+    // Load srs list for DSR/SO login dropdown (runs in background)
+    apiGet('/api/load-all').then(function(r) {
+      if (!r || !r.ok) return;
+      S.products = r.products || [];
+      S.srs      = r.srs      || [];
+      S.stockMap = r.stockMap || {};
+      populateLoginDropdown();
+    }).catch(function(){});
   }
-  // Wire up login UI and load user list for dropdown
-  initLoginUI();
-  loadLoginUserList();
 });
 
 async function loadAll() {
@@ -617,6 +620,7 @@ async function loadAll() {
   S.products = r.products || [];
   S.srs = r.srs || [];
   S.stockMap = r.stockMap || {};
+  populateLoginDropdown(); // keep dropdown fresh (no-op when not on login screen)
   document.getElementById('hdr-sub').textContent = S.products.length+'টি পণ্য · '+S.srs.length+' জন DSR/SO';
   if (S.tab==='dash') loadDash();
   else if (S.tab==='prod') renderProd();
