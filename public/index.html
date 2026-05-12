@@ -230,28 +230,21 @@ tr:hover td{background:#F5F7FF}
 .tst{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);background:#1A237E;color:#fff;padding:9px 20px;border-radius:20px;font-size:12px;z-index:9998;white-space:nowrap;animation:tin .18s ease;pointer-events:none;font-weight:700;box-shadow:0 4px 14px rgba(26,35,126,.3)}
 @keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
-/* Login Screen */
+/* PIN Screen */
 #pin-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(145deg,#0D2137,#0D47A1);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;padding:24px}
 .pin-logo{width:80px;height:80px;background:#fff;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:14px;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
 .pin-title{color:#fff;font-size:26px;font-weight:700;margin-bottom:2px;letter-spacing:3px}
 .pin-co{color:rgba(255,215,0,.85);font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:4px}
 .pin-sub{color:rgba(255,255,255,.7);font-size:13px;margin-bottom:22px}
-.pin-err{color:#FF5252;font-size:12px;font-weight:700;margin-bottom:10px;min-height:16px;text-align:center}
-.pass-box{width:260px;margin-bottom:14px;position:relative}
-.pass-inp{width:100%;box-sizing:border-box;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.3);border-radius:12px;padding:14px 44px 14px 16px;font-size:18px;color:#fff;font-family:'Hind Siliguri',sans-serif;letter-spacing:3px;outline:none;transition:.2s}
-.pass-inp::placeholder{color:rgba(255,255,255,.35);letter-spacing:0;font-size:13px}
-.pass-inp:focus{border-color:#FFD700;background:rgba(255,255,255,.18)}
-.pass-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.5);font-size:18px;cursor:pointer;padding:4px;line-height:1}
-.pass-btn{width:260px;padding:14px;background:#FFD700;color:#0D2137;border:none;border-radius:12px;font-size:16px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer;transition:.12s}
-.pass-btn:active{transform:scale(.97)}
-.pass-btn:disabled{opacity:.5;cursor:default}
+.pin-dots{display:flex;gap:14px;margin-bottom:16px}
+.pin-dot{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:transparent;transition:.2s}
+.pin-dot.filled{background:#FFD700;border-color:#FFD700}
+.pin-err{color:#FF5252;font-size:12px;font-weight:700;margin-bottom:12px;min-height:16px;text-align:center}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:240px}
+.pin-btn{height:64px;border-radius:14px;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:22px;font-weight:700;cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center;font-family:'Hind Siliguri',sans-serif}
+.pin-btn:active{background:rgba(255,255,255,.35);transform:scale(.94)}
+.pin-btn.del{font-size:18px;background:rgba(255,82,82,.25)}
 .pin-hint{margin-top:20px;color:rgba(255,255,255,.3);font-size:10px;text-align:center}
-.pw-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #EEF2FF}
-.pw-role-badge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600}
-.pw-badge-owner{background:#FAEEDA;color:#854F0B}
-.pw-badge-manager{background:#E6F1FB;color:#185FA5}
-.pw-badge-so{background:#E1F5EE;color:#0F6E56}
-.pw-badge-dsr{background:#FAECE7;color:#993C1D}
 
 /* ME Logo */
 .me-logo{font-family:'Hind Siliguri',sans-serif;font-size:30px;font-weight:900;color:#0D47A1;letter-spacing:-1px;line-height:1}
@@ -290,6 +283,14 @@ tr:hover td{background:#F5F7FF}
 .status-partial{color:#FF9800;font-weight:700;font-size:11px}
 .pay-prog-bar{height:6px;border-radius:3px;background:#eee;overflow:hidden;margin-top:4px}
 .pay-prog-fill{height:100%;border-radius:3px;background:var(--gr);transition:.3s}
+.pw-inp{width:100%;padding:14px 16px;border-radius:12px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;font-size:17px;font-family:'Hind Siliguri',sans-serif;text-align:center;outline:none;box-sizing:border-box}
+.pw-inp:focus{border-color:rgba(255,215,0,.6);background:rgba(255,255,255,.2)}
+.pw-inp::placeholder{color:rgba(255,255,255,.5);font-size:13px}
+.pw-btn{width:100%;padding:14px;border-radius:12px;border:none;background:#FFD700;color:#0D2137;font-size:15px;font-weight:700;font-family:'Hind Siliguri',sans-serif;cursor:pointer;transition:.12s}
+.pw-btn:active{transform:scale(.97)}
+.menu-row{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--bdr);cursor:pointer}
+.menu-row:last-child{border-bottom:none}
+.menu-row:active{background:var(--grl)}
 </style>
 </head>
 <body>
@@ -342,19 +343,18 @@ tr:hover td{background:#F5F7FF}
 <div class="ovl" id="ovl" style="display:none"><div class="spin"></div><div class="ovl-m" id="ovl-m">লোড হচ্ছে...</div></div>
 <div class="tst" id="tst" style="display:none"></div>
 
-<!-- LOGIN SCREEN -->
+<!-- PASSWORD SCREEN -->
 <div id="pin-screen">
   <div class="pin-logo"><div class="me-logo-pin">ME</div></div>
   <div class="pin-title">Miron Electronics</div>
   <div class="pin-co">⚡ <span class="brand-axiion">AXIION</span> TECHNOLOGY</div>
   <div class="pin-sub">পাসওয়ার্ড দিয়ে প্রবেশ করুন</div>
-  <div class="pass-box">
-    <input class="pass-inp" type="password" id="pass-inp" placeholder="পাসওয়ার্ড লিখুন..." autocomplete="current-password" onkeydown="if(event.key==='Enter')checkPassword()">
-    <button class="pass-eye" onclick="togglePassVis()" id="pass-eye-btn">👁️</button>
+  <div style="width:280px;display:flex;flex-direction:column;gap:12px;margin-bottom:16px">
+    <input type="password" id="pw-inp" class="pw-inp" placeholder="আপনার পাসওয়ার্ড লিখুন">
+    <button class="pw-btn" onclick="doLogin()">▶ প্রবেশ করুন</button>
   </div>
   <div class="pin-err" id="pin-err"></div>
-  <button class="pass-btn" id="pass-login-btn" onclick="checkPassword()">🔓 প্রবেশ করুন</button>
-  <div class="pin-hint">Owner · Manager · SO · DSR — যার পাসওয়ার্ড তার account খুলবে</div>
+  <div class="pin-hint">Owner · Manager · SO · DSR — আপনার পাসওয়ার্ড দিন</div>
 </div>
 
 <script>
@@ -376,68 +376,56 @@ function apiPut(url, data) { return apiFetch(url, { method:'PUT', body: JSON.str
 function apiDel(url, data) { return apiFetch(url, { method:'DELETE', body: JSON.stringify(data) }); }
 
 // ════════════════════════════════════════════════════
-//  AUTH — PASSWORD BASED (auto role detect)
+//  PIN — AUTO ROLE DETECT (no role buttons)
 // ════════════════════════════════════════════════════
 var ROLE_LABELS = { owner:'👑 Owner', manager:'🧑 Manager', so:'📊 SO', dsr:'🚚 DSR' };
 
-function togglePassVis() {
-  var inp = document.getElementById('pass-inp');
-  var btn = document.getElementById('pass-eye-btn');
-  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
-  else { inp.type = 'password'; btn.textContent = '👁️'; }
-}
-
-async function checkPassword() {
-  var inp = document.getElementById('pass-inp');
-  var pass = (inp ? inp.value : '').trim();
-  if (!pass) { document.getElementById('pin-err').textContent = '❌ পাসওয়ার্ড লিখুন'; return; }
-  var btn = document.getElementById('pass-login-btn');
-  if (btn) { btn.disabled = true; btn.textContent = '⌛ যাচাই হচ্ছে...'; }
+async function doLogin() {
+  var pw = (document.getElementById('pw-inp').value || '').trim();
+  if (!pw) { document.getElementById('pin-err').textContent = '❌ পাসওয়ার্ড দিন'; return; }
   document.getElementById('pin-err').textContent = '';
-
-  var r = await apiPost('/api/auth', { password: pass });
-
-  if (btn) { btn.disabled = false; btn.textContent = '🔓 প্রবেশ করুন'; }
-
-  if (r && r.ok) {
-    S.role     = r.role;
-    S.userId   = r.userId;
-    S.userName = r.userName;
-    sessionStorage.setItem('axiion_session', JSON.stringify({ role: r.role, userId: r.userId, userName: r.userName }));
-    if (inp) inp.value = '';
-    document.getElementById('pin-screen').style.display = 'none';
-    applyRole();
-    if (r.role === 'dsr' || r.role === 'so') {
-      document.getElementById('spl').style.display = 'none';
+  showOvl('যাচাই হচ্ছে...');
+  var r = await apiPost('/api/auth?action=login', { password: pw });
+  hideOvl();
+  if (!r.ok) {
+    document.getElementById('pin-err').textContent = '❌ ' + (r.error || 'ভুল পাসওয়ার্ড');
+    document.getElementById('pw-inp').value = '';
+    return;
+  }
+  S.role = r.role; S.srId = r.srId||''; S.srName = r.name||'';
+  S.userId = r.userId||''; S.supervisorId = r.supervisorId||'';
+  sessionStorage.setItem('axiion_role', r.role);
+  sessionStorage.setItem('axiion_srId', r.srId||'');
+  sessionStorage.setItem('axiion_srName', r.name||'');
+  sessionStorage.setItem('axiion_userId', r.userId||'');
+  sessionStorage.setItem('axiion_supervisorId', r.supervisorId||'');
+  document.getElementById('pin-screen').style.display = 'none';
+  applyRole();
+  if (r.role==='dsr' || r.role==='so') {
+    document.getElementById('spl').style.display = 'none';
+    document.getElementById('app').classList.add('show');
+    loadAll();
+  } else {
+    setTimeout(function(){
+      document.getElementById('spl').classList.add('fade');
       document.getElementById('app').classList.add('show');
       loadAll();
-    } else {
-      setTimeout(function(){
-        document.getElementById('spl').classList.add('fade');
-        document.getElementById('app').classList.add('show');
-        loadAll();
-      }, 2200);
-    }
-  } else {
-    document.getElementById('pin-err').textContent = '❌ ' + ((r && r.error) || 'ভুল পাসওয়ার্ড');
-    var box = document.querySelector('.pass-box');
-    if (box) ['-8px','8px','-4px','0'].forEach(function(v,i){ setTimeout(function(){ box.style.transform='translateX('+v+')'; }, i*80); });
+    }, 2200);
   }
 }
+setTimeout(function(){
+  var inp = document.getElementById('pw-inp');
+  if (inp) inp.addEventListener('keydown', function(e){ if (e.key==='Enter') doLogin(); });
+}, 100);
 function applyRole() {
   var r = S.role;
   var badge = document.getElementById('role-badge');
-  if (badge) {
-    var label = ROLE_LABELS[r] || r;
-    if (S.userName && r !== 'owner' && r !== 'manager') label += ' · ' + S.userName;
-    badge.textContent = label;
-  }
-  // Nav visibility per role
+  if (badge) badge.textContent = ROLE_LABELS[r] || r;
   var show = {
     owner:   ['dash','prod','sr','tx','rep','exp','cal','extra'],
     manager: ['dash','prod','sr','tx','exp','cal'],
     so:      ['dash','prod'],
-    dsr:     ['dash']
+    dsr:     ['dash','prod']
   }[r] || ['dash'];
   ['dash','prod','sr','tx','rep','exp','cal','extra'].forEach(function(t) {
     var el = document.getElementById('nb-'+t);
@@ -446,124 +434,15 @@ function applyRole() {
 }
 function logout() {
   if (!confirm('লগআউট করবেন?')) return;
-  sessionStorage.removeItem('axiion_session');
-  S.role = ''; S.userId = ''; S.userName = ''; _dashCache = null; S.dsrMode = 'today';
+  ['axiion_role','axiion_srId','axiion_srName','axiion_userId','axiion_supervisorId'].forEach(function(k){ sessionStorage.removeItem(k); });
+  S.role=''; S.srId=''; S.srName=''; S.userId=''; S.supervisorId='';
+  _dashCache = null; S.dsrMode = 'today';
   document.getElementById('app').classList.remove('show');
   var spl = document.getElementById('spl');
   spl.style.display = 'flex'; spl.style.opacity = '1';
   document.getElementById('pin-screen').style.display = 'flex';
   document.getElementById('pin-err').textContent = '';
-  var inp = document.getElementById('pass-inp');
-  if (inp) { inp.value = ''; inp.type = 'password'; }
-  var eye = document.getElementById('pass-eye-btn');
-  if (eye) eye.textContent = '👁️';
-}
-
-// ════════════════════════════════════════════════════
-//  EXTRA TAB — Password Manager (Owner) + Change Pass
-// ════════════════════════════════════════════════════
-function renderExtraTab() {
-  var el = document.getElementById('pg-extra');
-  var h = '<div class="ct">⚙️ অতিরিক্ত ফিচার</div>';
-
-  // Change Password section (all roles)
-  h += '<div class="card" style="margin-bottom:10px">';
-  h += '<div style="font-weight:700;font-size:13px;margin-bottom:10px">🔑 পাসওয়ার্ড পরিবর্তন করুন</div>';
-  h += '<div class="fg"><label class="fl">পুরানো পাসওয়ার্ড</label><input type="password" id="cp-old" placeholder="বর্তমান পাসওয়ার্ড"></div>';
-  h += '<div class="fg" style="margin-top:8px"><label class="fl">নতুন পাসওয়ার্ড</label><input type="password" id="cp-new" placeholder="নতুন পাসওয়ার্ড"></div>';
-  h += '<div class="fg" style="margin-top:8px"><label class="fl">নিশ্চিত করুন</label><input type="password" id="cp-con" placeholder="আবার লিখুন"></div>';
-  h += '<button class="btn btn-bl btn-w" style="margin-top:12px" onclick="doChangePass()">✅ পরিবর্তন করুন</button>';
-  h += '</div>';
-
-  // Password Manager — only for owner
-  if (S.role === 'owner') {
-    h += '<div class="ct" style="margin-top:4px">👑 পাসওয়ার্ড ম্যানেজার</div>';
-    h += '<div id="pw-mgr-list"><div style="text-align:center;padding:20px;color:var(--mt2)">লোড হচ্ছে...</div></div>';
-    h += '<button class="btn btn-bl btn-w" style="margin-top:10px" onclick="loadPwMgr()">🔄 রিফ্রেশ</button>';
-    setTimeout(loadPwMgr, 0);
-  }
-
-  el.innerHTML = h;
-}
-
-async function loadPwMgr() {
-  var el = document.getElementById('pw-mgr-list');
-  if (!el) return;
-  var r = await apiGet('/api/auth');
-  if (!r || !r.ok) { if (el) el.innerHTML = '<div class="rib">লোড ব্যর্থ</div>'; return; }
-  var users = r.users || [];
-  var roleOrder = { owner:0, manager:1, so:2, dsr:3 };
-  users.sort(function(a,b){ return (roleOrder[a.role]||9)-(roleOrder[b.role]||9); });
-
-  var h = '<div class="card" style="padding:0;overflow:hidden">';
-  if (!users.length) { h += '<div style="text-align:center;padding:16px;color:var(--mt2)">কোনো ব্যবহারকারী নেই</div>'; }
-  users.forEach(function(u) {
-    var badgeCls = 'pw-badge-'+u.role;
-    var isOwn = u.user_key === S.userId;
-    h += '<div class="pw-row">';
-    h += '<div style="flex:1;min-width:0">';
-    h += '<div style="font-weight:700;font-size:12px">'+esc(u.user_name)+(isOwn?' <span style="font-size:9px;color:var(--mt2)">(আপনি)</span>':'')+'</div>';
-    h += '<span class="pw-role-badge '+badgeCls+'">'+ROLE_LABELS[u.role]+'</span>';
-    h += '</div>';
-    if (!isOwn) {
-      h += '<div style="display:flex;gap:6px;align-items:center">';
-      h += '<input type="password" id="pw-inp-'+u.user_key+'" value="'+esc(u.password)+'" style="width:110px;font-size:12px;padding:5px 8px" placeholder="পাসওয়ার্ড">';
-      h += '<button class="btn btn-bl btn-sm" style="padding:5px 8px;font-size:11px" onclick="ownerSetPass(''+u.user_key+'')">💾</button>';
-      h += '</div>';
-    }
-    h += '</div>';
-  });
-  h += '</div>';
-
-  // Add manager slot if not present
-  var hasMgr = users.some(function(u){ return u.user_key==='manager'; });
-  if (!hasMgr) {
-    h += '<div class="ib" style="margin-top:10px">Manager এর পাসওয়ার্ড এখনো সেট হয়নি।</div>';
-    h += '<div class="card" style="margin-top:0">';
-    h += '<div class="fg"><label class="fl">Manager পাসওয়ার্ড</label><input type="password" id="pw-mgr-new" placeholder="নতুন পাসওয়ার্ড"></div>';
-    h += '<button class="btn btn-bl btn-w" style="margin-top:10px" onclick="createManagerPass()">✅ সেট করুন</button>';
-    h += '</div>';
-  }
-
-  if (el) el.innerHTML = h;
-}
-
-async function ownerSetPass(userKey) {
-  var inp = document.getElementById('pw-inp-'+userKey);
-  if (!inp) return;
-  var newPass = inp.value.trim();
-  if (!newPass) return toast('পাসওয়ার্ড লিখুন');
-  var r = await apiPut('/api/auth', { action:'owner_set', userKey: userKey, newPass: newPass });
-  if (r && r.ok) toast('✅ পাসওয়ার্ড সেট হয়েছে');
-  else toast('❌ ' + (r && r.error || 'ব্যর্থ'));
-}
-
-async function createManagerPass() {
-  var inp = document.getElementById('pw-mgr-new');
-  if (!inp) return;
-  var pass = inp.value.trim();
-  if (!pass) return toast('পাসওয়ার্ড লিখুন');
-  var r = await apiPut('/api/auth', { action:'upsert', userKey:'manager', userName:'Manager', role:'manager', password: pass });
-  if (r && r.ok) { toast('✅ Manager পাসওয়ার্ড সেট হয়েছে'); loadPwMgr(); }
-  else toast('❌ ' + (r && r.error || 'ব্যর্থ'));
-}
-
-async function doChangePass() {
-  var oldPass = (document.getElementById('cp-old') || {}).value || '';
-  var newPass = (document.getElementById('cp-new') || {}).value || '';
-  var conPass = (document.getElementById('cp-con') || {}).value || '';
-  if (!oldPass || !newPass) return toast('সব ঘর পূরণ করুন');
-  if (newPass !== conPass) return toast('নতুন পাসওয়ার্ড মিলছে না');
-  if (newPass.length < 4) return toast('পাসওয়ার্ড কমপক্ষে ৪ অক্ষর হতে হবে');
-  var r = await apiPut('/api/auth', { action:'change', userKey: S.userId, oldPass: oldPass, newPass: newPass });
-  if (r && r.ok) {
-    toast('✅ পাসওয়ার্ড পরিবর্তন হয়েছে');
-    ['cp-old','cp-new','cp-con'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
-    // Update session with awareness that pass changed
-    sessionStorage.removeItem('axiion_session');
-  } else {
-    toast('❌ ' + (r && r.error || 'ব্যর্থ'));
-  }
+  var pi = document.getElementById('pw-inp'); if (pi) pi.value = '';
 }
 
 // ════════════════════════════════════════════════════
@@ -631,7 +510,7 @@ var S = {
   lastSlip:null, lastRetSlip:null, lastDmgSlip:null, lastPsSlip:null,
   expCats:[], expDate:'', expTab:'entry',
   dsrDate: '', dsrFrom: '', dsrTo: '', dsrMode: 'today', dsrData: null,
-  userId: '', userName: ''
+  srId: '', srName: '', userId: '', supervisorId: '', soTxMonth: [], allUsers: []
 };
 
 function renderDsrFilter() { loadDsrDash(); }
@@ -646,21 +525,20 @@ window.addEventListener('load', function() {
   S.rptMonth = iso(n).slice(0,7);
   document.getElementById('hdr-date').textContent = fmtBn(iso(n));
   // Check saved session
-  try {
-    var saved = sessionStorage.getItem('axiion_session');
-    if (saved) {
-      var sess = JSON.parse(saved);
-      if (sess && sess.role) {
-        S.role = sess.role; S.userId = sess.userId || ''; S.userName = sess.userName || '';
-        document.getElementById('pin-screen').style.display = 'none';
-        applyRole();
-        document.getElementById('spl').classList.add('fade');
-        document.getElementById('app').classList.add('show');
-        loadAll();
-      }
-    }
-  } catch(e) { sessionStorage.removeItem('axiion_session'); }
-  // else login screen stays visible (default)
+  var saved = sessionStorage.getItem('axiion_role');
+  if (saved) {
+    S.role = saved;
+    S.srId = sessionStorage.getItem('axiion_srId')||'';
+    S.srName = sessionStorage.getItem('axiion_srName')||'';
+    S.userId = sessionStorage.getItem('axiion_userId')||'';
+    S.supervisorId = sessionStorage.getItem('axiion_supervisorId')||'';
+    document.getElementById('pin-screen').style.display = 'none';
+    applyRole();
+    document.getElementById('spl').classList.add('fade');
+    document.getElementById('app').classList.add('show');
+    loadAll();
+  }
+  // else PIN screen stays visible (default)
 });
 
 async function loadAll() {
@@ -708,14 +586,14 @@ function gTab(t) {
     if (nb) nb.classList.toggle('active', id===t);
   });
   document.querySelector('.pages').scrollTop = 0;
-  if (t==='dash')  loadDash();
-  if (t==='prod')  renderProd();
-  if (t==='sr')    renderSR();
-  if (t==='tx')    renderTx();
-  if (t==='rep')   renderRep();
-  if (t==='exp')   loadExpSetup();
-  if (t==='cal')   loadCal();
-  if (t==='extra') renderExtraTab();
+  if (t==='dash') loadDash();
+  if (t==='prod') renderProd();
+  if (t==='sr')   renderSR();
+  if (t==='tx')   renderTx();
+  if (t==='rep')  renderRep();
+  if (t==='exp')  loadExpSetup();
+  if (t==='cal')  loadCal();
+  if (t==='extra') renderExtra();
 }
 
 // ════════════════════════════════════════════════════
@@ -865,45 +743,144 @@ function renderDash(d) {
 
 // ── SO Dashboard ────────────────────────────────────
 function loadSoDash() {
-  var el = document.getElementById('pg-dash');
-  if (!S.products.length) {
-    showOvl('লোড হচ্ছে...'); apiGet('/api/load-all').then(function(r){ hideOvl(); if(r.ok){S.products=r.products||[];S.srs=r.srs||[];S.stockMap=r.stockMap||{};} renderSoDash(); });
+  if (!S.products.length || !S.allUsers.length) {
+    showOvl('লোড হচ্ছে...');
+    var today = iso(new Date()), ms = today.slice(0,7)+'-01';
+    var srF = S.srId ? '&srId='+encodeURIComponent(S.srId) : '';
+    Promise.all([
+      apiGet('/api/load-all'),
+      apiGet('/api/transactions?from='+ms+'&to='+today+srF),
+      apiGet('/api/auth?action=list')
+    ]).then(function(rs) {
+      hideOvl();
+      if (rs[0].ok) { S.products=rs[0].products||[]; S.srs=rs[0].srs||[]; S.stockMap=rs[0].stockMap||{}; }
+      S.soTxMonth = Array.isArray(rs[1]) ? rs[1] : [];
+      S.allUsers  = Array.isArray(rs[2]) ? rs[2] : [];
+      renderSoDash();
+    });
     return;
   }
   renderSoDash();
 }
 function renderSoDash() {
+  var myTx   = S.soTxMonth || [];
+  var myDsrs = (S.allUsers||[]).filter(function(u){ return u.role==='dsr' && u.supervisorId===S.userId; });
   var totalVal=0, totalPcs=0, totalBuyVal=0;
-  var h='<div class="ct">📦 স্টক ওভারভিউ (SO ভিউ)</div>';
-  h+='<div class="card" style="padding:0;overflow:hidden">';
+
+  var h = '<div class="ct">📊 আমার সারসংক্ষেপ</div>';
+  var givenRev  = myTx.filter(function(t){return t.type==='give';}).reduce(function(s,t){return s+num(t.totalRevenue);},0);
+  var returnRev = myTx.filter(function(t){return t.type==='return';}).reduce(function(s,t){return s+num(t.totalRevenue);},0);
+  var givenU    = myTx.filter(function(t){return t.type==='give';}).reduce(function(s,t){return s+num(t.totalUnits);},0);
+  h += '<div class="mets">';
+  h += '<div class="met"><div class="mv" style="color:var(--bl)">'+fn(givenU)+'<small style="font-size:12px">পিস</small></div><div class="ml">এ মাসে দেওয়া</div></div>';
+  h += '<div class="met"><div class="mv" style="color:var(--gr)">৳'+fm(givenRev-returnRev)+'</div><div class="ml">নিট বিক্রয় মূল্য</div></div>';
+  h += '</div>';
+
+  h += '<div class="ct">📦 স্টক ওভারভিউ</div>';
+  h += '<div class="card" style="padding:0;overflow:hidden">';
   S.products.forEach(function(p){
-    var stk=S.stockMap[p.id]||0, cs=num(p.caseSize)||1;
-    var cases=Math.floor(stk/cs), rem=stk%cs;
-    var sv=stk*num(p.sellingPrice);
-    var bv=stk*num(p.purchasePrice);
+    var stk=S.stockMap[p.id]||0;
+    var sv=stk*num(p.sellingPrice), bv=stk*num(p.purchasePrice);
     totalVal+=sv; totalPcs+=stk; totalBuyVal+=bv;
     var ti=thumbImg(p,'8px');
     var alert=num(p.lowStockAlert)>0&&stk<=num(p.lowStockAlert);
     var sc=stk>10?'var(--gr)':stk>0?'var(--am)':'var(--re)';
     h+='<div class="sku-row"><div class="sku-i">'+(ti||'📦')+'</div>';
     h+='<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:12px">'+esc(p.name)+(alert?'<span class="low-alert">কম</span>':'')+'</div>';
-    h+='<div style="font-size:10px;color:var(--mt2)">'+esc(p.sku)+' · ৳'+fm(p.sellingPrice)+'/পিস</div>';
-    h+='<div style="font-size:11px;font-weight:600;color:'+sc+';margin-top:2px">';
-    if (cases) h+=cases+(p.unitType||'কেস')+' ';
-    if (rem) h+=rem+'পিস';
-    if (!stk) h='<div style="font-size:11px;color:var(--re);margin-top:2px">স্টক নেই';
-    h+='</div></div>';
-    h+='<div style="text-align:right"><div style="font-size:12px;font-weight:700;color:var(--bl)">'+fn(stk)+' পিস</div><div style="font-size:10px;color:var(--gr)">৳'+fm(sv)+'</div></div></div>';
+    h+='<div style="font-size:10px;color:var(--mt2)">ক্রয়:৳'+fm(p.purchasePrice)+' · বিক্রয়:৳'+fm(p.sellingPrice)+'</div></div>';
+    h+='<div style="text-align:right"><div style="font-size:12px;font-weight:700;color:'+sc+'">'+fn(stk)+'পিস</div><div style="font-size:10px;color:var(--gr)">৳'+fm(sv)+'</div></div></div>';
   });
   h+='<div style="padding:10px 12px;background:var(--grl);border-top:2px solid var(--gr)">';
   h+='<div style="display:flex;justify-content:space-between;font-weight:700;font-size:12px"><span>মোট স্টক</span><span style="color:var(--bl)">'+fn(totalPcs)+' পিস</span></div>';
-  h+='<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:3px"><span>মোট মূল্য (বিক্রয়)</span><span style="color:var(--gr);font-weight:700">৳'+fm(totalVal)+'</span></div>';
-  h+='<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:3px"><span>মোট মূল্য (ক্রয়)</span><span style="color:var(--mt);font-weight:700">৳'+fm(totalBuyVal)+'</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:3px"><span>বিক্রয় মূল্যে</span><span style="color:var(--gr);font-weight:700">৳'+fm(totalVal)+'</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;font-size:11px;margin-top:3px"><span>ক্রয় মূল্যে</span><span style="color:var(--mt);font-weight:700">৳'+fm(totalBuyVal)+'</span></div>';
   h+='</div></div>';
-  h+='<div style="text-align:center;font-size:10px;color:var(--mt2);padding:8px">Miron Electronics · Powered by <span style="color:#FFD700;font-weight:700">AXIION</span></div>';
+
+  h += '<div class="ct">👥 আমার DSR রা</div>';
+  if (!myDsrs.length) {
+    h += '<div class="card" style="text-align:center;color:var(--mt2);padding:16px">কোনো DSR পাওয়া যায়নি<br><button class="btn btn-bl btn-sm" style="margin-top:8px" onclick="renderSoAssign()">⤵️ DSR যোগ করুন</button></div>';
+  } else {
+    h += '<div class="card" style="padding:0;overflow:hidden">';
+    myDsrs.forEach(function(u){
+      var sr = S.srs.find(function(s){return s.id===u.srId;})||{};
+      h += '<div class="pc" onclick="viewDsrData(''+u.srId+'',''+u.name.replace(/'/g,"\'")+'')" style="cursor:pointer">';
+      h += '<div class="sr-av" style="font-size:16px;font-weight:700">'+(u.name||'?')[0]+'</div>';
+      h += '<div style="flex:1"><div style="font-weight:700">'+esc(u.name)+'</div>';
+      h += '<div style="font-size:11px;color:var(--mt)">DSR'+(sr.area?' · '+esc(sr.area):'')+'</div></div>';
+      h += '<span style="color:var(--bl);font-size:12px">▶ দেখুন</span></div>';
+    });
+    h += '</div>';
+    h += '<button class="btn btn-am btn-w btn-sm" style="margin-top:8px" onclick="renderSoAssign()">⚙️ DSR পরিবর্তন করুন</button>';
+  }
+
+  h += '<div style="text-align:center;font-size:10px;color:var(--mt2);padding:10px">Miron Electronics · Powered by <span style="color:#FFD700;font-weight:700">AXIION</span></div>';
   document.getElementById('pg-dash').innerHTML = h;
-  // Also render prod page for SO
   renderProd();
+}
+
+async function viewDsrData(srId, srName) {
+  showOvl('লোড হচ্ছে...');
+  var today = iso(new Date());
+  var txs = await apiGet('/api/transactions?from='+today+'&to='+today+'&srId='+encodeURIComponent(srId));
+  hideOvl();
+  if (!Array.isArray(txs)) txs = [];
+  var given={u:0,r:0}, ret={u:0,r:0}, dmg={u:0};
+  txs.forEach(function(t){
+    if(t.type==='give'){given.u+=num(t.totalUnits);given.r+=num(t.totalRevenue);}
+    if(t.type==='return'){ret.u+=num(t.totalUnits);ret.r+=num(t.totalRevenue);}
+    if(t.type==='damage') dmg.u+=num(t.totalUnits);
+  });
+  var h = '<button class="btn btn-am btn-w btn-sm" onclick="S.products=[];loadSoDash()" style="margin-bottom:10px">← ফিরে যান</button>';
+  h += '<div class="ct">🚚 '+esc(srName)+' — আজকের লেনদেন</div>';
+  h += '<div class="mets">';
+  h += '<div class="met"><div class="mv" style="color:var(--bl)">'+fn(given.u)+'<small>পিস</small></div><div class="ml">দেওয়া (৳'+fm(given.r)+')</div></div>';
+  h += '<div class="met"><div class="mv" style="color:var(--te)">'+fn(ret.u)+'<small>পিস</small></div><div class="ml">ফেরত (৳'+fm(ret.r)+')</div></div>';
+  h += '</div>';
+  if (txs.length) {
+    h += '<div class="card" style="padding:0;overflow:hidden">';
+    var grp={};
+    txs.forEach(function(tx){if(!grp[tx.txId])grp[tx.txId]={type:tx.type,items:[]};grp[tx.txId].items.push(tx);});
+    Object.values(grp).forEach(function(g){
+      h+='<div style="padding:9px 11px;border-bottom:1px solid #EEF2FF">'+txBdg(g.type);
+      g.items.forEach(function(i){ h+='<div style="font-size:11px;color:var(--mt);padding:2px 0">'+esc(i.productName)+': '+fn(i.totalUnits)+'পিস</div>'; });
+      h+='</div>';
+    });
+    h += '</div>';
+  } else {
+    h += '<div class="card" style="text-align:center;color:var(--mt2);padding:16px">আজ কোনো লেনদেন নেই</div>';
+  }
+  document.getElementById('pg-dash').innerHTML = h;
+}
+
+async function renderSoAssign() {
+  showOvl('লোড হচ্ছে...');
+  var users = await apiGet('/api/auth?action=list');
+  hideOvl();
+  var allDsrs = (Array.isArray(users)?users:[]).filter(function(u){return u.role==='dsr';});
+  var h = '<button class="btn btn-am btn-w btn-sm" onclick="S.products=[];loadSoDash()" style="margin-bottom:10px">← ফিরে যান</button>';
+  h += '<div class="ct">⚙️ DSR Assign করুন</div>';
+  h += '<div class="card"><div style="font-size:12px;color:var(--mt);margin-bottom:12px">যে DSR দের টিক দেবেন তারা আপনার অধীনে থাকবে</div>';
+  var ids = [];
+  allDsrs.forEach(function(u){
+    ids.push(u.id);
+    var chk = u.supervisorId===S.userId;
+    h += '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bdr)">';
+    h += '<input type="checkbox" id="dc-'+u.id+'" '+(chk?'checked':'')+' style="width:18px;height:18px">';
+    h += '<label for="dc-'+u.id+'" style="font-weight:700;flex:1">'+esc(u.name)+'</label></div>';
+  });
+  h += '<button class="btn btn-bl btn-w" style="margin-top:12px" onclick="saveSoAssign('+JSON.stringify(ids)+')">✅ সংরক্ষণ করুন</button></div>';
+  document.getElementById('pg-dash').innerHTML = h;
+}
+
+async function saveSoAssign(ids) {
+  showOvl('সংরক্ষণ হচ্ছে...');
+  for (var i=0;i<ids.length;i++) {
+    var el = document.getElementById('dc-'+ids[i]);
+    var sup = (el&&el.checked) ? S.userId : '';
+    await apiPost('/api/auth?action=assign', {dsrUserId:ids[i], supervisorId:sup});
+  }
+  hideOvl(); toast('✅ সংরক্ষণ হয়েছে');
+  S.products=[]; S.allUsers=[]; loadSoDash();
 }
 
 // ── DSR Dashboard ────────────────────────────────────
@@ -915,8 +892,8 @@ async function loadDsrDash() {
   var qFrom = mode==='range' ? from2 : date;
   var qTo   = mode==='range' ? to2   : date;
   showOvl('লোড হচ্ছে...');
-  var srParam = (S.role==='dsr' && S.userId) ? '&srId='+encodeURIComponent(S.userId) : '';
-  var r = await apiGet('/api/transactions?from='+qFrom+'&to='+qTo+srParam);
+  var srFilter = S.srId ? '&srId='+encodeURIComponent(S.srId) : '';
+  var r = await apiGet('/api/transactions?from='+qFrom+'&to='+qTo+srFilter);
   hideOvl();
   if (!Array.isArray(r)) return toast('লোড ব্যর্থ');
   S.dsrData = r;
@@ -992,8 +969,8 @@ function renderProd() {
   var isOwner = S.role==='owner';
   var isMgr   = S.role==='manager';
   var isSO    = S.role==='so';
-  var canEdit = isOwner; // only owner can add/edit/delete products
-  var canShowcase = isOwner || isMgr; // manager can see product showcase
+  var isDSR   = S.role==='dsr';
+  var canEdit = isOwner;
 
   var el = document.getElementById('pg-prod');
   var tabs='<div class="seg">';
@@ -1001,6 +978,12 @@ function renderProd() {
     tabs += '<button class="sbt active">📦 SKU স্টক</button>';
     tabs += '</div>';
     el.innerHTML = tabs + buildStockPage();
+    return;
+  }
+  if (isDSR) {
+    tabs += '<button class="sbt active">🖼️ পণ্য তালিকা</button>';
+    tabs += '</div>';
+    el.innerHTML = tabs + buildShowcasePage();
     return;
   }
   tabs += '<button class="sbt '+(S.prodTab==='list'?'active':'')+'\" onclick="S.prodTab=\'list\';renderProd()">📋 তালিকা</button>';
@@ -1361,33 +1344,19 @@ function updPayTotal() {
 async function saveSR() {
   var nm=v('sf-nm').trim(); if(!nm) return toast('নাম আবশ্যক');
   var existSR=S.editSRId?S.srs.find(function(s){return s.id===S.editSRId;}):null;
-  var role=v('sf-rl')||'dsr';
-  var d={name:nm, phone:v('sf-ph'), area:v('sf-ar'), role:role};
+  var d={name:nm, phone:v('sf-ph'), area:v('sf-ar'), role:v('sf-rl')||'dsr'};
   if(S.editSRId) d.id=S.editSRId;
   d.thumb=IMG.sr.thumb||(existSR?existSR.thumb||'':'');
   showOvl('...');
   var r=S.editSRId?await apiPut('/api/srs',d):await apiPost('/api/srs',d);
   hideOvl();
-  if(r.ok){
-    // Auto-create password entry for new DSR/SO (default pass = 0000, owner must set proper pass)
-    if (!S.editSRId && r.id) {
-      await apiPut('/api/auth', { action:'upsert', userKey: r.id, userName: nm, role: role, password: '0000' });
-    } else if (S.editSRId) {
-      // Update name in password table if exists
-      await apiPut('/api/auth', { action:'upsert', userKey: S.editSRId, userName: nm, role: role, password: existSR ? (existSR._pass||'0000') : '0000' });
-    }
-    toast(S.editSRId?'আপডেট হয়েছে':'DSR/SO যোগ হয়েছে (পাসওয়ার্ড: 0000)');
-    S.editSRId=null;IMG.sr={full:'',name:'',thumb:'',previewUrl:''};S.srTab='list';loadAll();
-  } else toast(r.error||'ব্যর্থ');
+  if(r.ok){toast(S.editSRId?'আপডেট হয়েছে':'DSR/SO যোগ হয়েছে');S.editSRId=null;IMG.sr={full:'',name:'',thumb:'',previewUrl:''};S.srTab='list';loadAll();}
+  else toast(r.error||'ব্যর্থ');
 }
 async function delSR(id){
   if(!confirm('DSR/SO সরাবেন?'))return;showOvl('...');
   var r=await apiDel('/api/srs',{id:id});hideOvl();
-  if(r.ok){
-    // Also remove password entry
-    await apiPut('/api/auth', { action:'delete', userKey: id });
-    toast('সরানো হয়েছে');loadAll();
-  } else toast(r.error);
+  if(r.ok){toast('সরানো হয়েছে');loadAll();}else toast(r.error);
 }
 async function savePay() {
   var srId=v('pf-sr'); if(!srId) return toast('DSR/SO বাছাই করুন');
@@ -2853,8 +2822,11 @@ async function calDoPayment(id, maxRemaining) {
   var pin    = document.getElementById('pay-pin').value.trim();
   if (!payAmt || payAmt <= 0) return toast('পরিমাণ দিন');
   if (payAmt > maxRemaining + 0.01) return toast('পরিমাণ অবশিষ্ট বাকির বেশি হতে পারবে না');
-  if (!pin) return toast('Owner পাসওয়ার্ড দিন');
-  if (pin !== PINS.owner) return toast('❌ পাসওয়ার্ড ভুল');
+  // v9: owner is already authenticated; PIN field repurposed as confirmation password
+  if (pin) {
+    var vr = await apiPost('/api/auth?action=login', {password: pin});
+    if (!vr.ok || vr.role !== 'owner') return toast('❌ Owner পাসওয়ার্ড ভুল');
+  }
   var modal = document.querySelector('.due-modal-bg');
   if (modal) document.body.removeChild(modal);
   showOvl('পরিশোধ হচ্ছে...');
@@ -2940,6 +2912,131 @@ async function calUndo(id) {
   if (r.ok) { toast('🔴 বকেয়া হিসেবে পুনরায় চিহ্নিত'); loadCal(CAL.month); }
   else toast(r.error||'ব্যর্থ');
 }
+
+// ════════════════════════════════════════════════════
+//  EXTRA FEATURES (Owner only)
+// ════════════════════════════════════════════════════
+function renderExtra() {
+  var h = '<div class="ct">⚙️ অতিরিক্ত ফিচার</div>';
+  h += '<div class="card" style="padding:0;overflow:hidden">';
+  h += '<div class="menu-row" onclick="renderPwMgr()">';
+  h += '<div style="font-size:28px">🔑</div>';
+  h += '<div style="flex:1"><div style="font-weight:700">পাসওয়ার্ড ম্যানেজার</div><div style="font-size:11px;color:var(--mt)">ব্যবহারকারী তৈরি, পাসওয়ার্ড সেট ও রিসেট করুন</div></div>';
+  h += '<span style="color:var(--bl);font-size:18px">▶</span></div>';
+  h += '</div>';
+  document.getElementById('pg-extra').innerHTML = h;
+}
+
+async function renderPwMgr() {
+  showOvl('লোড হচ্ছে...');
+  var res = await Promise.all([ apiGet('/api/auth?action=list'), apiGet('/api/srs') ]);
+  hideOvl();
+  var userList = Array.isArray(res[0]) ? res[0] : [];
+  var srList   = Array.isArray(res[1]) ? res[1] : [];
+  var usedSrIds = userList.map(function(u){return u.srId;}).filter(Boolean);
+
+  var h = '<button class="btn btn-am btn-w btn-sm" onclick="renderExtra()" style="margin-bottom:10px">← ফিরে যান</button>';
+  h += '<div class="ct">🔑 পাসওয়ার্ড ম্যানেজার</div>';
+
+  // Change own password
+  h += '<div class="card"><div style="font-weight:700;margin-bottom:10px">🔐 নিজের পাসওয়ার্ড পরিবর্তন</div>';
+  h += '<div class="fg"><label class="fl">পুরোনো পাসওয়ার্ড</label><input type="password" id="pw-old" class="fi" placeholder="পুরোনো পাসওয়ার্ড"></div>';
+  h += '<div class="fg"><label class="fl">নতুন পাসওয়ার্ড</label><input type="password" id="pw-new" class="fi" placeholder="নতুন পাসওয়ার্ড"></div>';
+  h += '<button class="btn btn-bl btn-w" onclick="doChangePw()">✅ পরিবর্তন করুন</button></div>';
+
+  // Add new user
+  h += '<div class="ct">নতুন ব্যবহারকারী যোগ করুন</div><div class="card">';
+  h += '<div class="fg"><label class="fl">ভূমিকা</label><select id="um-role" class="fi" onchange="umRoleChange()"><option value="dsr">DSR</option><option value="so">SO</option><option value="manager">Manager</option></select></div>';
+  h += '<div class="fg" id="um-sr-wrap"><label class="fl">DSR / SO নাম নির্বাচন করুন</label><select id="um-sr" class="fi"><option value="">— নাম বাছাই করুন —</option>';
+  srList.filter(function(s){return !usedSrIds.includes(s.id);}).forEach(function(s){
+    h += '<option value="'+s.id+'|'+s.name.replace(/"/g,'&quot;')+'">'+esc(s.name)+' ('+s.role.toUpperCase()+')</option>';
+  });
+  h += '</select></div>';
+  h += '<div class="fg" id="um-nm-wrap" style="display:none"><label class="fl">Manager নাম</label><input type="text" id="um-name" class="fi" placeholder="নাম দিন"></div>';
+  h += '<div class="fg"><label class="fl">পাসওয়ার্ড</label><input type="password" id="um-pw" class="fi" placeholder="পাসওয়ার্ড দিন"></div>';
+  h += '<button class="btn btn-gr btn-w" onclick="doCreateUser()">➕ ব্যবহারকারী তৈরি করুন</button></div>';
+
+  // User list
+  h += '<div class="ct">সকল ব্যবহারকারী</div>';
+  var rl = {owner:'👑 Owner', manager:'🧑 Manager', so:'📊 SO', dsr:'🚚 DSR'};
+  var ord = {owner:0,manager:1,so:2,dsr:3};
+  userList.slice().sort(function(a,b){return (ord[a.role]||9)-(ord[b.role]||9);}).forEach(function(u){
+    h += '<div class="card" style="margin-bottom:8px;padding:10px">';
+    h += '<div style="display:flex;align-items:center;margin-bottom:8px">';
+    h += '<div style="font-weight:700;flex:1">'+esc(u.name)+'</div>';
+    h += '<div style="font-size:10px;background:var(--bll);color:var(--bl);padding:2px 8px;border-radius:20px">'+(rl[u.role]||u.role)+'</div></div>';
+    h += '<div style="display:flex;gap:6px;align-items:center">';
+    h += '<input type="password" id="rp-'+u.id+'" class="fi" style="flex:1;font-size:12px" placeholder="নতুন পাসওয়ার্ড">';
+    h += '<button class="btn btn-am btn-sm" onclick="doResetPw(''+u.id+'')">🔄</button>';
+    if (u.role!=='owner') h += '<button class="btn btn-re btn-sm" onclick="doDeleteUser(''+u.id+'',''+u.name.replace(/'/g,"\'")+'')">🗑️</button>';
+    h += '</div></div>';
+  });
+
+  document.getElementById('pg-extra').innerHTML = h;
+}
+
+function umRoleChange() {
+  var role = document.getElementById('um-role').value;
+  var srw = document.getElementById('um-sr-wrap'), nmw = document.getElementById('um-nm-wrap');
+  if (!srw||!nmw) return;
+  srw.style.display = role==='manager'?'none':'';
+  nmw.style.display = role==='manager'?'':'none';
+}
+
+async function doChangePw() {
+  var oldPw = (document.getElementById('pw-old').value||'').trim();
+  var newPw = (document.getElementById('pw-new').value||'').trim();
+  if (!oldPw||!newPw) return toast('দুটো পাসওয়ার্ড দিন');
+  if (newPw.length<4) return toast('পাসওয়ার্ড কমপক্ষে ৪ অক্ষর');
+  showOvl('পরিবর্তন হচ্ছে...');
+  var r = await apiPost('/api/auth?action=change', {userId:S.userId, oldPassword:oldPw, newPassword:newPw});
+  hideOvl();
+  if (r.ok) { toast('✅ পাসওয়ার্ড পরিবর্তন হয়েছে'); document.getElementById('pw-old').value=''; document.getElementById('pw-new').value=''; }
+  else toast('❌ '+(r.error||'ব্যর্থ'));
+}
+
+async function doCreateUser() {
+  var role = document.getElementById('um-role').value;
+  var pw = (document.getElementById('um-pw').value||'').trim();
+  var name='', srId='';
+  if (role==='manager') {
+    name = (document.getElementById('um-name').value||'').trim();
+    if (!name) return toast('নাম দিন');
+  } else {
+    var sv = document.getElementById('um-sr').value;
+    if (!sv) return toast('DSR/SO নির্বাচন করুন');
+    var pts = sv.split('|'); srId=pts[0]; name=pts.slice(1).join('|');
+  }
+  if (!pw) return toast('পাসওয়ার্ড দিন');
+  if (pw.length<4) return toast('পাসওয়ার্ড কমপক্ষে ৪ অক্ষর');
+  showOvl('তৈরি হচ্ছে...');
+  var r = await apiPost('/api/auth?action=create', {name:name, role:role, password:pw, srId:srId});
+  hideOvl();
+  if (r.ok) { toast('✅ ব্যবহারকারী তৈরি হয়েছে'); renderPwMgr(); }
+  else toast('❌ '+(r.error||'ব্যর্থ'));
+}
+
+async function doResetPw(uid) {
+  var inp = document.getElementById('rp-'+uid);
+  var pw = inp ? inp.value.trim() : '';
+  if (!pw) return toast('নতুন পাসওয়ার্ড দিন');
+  if (pw.length<4) return toast('পাসওয়ার্ড কমপক্ষে ৪ অক্ষর');
+  showOvl('রিসেট হচ্ছে...');
+  var r = await apiPost('/api/auth?action=reset', {id:uid, password:pw});
+  hideOvl();
+  if (r.ok) { toast('✅ পাসওয়ার্ড রিসেট হয়েছে'); if(inp)inp.value=''; }
+  else toast('❌ '+(r.error||'ব্যর্থ'));
+}
+
+async function doDeleteUser(uid, name) {
+  if (!confirm(name+' কে মুছে ফেলবেন?')) return;
+  showOvl('মুছছে...');
+  var r = await apiPost('/api/auth?action=delete', {id:uid});
+  hideOvl();
+  if (r.ok) { toast('✅ মুছে ফেলা হয়েছে'); renderPwMgr(); }
+  else toast('❌ '+(r.error||'ব্যর্থ'));
+}
+
 </script>
 </body>
 </html>
