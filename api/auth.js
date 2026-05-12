@@ -70,18 +70,40 @@ module.exports = async (req, res) => {
         return res.json({ ok: true });
       }
 
+      // update_meta: rename/re-role a user without touching their password
+      if (d.action === 'update_meta') {
+        const { error } = await supabase
+          .from('user_passwords')
+          .update({ user_name: String(d.userName || ''), role: String(d.role || 'dsr') })
+          .eq('user_key', String(d.userKey));
+        if (error) throw error;
+        return res.json({ ok: true });
+      }
+
       // Create or update a user entry (called when DSR/SO is enrolled)
       if (d.action === 'upsert') {
+        let pin = String(d.password || '');
+        // autoPin: generate a collision-free 5-digit PIN server-side
+        if (d.autoPin) {
+          pin = '';
+          for (let i = 0; i < 60; i++) {
+            const candidate = String(10000 + Math.floor(Math.random() * 90000));
+            const { data: clash } = await supabase
+              .from('user_passwords').select('id').eq('password', candidate).limit(1);
+            if (!clash || !clash.length) { pin = candidate; break; }
+          }
+          if (!pin) return res.json({ ok: false, error: 'PIN তৈরি করা সম্ভব হয়নি' });
+        }
         const { error } = await supabase
           .from('user_passwords')
           .upsert({
             user_key:  String(d.userKey),
             user_name: String(d.userName || ''),
             role:      String(d.role || 'dsr'),
-            password:  String(d.password || '0000')
+            password:  pin
           }, { onConflict: 'user_key' });
         if (error) throw error;
-        return res.json({ ok: true });
+        return res.json({ ok: true, password: pin });
       }
 
       // Delete a user entry (when DSR/SO is removed)

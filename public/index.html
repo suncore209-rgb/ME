@@ -246,11 +246,15 @@ tr:hover td{background:#F5F7FF}
 .pin-btn.del{font-size:18px;background:rgba(255,82,82,.25)}
 .pin-hint{margin-top:20px;color:rgba(255,255,255,.3);font-size:10px;text-align:center}
 .pw-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #EEF2FF}
+.pw-row:last-child{border-bottom:none}
 .pw-role-badge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600}
 .pw-badge-owner{background:#FAEEDA;color:#854F0B}
 .pw-badge-manager{background:#E6F1FB;color:#185FA5}
 .pw-badge-so{background:#E1F5EE;color:#0F6E56}
 .pw-badge-dsr{background:#FAECE7;color:#993C1D}
+.pw-section-hdr{font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 6px;display:flex;align-items:center;gap:7px}
+.pw-section-count{background:#E8EAF6;color:var(--bl);border-radius:8px;padding:1px 7px;font-size:11px;font-weight:700;text-transform:none;letter-spacing:0}
+.pw-empty-row{background:#F8FAFF;border:1px dashed var(--bdr);border-radius:8px;padding:11px;text-align:center;color:var(--mt2);font-size:12px;margin-bottom:14px}
 
 /* ME Logo */
 .me-logo{font-family:'Hind Siliguri',sans-serif;font-size:30px;font-weight:900;color:#0D47A1;letter-spacing:-1px;line-height:1}
@@ -560,43 +564,57 @@ function _xfComingSoon(icon, title, desc) {
 async function loadPwMgr() {
   var el = document.getElementById('pw-mgr-list');
   if (!el) return;
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--mt2)">লোড হচ্ছে...</div>';
   var r = await apiGet('/api/auth');
-  if (!r || !r.ok) { if (el) el.innerHTML = '<div class="rib">লোড ব্যর্থ</div>'; return; }
+  if (!r || !r.ok) { el.innerHTML = '<div class="rib">লোড ব্যর্থ — আবার চেষ্টা করুন</div>'; return; }
   var users = r.users || [];
-  var roleOrder = { owner:0, manager:1, so:2, dsr:3 };
-  users.sort(function(a,b){ return (roleOrder[a.role]||9)-(roleOrder[b.role]||9); });
 
-  var h = '<div class="card" style="padding:0;overflow:hidden">';
-  if (!users.length) { h += '<div style="text-align:center;padding:16px;color:var(--mt2)">কোনো ব্যবহারকারী নেই</div>'; }
-  users.forEach(function(u) {
-    var badgeCls = 'pw-badge-'+u.role;
-    var isOwn = u.user_key === S.userId;
-    h += '<div class="pw-row">';
-    h += '<div style="flex:1;min-width:0">';
-    h += '<div style="font-weight:700;font-size:12px">'+esc(u.user_name)+(isOwn?' <span style="font-size:9px;color:var(--mt2)">(আপনি)</span>':'')+'</div>';
-    h += '<span class="pw-role-badge '+badgeCls+'">'+ROLE_LABELS[u.role]+'</span>';
-    h += '</div>';
-    if (!isOwn) {
-      h += '<div style="display:flex;gap:6px;align-items:center">';
-      h += '<input type="number" id="pw-inp-'+u.user_key+'" value="'+esc(u.password)+'" style="width:100px;font-size:12px;padding:5px 8px" placeholder="৫ সংখ্যার PIN" oninput="this.value=this.value.slice(0,5)">';
-      h += '<button class="btn btn-bl btn-sm" style="padding:5px 8px;font-size:11px" onclick="ownerSetPass(\''+u.user_key+'\')" ontouchstart="ownerSetPass(\''+u.user_key+'\');event.preventDefault()">💾</button>';
-      h += '</div>';
-    }
-    h += '</div>';
-  });
-  h += '</div>';
+  var managers = users.filter(function(u){ return u.role === 'manager'; });
+  var sos      = users.filter(function(u){ return u.role === 'so'; });
+  var dsrs     = users.filter(function(u){ return u.role === 'dsr'; });
 
-  // Add manager slot if not present
-  var hasMgr = users.some(function(u){ return u.user_key==='manager'; });
-  if (!hasMgr) {
-    h += '<div class="ib" style="margin-top:10px">Manager এর পাসওয়ার্ড এখনো সেট হয়নি।</div>';
-    h += '<div class="card" style="margin-top:0">';
-    h += '<div class="fg"><label class="fl">Manager PIN (৫ সংখ্যা)</label><input type="number" id="pw-mgr-new" placeholder="৫ সংখ্যার PIN" oninput="this.value=this.value.slice(0,5)"></div>';
-    h += '<button class="btn btn-bl btn-w" style="margin-top:10px" onclick="createManagerPass()">✅ সেট করুন</button>';
+  var h = '';
+
+  // ── Managers ────────────────────────────────────────
+  h += '<div class="pw-section-hdr">👔 Managers <span class="pw-section-count">'+managers.length+'</span></div>';
+  if (managers.length) {
+    h += _pwSection(managers);
+  } else {
+    h += '<div class="pw-empty-row">Manager এখনো সেট হয়নি</div>';
+    h += '<div class="card" style="margin-bottom:14px">';
+    h += '<div class="fg"><label class="fl">Manager PIN (৫ সংখ্যা)</label><input type="number" id="pw-mgr-new" placeholder="যেমন: 54321" maxlength="5" oninput="this.value=this.value.slice(0,5)"></div>';
+    h += '<button class="btn btn-bl btn-w" style="margin-top:8px" onclick="createManagerPass()">✅ Manager সেট করুন</button>';
     h += '</div>';
   }
 
-  if (el) el.innerHTML = h;
+  // ── SOs ─────────────────────────────────────────────
+  h += '<div class="pw-section-hdr">📊 SOs <span class="pw-section-count">'+sos.length+'</span></div>';
+  if (sos.length) { h += _pwSection(sos); }
+  else { h += '<div class="pw-empty-row">কোনো SO নেই — DSR/SO পেজ থেকে যোগ করুন</div>'; }
+
+  // ── DSRs ─────────────────────────────────────────────
+  h += '<div class="pw-section-hdr">🚚 DSRs <span class="pw-section-count">'+dsrs.length+'</span></div>';
+  if (dsrs.length) { h += _pwSection(dsrs); }
+  else { h += '<div class="pw-empty-row">কোনো DSR নেই — DSR/SO পেজ থেকে যোগ করুন</div>'; }
+
+  el.innerHTML = h;
+}
+
+function _pwSection(users) {
+  var h = '<div class="card" style="padding:0;overflow:hidden;margin-bottom:14px">';
+  users.forEach(function(u) {
+    h += '<div class="pw-row">';
+    h += '<div style="flex:1;min-width:0">';
+    h += '<div style="font-weight:700;font-size:13px">'+esc(u.user_name)+'</div>';
+    h += '<span class="pw-role-badge pw-badge-'+u.role+'">'+ROLE_LABELS[u.role]+'</span>';
+    h += '</div>';
+    h += '<div style="display:flex;gap:6px;align-items:center">';
+    h += '<input type="number" id="pw-inp-'+u.user_key+'" value="'+esc(u.password)+'" style="width:100px;font-size:13px;padding:5px 8px;font-family:monospace;letter-spacing:2px;text-align:center" maxlength="5" placeholder="PIN" oninput="this.value=this.value.slice(0,5)">';
+    h += '<button class="btn btn-bl btn-sm" style="padding:5px 10px" onclick="ownerSetPass(\''+u.user_key+'\')" ontouchstart="ownerSetPass(\''+u.user_key+'\');event.preventDefault()">💾</button>';
+    h += '</div></div>';
+  });
+  h += '</div>';
+  return h;
 }
 
 async function ownerSetPass(userKey) {
@@ -606,7 +624,7 @@ async function ownerSetPass(userKey) {
   if (!newPass || newPass.length < 5) return toast('৫ সংখ্যার PIN দিন');
   if (!/^\d{5}$/.test(newPass)) return toast('শুধু সংখ্যা দিন (৫টি)');
   var r = await apiPut('/api/auth', { action:'owner_set', userKey: userKey, newPass: newPass });
-  if (r && r.ok) toast('✅ পাসওয়ার্ড সেট হয়েছে');
+  if (r && r.ok) { toast('✅ PIN সেট হয়েছে'); loadPwMgr(); }
   else toast('❌ ' + (r && r.error || 'ব্যর্থ'));
 }
 
@@ -1444,14 +1462,16 @@ async function saveSR() {
   var r=S.editSRId?await apiPut('/api/srs',d):await apiPost('/api/srs',d);
   hideOvl();
   if(r.ok){
-    // Auto-create password entry for new DSR/SO (default pass = 0000, owner must set proper pass)
     if (!S.editSRId && r.id) {
-      await apiPut('/api/auth', { action:'upsert', userKey: r.id, userName: nm, role: role, password: '0000' });
+      // New enrollment: auto-generate a unique PIN server-side
+      var pwR = await apiPut('/api/auth', { action:'upsert', userKey: r.id, userName: nm, role: role, autoPin: true });
+      var pin = pwR && pwR.password ? pwR.password : '?????';
+      toast('✅ '+nm+' যোগ হয়েছে — PIN: '+pin);
     } else if (S.editSRId) {
-      // Update name in password table if exists
-      await apiPut('/api/auth', { action:'upsert', userKey: S.editSRId, userName: nm, role: role, password: existSR ? (existSR._pass||'0000') : '0000' });
+      // Edit: only update name & role, never overwrite the existing PIN
+      await apiPut('/api/auth', { action:'update_meta', userKey: S.editSRId, userName: nm, role: role });
+      toast('✅ আপডেট হয়েছে');
     }
-    toast(S.editSRId?'আপডেট হয়েছে':'DSR/SO যোগ হয়েছে (পাসওয়ার্ড: 0000)');
     S.editSRId=null;IMG.sr={full:'',name:'',thumb:'',previewUrl:''};S.srTab='list';loadAll();
   } else toast(r.error||'ব্যর্থ');
 }
