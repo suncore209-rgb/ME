@@ -373,12 +373,14 @@ function apiDel(url, data) { return apiFetch(url, { method:'DELETE', body: JSON.
 
 // ════════════════════════════════════════════════════
 //  LOGIN SYSTEM v9 — password only, auto role detect
-//  Passwords stored in S.loginCfg (loaded at startup)
+//  Passwords stored in _ownerPass/_managerPass/_srsList plain vars
 //  No dropdown. No API call at login time.
 // ════════════════════════════════════════════════════
 var ROLE_LABELS = { owner:'👑 Owner', manager:'🧑 Manager', so:'📊 SO', dsr:'🚚 DSR' };
-// Populated by fetchLoginConfig() on page load
-S.loginCfg = { ownerPass:'owner123', managerPass:'manager123' };
+// Plain vars — no dependency on S (which is declared later in the file)
+var _ownerPass   = 'owner123';
+var _managerPass = 'manager123';
+var _srsList     = []; // populated from load-all before login
 
 function initLoginUI() {
   var btn = document.getElementById('lgn-submit-btn');
@@ -396,15 +398,9 @@ async function fetchLoginConfig() {
   try {
     var r = await apiGet('/api/auth?action=get-passwords');
     if (r && r.ok) {
-      S.loginCfg.ownerPass   = r.ownerPass   || 'owner123';
-      S.loginCfg.managerPass = r.managerPass || 'manager123';
-      // Also cache DSR/SO passwords into S.srs if returned
-      if (r.srs && r.srs.length) {
-        r.srs.forEach(function(rs) {
-          var found = S.srs.filter(function(s){ return String(s.id)===String(rs.id); })[0];
-          if (found) found.password = rs.password || '1234';
-        });
-      }
+      _ownerPass   = r.ownerPass   || 'owner123';
+      _managerPass = r.managerPass || 'manager123';
+      if (r.srs && r.srs.length) { _srsList = r.srs; }
     }
   } catch(e) {}
 }
@@ -415,10 +411,9 @@ function populateLoginDropdown() {}
 function doLogin() {
   var errEl = document.getElementById('pin-err');
   var inp   = document.getElementById('lgn-pass');
-  var btn   = document.getElementById('lgn-submit-btn');
   if (errEl) errEl.textContent = '';
 
-  var pass = inp ? inp.value.trim() : '';
+  var pass = inp ? inp.value : '';
   if (!pass) {
     if (errEl) errEl.textContent = 'পাসওয়ার্ড দিন';
     if (inp) inp.focus();
@@ -426,31 +421,23 @@ function doLogin() {
   }
 
   // Check owner
-  if (pass === S.loginCfg.ownerPass) {
-    loginSuccess('owner', 'Owner', 'owner', '');
-    return;
-  }
+  if (pass === _ownerPass) { loginSuccess('owner', 'Owner', 'owner', ''); return; }
   // Check manager
-  if (pass === S.loginCfg.managerPass) {
-    loginSuccess('manager', 'Manager', 'manager', '');
-    return;
-  }
-  // Check each DSR/SO
-  var matched = null;
-  for (var i = 0; i < S.srs.length; i++) {
-    var u = S.srs[i];
-    var pw = u.password || '1234';
-    if (pass === pw) { matched = u; break; }
-  }
-  if (matched) {
-    loginSuccess(matched.role, matched.name, matched.id, matched.area || '');
-    return;
+  if (pass === _managerPass) { loginSuccess('manager', 'Manager', 'manager', ''); return; }
+
+  // Check DSR/SO — use _srsList (from fetchLoginConfig) or S.srs (from loadAll)
+  var list = (_srsList && _srsList.length) ? _srsList : (typeof S !== 'undefined' ? S.srs : []);
+  for (var i = 0; i < list.length; i++) {
+    var u = list[i];
+    if (pass === (u.password || '1234')) {
+      loginSuccess(u.role, u.name, u.id, u.area || '');
+      return;
+    }
   }
 
   // No match
   if (errEl) errEl.textContent = '❌ ভুল পাসওয়ার্ড';
   if (inp) { inp.value = ''; inp.focus(); }
-  // Shake
   var box = document.querySelector('.lgn-box');
   if (box) {
     var steps = ['-10px','10px','-6px','6px','0'];
