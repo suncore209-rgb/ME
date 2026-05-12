@@ -521,7 +521,7 @@ async function loadPwMgr() {
     if (!isOwn) {
       h += '<div style="display:flex;gap:6px;align-items:center">';
       h += '<input type="number" id="pw-inp-'+u.user_key+'" value="'+esc(u.password)+'" style="width:100px;font-size:12px;padding:5px 8px" placeholder="৫ সংখ্যার PIN" oninput="this.value=this.value.slice(0,5)">';
-      h += '<button class="btn btn-bl btn-sm" style="padding:5px 8px;font-size:11px" onclick="ownerSetPass(''+u.user_key+'')">💾</button>';
+      h += '<button class="btn btn-bl btn-sm" style="padding:5px 8px;font-size:11px" onclick="ownerSetPass(\''+u.user_key+'\')" ontouchstart="ownerSetPass(\''+u.user_key+'\');event.preventDefault()">💾</button>';
       h += '</div>';
     }
     h += '</div>';
