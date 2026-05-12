@@ -1,13 +1,12 @@
 -- ══════════════════════════════════════════════════════════════════
 --  Miron Electronics — Full Schema (v9)
---  Safe to run on a fresh Supabase project OR an existing one.
---  All statements use IF NOT EXISTS / ON CONFLICT DO NOTHING.
---  No existing data is deleted or reset.
+--  Uses UUID primary keys (matches Supabase default).
+--  Safe on fresh OR existing project — IF NOT EXISTS everywhere.
 -- ══════════════════════════════════════════════════════════════════
 
 -- ── 1. PRODUCTS
 CREATE TABLE IF NOT EXISTS products (
-  id             BIGSERIAL PRIMARY KEY,
+  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   name           TEXT        NOT NULL DEFAULT '',
   sku            TEXT        NOT NULL DEFAULT '',
   case_size      INTEGER     NOT NULL DEFAULT 1,
@@ -22,27 +21,27 @@ CREATE TABLE IF NOT EXISTS products (
   created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ── 2. SRS  (DSR / SO — sales reps)
+-- ── 2. SRS  (DSR / SO)
 CREATE TABLE IF NOT EXISTS srs (
-  id         BIGSERIAL PRIMARY KEY,
+  id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   name       TEXT        NOT NULL DEFAULT '',
   phone      TEXT        NOT NULL DEFAULT '',
   area       TEXT        NOT NULL DEFAULT '',
-  role       TEXT        NOT NULL DEFAULT 'dsr',   -- 'dsr' | 'so'
+  role       TEXT        NOT NULL DEFAULT 'dsr',
   thumb      TEXT        NOT NULL DEFAULT '',
-  password   TEXT        NOT NULL DEFAULT '1234',  -- v9: per-user login password
+  password   TEXT        NOT NULL DEFAULT '1234',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ── 3. TRANSACTIONS
 CREATE TABLE IF NOT EXISTS transactions (
-  tx_id          BIGSERIAL PRIMARY KEY,
+  tx_id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   type           TEXT        NOT NULL DEFAULT '',
-  sr_id          BIGINT      REFERENCES srs(id) ON DELETE SET NULL,
+  sr_id          UUID        REFERENCES srs(id) ON DELETE SET NULL,
   sr_name        TEXT        NOT NULL DEFAULT '',
   date           DATE        NOT NULL DEFAULT CURRENT_DATE,
   slip_no        TEXT        NOT NULL DEFAULT '',
-  product_id     BIGINT      REFERENCES products(id) ON DELETE SET NULL,
+  product_id     UUID        REFERENCES products(id) ON DELETE SET NULL,
   product_name   TEXT        NOT NULL DEFAULT '',
   sku            TEXT        NOT NULL DEFAULT '',
   cases          INTEGER     NOT NULL DEFAULT 0,
@@ -58,42 +57,42 @@ CREATE TABLE IF NOT EXISTS transactions (
 
 -- ── 4. DAMAGE
 CREATE TABLE IF NOT EXISTS damage (
-  id             BIGSERIAL PRIMARY KEY,
-  tx_id          BIGINT,
-  product_id     BIGINT      REFERENCES products(id) ON DELETE SET NULL,
+  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tx_id          UUID,
+  product_id     UUID        REFERENCES products(id) ON DELETE SET NULL,
   product_name   TEXT        NOT NULL DEFAULT '',
   sku            TEXT        NOT NULL DEFAULT '',
   total_units    INTEGER     NOT NULL DEFAULT 0,
   purchase_price NUMERIC     NOT NULL DEFAULT 0,
   total_cost     NUMERIC     NOT NULL DEFAULT 0,
   date           DATE        NOT NULL DEFAULT CURRENT_DATE,
-  sr_id          BIGINT      REFERENCES srs(id) ON DELETE SET NULL,
+  sr_id          UUID        REFERENCES srs(id) ON DELETE SET NULL,
   sr_name        TEXT        NOT NULL DEFAULT '',
-  status         TEXT        NOT NULL DEFAULT 'pending',  -- 'pending' | 'cleared'
+  status         TEXT        NOT NULL DEFAULT 'pending',
   cleared_date   DATE,
   created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ── 5. BONUS
 CREATE TABLE IF NOT EXISTS bonus (
-  id             BIGSERIAL PRIMARY KEY,
-  product_id     BIGINT      REFERENCES products(id) ON DELETE SET NULL,
+  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id     UUID        REFERENCES products(id) ON DELETE SET NULL,
   product_name   TEXT        NOT NULL DEFAULT '',
   sku            TEXT        NOT NULL DEFAULT '',
   from_date      DATE,
   to_date        DATE,
   given_units    INTEGER     NOT NULL DEFAULT 0,
   bonus_amount   NUMERIC     NOT NULL DEFAULT 0,
-  status         TEXT        NOT NULL DEFAULT 'pending',  -- 'pending' | 'cleared'
+  status         TEXT        NOT NULL DEFAULT 'pending',
   cleared_date   DATE,
   note           TEXT        NOT NULL DEFAULT '',
   created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ── 6. SR_PAYMENTS  (DSR/SO payment records)
+-- ── 6. SR_PAYMENTS
 CREATE TABLE IF NOT EXISTS sr_payments (
-  id             BIGSERIAL PRIMARY KEY,
-  sr_id          BIGINT      REFERENCES srs(id) ON DELETE SET NULL,
+  id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  sr_id          UUID        REFERENCES srs(id) ON DELETE SET NULL,
   sr_name        TEXT        NOT NULL DEFAULT '',
   date           DATE        NOT NULL DEFAULT CURRENT_DATE,
   amount         NUMERIC     NOT NULL DEFAULT 0,
@@ -107,15 +106,15 @@ CREATE TABLE IF NOT EXISTS sr_payments (
 
 -- ── 7. EXPENSE_CATEGORIES
 CREATE TABLE IF NOT EXISTS expense_categories (
-  id         BIGSERIAL PRIMARY KEY,
+  id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   name       TEXT        NOT NULL DEFAULT '',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ── 8. EXPENSE_RECORDS
 CREATE TABLE IF NOT EXISTS expense_records (
-  id            BIGSERIAL PRIMARY KEY,
-  category_id   BIGINT      REFERENCES expense_categories(id) ON DELETE SET NULL,
+  id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  category_id   UUID        REFERENCES expense_categories(id) ON DELETE SET NULL,
   category_name TEXT        NOT NULL DEFAULT '',
   date          DATE        NOT NULL DEFAULT CURRENT_DATE,
   amount        NUMERIC     NOT NULL DEFAULT 0,
@@ -123,40 +122,39 @@ CREATE TABLE IF NOT EXISTS expense_records (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ── 9. DUE_CALENDAR  (বাকি / due tracking)
+-- ── 9. DUE_CALENDAR
 CREATE TABLE IF NOT EXISTS due_calendar (
-  id           BIGSERIAL PRIMARY KEY,
-  dsr_id       BIGINT      REFERENCES srs(id) ON DELETE SET NULL,
+  id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  dsr_id       UUID        REFERENCES srs(id) ON DELETE SET NULL,
   dsr_name     TEXT        NOT NULL DEFAULT '',
-  client_type  TEXT        NOT NULL DEFAULT 'dsr',  -- 'dsr' | 'shop'
+  client_type  TEXT        NOT NULL DEFAULT 'dsr',
   shop_name    TEXT        NOT NULL DEFAULT '',
   due_date     DATE        NOT NULL DEFAULT CURRENT_DATE,
   amount       NUMERIC     NOT NULL DEFAULT 0,
   paid_amount  NUMERIC     NOT NULL DEFAULT 0,
   note         TEXT        NOT NULL DEFAULT '',
-  status       TEXT        NOT NULL DEFAULT 'pending',  -- 'pending' | 'paid'
+  status       TEXT        NOT NULL DEFAULT 'pending',
   cleared_date DATE,
   created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ── 10. APP_CONFIG  (v9: owner & manager passwords)
+-- ── 10. APP_CONFIG  (owner & manager passwords)
 CREATE TABLE IF NOT EXISTS app_config (
   key   TEXT PRIMARY KEY,
   value TEXT NOT NULL DEFAULT ''
 );
 
--- Default passwords (only inserted if not already set)
 INSERT INTO app_config (key, value) VALUES ('owner_password',   'owner123')   ON CONFLICT (key) DO NOTHING;
 INSERT INTO app_config (key, value) VALUES ('manager_password', 'manager123') ON CONFLICT (key) DO NOTHING;
 
--- ── Safe column additions for existing installs upgrading from v8
+-- ── Safe upgrade from v8: add password column if missing
 ALTER TABLE srs ADD COLUMN IF NOT EXISTS password TEXT NOT NULL DEFAULT '1234';
 
--- ── Indexes for common query patterns
-CREATE INDEX IF NOT EXISTS idx_transactions_sr_id     ON transactions(sr_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_date       ON transactions(date);
-CREATE INDEX IF NOT EXISTS idx_transactions_product_id ON transactions(product_id);
-CREATE INDEX IF NOT EXISTS idx_damage_sr_id            ON damage(sr_id);
-CREATE INDEX IF NOT EXISTS idx_sr_payments_sr_id       ON sr_payments(sr_id);
-CREATE INDEX IF NOT EXISTS idx_due_calendar_dsr_id     ON due_calendar(dsr_id);
-CREATE INDEX IF NOT EXISTS idx_due_calendar_due_date   ON due_calendar(due_date);
+-- ── Indexes
+CREATE INDEX IF NOT EXISTS idx_transactions_sr_id      ON transactions(sr_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_date        ON transactions(date);
+CREATE INDEX IF NOT EXISTS idx_transactions_product_id  ON transactions(product_id);
+CREATE INDEX IF NOT EXISTS idx_damage_sr_id             ON damage(sr_id);
+CREATE INDEX IF NOT EXISTS idx_sr_payments_sr_id        ON sr_payments(sr_id);
+CREATE INDEX IF NOT EXISTS idx_due_calendar_dsr_id      ON due_calendar(dsr_id);
+CREATE INDEX IF NOT EXISTS idx_due_calendar_due_date    ON due_calendar(due_date);
