@@ -2139,7 +2139,7 @@ async function saveGive(){
   var r=await mgrPost('transaction','/api/transactions',txPayload);
   hideOvl();
   if(!r.ok)return toast(r.error||'ব্যর্থ');
-  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');var mgrSlip={slipNo:slipNo,date:S.giveDate,srName:S.giveSRName,srArea:S.giveArea,items:items,pending:true};S.lastSlip=mgrSlip;openSlipWin(mgrSlip);S.giveStep=1;S.giveSRId='';S.giveSRName='';S.giveArea='';S.giveSelProd={};S.giveItems=[];renderTx();return;}
+  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');S.giveStep=1;S.giveSRId='';S.giveSRName='';S.giveArea='';S.giveSelProd={};S.giveItems=[];renderTx();return;}
   var slip={slipNo:slipNo,date:S.giveDate,srName:S.giveSRName,srArea:S.giveArea,items:items};
   S.lastSlip=slip; _dashCache=null;
   toast('✅ স্টক রেকর্ড হয়েছে!');
@@ -2294,7 +2294,7 @@ async function saveReturn(){
   var r=await mgrPost('transaction','/api/transactions',txPayload);
   hideOvl();
   if(!r.ok)return toast(r.error||'ব্যর্থ');
-  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');var mgrSlip={slipNo:slipNo,date:S.retDate,srName:S.retSRName,srArea:S.retArea,items:items,pending:true};S.lastRetSlip=mgrSlip;openReturnSlip(mgrSlip);S.retStep=1;S.retSRId='';S.retSRName='';S.retArea='';S.retSelProd={};S.retItems=[];renderTx();return;}
+  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');S.retStep=1;S.retSRId='';S.retSRName='';S.retArea='';S.retSelProd={};S.retItems=[];renderTx();return;}
   var slip={slipNo:slipNo,date:S.retDate,srName:S.retSRName,srArea:S.retArea,items:items};
   S.lastRetSlip=slip;_dashCache=null;
   toast('✅ ফেরত রেকর্ড হয়েছে!');
@@ -2378,7 +2378,7 @@ async function saveDamage(){
   var r=await mgrPost('transaction','/api/transactions',txPayload);
   hideOvl();
   if(!r.ok)return toast(r.error||'ব্যর্থ');
-  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');var mgrSlip={slipNo:slipNo,date:S.dmgDate,srName:S.dmgSRName,srArea:S.dmgArea,items:items,pending:true};S.lastDmgSlip=mgrSlip;openDamageSlip(mgrSlip);S.dmgStep=1;S.dmgSRId='';S.dmgSRName='';S.dmgArea='';S.dmgSelProd={};S.dmgItems=[];renderTx();return;}
+  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');S.dmgStep=1;S.dmgSRId='';S.dmgSRName='';S.dmgArea='';S.dmgSelProd={};S.dmgItems=[];renderTx();return;}
   var slip={slipNo:slipNo,date:S.dmgDate,srName:S.dmgSRName,srArea:S.dmgArea,items:items};
   S.lastDmgSlip=slip;_dashCache=null;
   toast('✅ ড্যামেজ রেকর্ড হয়েছে!');
@@ -2487,7 +2487,7 @@ async function savePointSale(){
   var r=await mgrPost('transaction','/api/transactions',txPayload);
   hideOvl();
   if(!r.ok)return toast(r.error||'ব্যর্থ');
-  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');var mgrSlip={slipNo:slipNo,date:S.psDate,srName:S.psCustName,srArea:'',items:items,slipTitle:'— পয়েন্ট সেল স্লিপ —',isPointSale:true,pending:true};S.lastPsSlip=mgrSlip;openPointSaleSlip(mgrSlip);S.psStep=1;S.psCustName='';S.psSelProd={};S.psItems=[];renderTx();return;}
+  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');S.psStep=1;S.psCustName='';S.psSelProd={};S.psItems=[];renderTx();return;}
   var slip={slipNo:slipNo,date:S.psDate,srName:S.psCustName,srArea:'',items:items,slipTitle:'— পয়েন্ট সেল স্লিপ —',isPointSale:true};
   S.lastPsSlip=slip;_dashCache=null;
   toast('✅ পয়েন্ট সেল রেকর্ড হয়েছে!');
@@ -2572,7 +2572,7 @@ async function savePointDmg(){
   var r=await mgrPost('transaction','/api/transactions',txPayload);
   hideOvl();
   if(!r.ok)return toast(r.error||'ব্যর্থ');
-  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');var mgrSlip={slipNo:slipNo,date:S.psDmgDate,srName:S.psDmgCustName,srArea:'',items:items,slipTitle:'— পয়েন্ট সেল ফেরত স্লিপ —',isPointSale:true,pending:true};openPointSaleSlip(mgrSlip);S.psDmgStep=1;S.psDmgCustName='';S.psDmgSelProd={};S.psDmgItems=[];renderTx();return;}
+  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');S.psDmgStep=1;S.psDmgCustName='';S.psDmgSelProd={};S.psDmgItems=[];renderTx();return;}
   var slip={slipNo:slipNo,date:S.psDmgDate,srName:S.psDmgCustName,srArea:'',items:items,slipTitle:'— পয়েন্ট সেল ফেরত স্লিপ —',isPointSale:true};
   _dashCache=null;
   toast('✅ ফেরত রেকর্ড হয়েছে!');
@@ -2648,7 +2648,7 @@ function openSlipWin(slip) {
     +'<div class="hdr-mobile">মোবাইল ঃ ০১৭৪৭-২০২০৫৫</div>'
     +'</div>'
     +'</div>'
-    +(slip.pending?'<div style="background:#FFF3CD;border:1.5px solid #FFCA2C;border-radius:5px;text-align:center;padding:5px 8px;margin-bottom:7px;font-size:11px;font-weight:700;color:#856404;letter-spacing:0.5px">⏳ অনুমোদন পেন্ডিং — Owner অনুমোদনের পর চূড়ান্ত হবে</div>':'')\n    +'<div class="slip-t">'+slipTitle+'</div>'
+    +'<div class="slip-t">'+slipTitle+'</div>'
     +'<table class="meta">'
     +'<tr><td class="mk">স্লিপ নং</td><td class="mv">'+slip.slipNo+'</td></tr>'
     +'<tr><td class="mk">তারিখ</td><td class="mv">'+fmtBn(slip.date)+'</td></tr>'
