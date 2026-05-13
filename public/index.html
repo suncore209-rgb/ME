@@ -2139,7 +2139,7 @@ async function saveGive(){
   var r=await mgrPost('transaction','/api/transactions',txPayload);
   hideOvl();
   if(!r.ok)return toast(r.error||'ব্যর্থ');
-  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');S.giveStep=1;S.giveSRId='';S.giveSRName='';S.giveArea='';S.giveSelProd={};S.giveItems=[];renderTx();return;}
+  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');var slip={slipNo:slipNo,date:S.giveDate,srName:S.giveSRName,srArea:S.giveArea,items:items,pendingApproval:true};S.lastSlip=slip;openSlipWin(slip);S.giveStep=1;S.giveSRId='';S.giveSRName='';S.giveArea='';S.giveSelProd={};S.giveItems=[];renderTx();return;}
   var slip={slipNo:slipNo,date:S.giveDate,srName:S.giveSRName,srArea:S.giveArea,items:items};
   S.lastSlip=slip; _dashCache=null;
   toast('✅ স্টক রেকর্ড হয়েছে!');
@@ -2294,7 +2294,7 @@ async function saveReturn(){
   var r=await mgrPost('transaction','/api/transactions',txPayload);
   hideOvl();
   if(!r.ok)return toast(r.error||'ব্যর্থ');
-  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');S.retStep=1;S.retSRId='';S.retSRName='';S.retArea='';S.retSelProd={};S.retItems=[];renderTx();return;}
+  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');var slip={slipNo:slipNo,date:S.retDate,srName:S.retSRName,srArea:S.retArea,items:items,pendingApproval:true};S.lastRetSlip=slip;openReturnSlip(slip);S.retStep=1;S.retSRId='';S.retSRName='';S.retArea='';S.retSelProd={};S.retItems=[];renderTx();return;}
   var slip={slipNo:slipNo,date:S.retDate,srName:S.retSRName,srArea:S.retArea,items:items};
   S.lastRetSlip=slip;_dashCache=null;
   toast('✅ ফেরত রেকর্ড হয়েছে!');
@@ -2378,7 +2378,7 @@ async function saveDamage(){
   var r=await mgrPost('transaction','/api/transactions',txPayload);
   hideOvl();
   if(!r.ok)return toast(r.error||'ব্যর্থ');
-  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');S.dmgStep=1;S.dmgSRId='';S.dmgSRName='';S.dmgArea='';S.dmgSelProd={};S.dmgItems=[];renderTx();return;}
+  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');var slip={slipNo:slipNo,date:S.dmgDate,srName:S.dmgSRName,srArea:S.dmgArea,items:items,pendingApproval:true};S.lastDmgSlip=slip;openDamageSlip(slip);S.dmgStep=1;S.dmgSRId='';S.dmgSRName='';S.dmgArea='';S.dmgSelProd={};S.dmgItems=[];renderTx();return;}
   var slip={slipNo:slipNo,date:S.dmgDate,srName:S.dmgSRName,srArea:S.dmgArea,items:items};
   S.lastDmgSlip=slip;_dashCache=null;
   toast('✅ ড্যামেজ রেকর্ড হয়েছে!');
@@ -2487,7 +2487,7 @@ async function savePointSale(){
   var r=await mgrPost('transaction','/api/transactions',txPayload);
   hideOvl();
   if(!r.ok)return toast(r.error||'ব্যর্থ');
-  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');S.psStep=1;S.psCustName='';S.psSelProd={};S.psItems=[];renderTx();return;}
+  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');var slip={slipNo:slipNo,date:S.psDate,srName:S.psCustName,srArea:'',items:items,slipTitle:'— পয়েন্ট সেল স্লিপ —',isPointSale:true,pendingApproval:true};S.lastPsSlip=slip;openPointSaleSlip(slip);S.psStep=1;S.psCustName='';S.psSelProd={};S.psItems=[];renderTx();return;}
   var slip={slipNo:slipNo,date:S.psDate,srName:S.psCustName,srArea:'',items:items,slipTitle:'— পয়েন্ট সেল স্লিপ —',isPointSale:true};
   S.lastPsSlip=slip;_dashCache=null;
   toast('✅ পয়েন্ট সেল রেকর্ড হয়েছে!');
@@ -2572,7 +2572,7 @@ async function savePointDmg(){
   var r=await mgrPost('transaction','/api/transactions',txPayload);
   hideOvl();
   if(!r.ok)return toast(r.error||'ব্যর্থ');
-  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');S.psDmgStep=1;S.psDmgCustName='';S.psDmgSelProd={};S.psDmgItems=[];renderTx();return;}
+  if(r._mgr){toast('⏳ অনুমোদনের জন্য জমা হয়েছে!');var slip={slipNo:slipNo,date:S.psDmgDate,srName:S.psDmgCustName,srArea:'',items:items,slipTitle:'— পয়েন্ট সেল ফেরত স্লিপ —',isPointSale:true,pendingApproval:true};openPointSaleSlip(slip);S.psDmgStep=1;S.psDmgCustName='';S.psDmgSelProd={};S.psDmgItems=[];renderTx();return;}
   var slip={slipNo:slipNo,date:S.psDmgDate,srName:S.psDmgCustName,srArea:'',items:items,slipTitle:'— পয়েন্ট সেল ফেরত স্লিপ —',isPointSale:true};
   _dashCache=null;
   toast('✅ ফেরত রেকর্ড হয়েছে!');
@@ -2591,6 +2591,9 @@ function openPointSaleSlip(slip) {
 
 function openSlipWin(slip) {
   var slipTitle=slip.slipTitle||'— স্টক সরবরাহ স্লিপ —';
+  var pendingBanner=slip.pendingApproval
+    ?'<div style="background:#FFF3CD;color:#856404;border:2px solid #FFCA2C;border-radius:6px;text-align:center;font-size:12px;font-weight:700;padding:7px 10px;margin-bottom:10px;letter-spacing:0.5px">⏳ অনুমোদন পেন্ডিং — মালিকের অনুমোদনের অপেক্ষায়</div>'
+    :'';
   var total=0;
   var rows=slip.items.map(function(item){
     var amt=item.totalUnits*item.sellingPrice; total+=amt;
@@ -2649,6 +2652,7 @@ function openSlipWin(slip) {
     +'</div>'
     +'</div>'
     +'<div class="slip-t">'+slipTitle+'</div>'
+    +pendingBanner
     +'<table class="meta">'
     +'<tr><td class="mk">স্লিপ নং</td><td class="mv">'+slip.slipNo+'</td></tr>'
     +'<tr><td class="mk">তারিখ</td><td class="mv">'+fmtBn(slip.date)+'</td></tr>'
