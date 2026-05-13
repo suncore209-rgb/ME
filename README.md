@@ -1,7 +1,32 @@
 # AXIION Stock Management — Miron Electronics
-### Version 7
+### Version 14
 
 A mobile-first stock & sales management web app built with **Vercel serverless functions** + **Supabase** (PostgreSQL).
+
+---
+
+## 🆕 What's New in V14 — Global Group Chat
+
+### Group Chat (Extra Features → Group Chat)
+- One single global chat room for the entire company — all roles can read and send messages
+- Each message shows: sender name, role badge (Owner / Manager / SO / DSR), and timestamp
+- Messages load in chronological order; new messages appear at the bottom
+- **Real-time updates** via Supabase Realtime subscriptions (auto-falls back to 4-second polling if realtime is unavailable)
+- Fully mobile-responsive UI: scrollable message list, fixed input bar at bottom
+- Enter key sends (Shift+Enter = new line); auto-growing textarea
+
+### New Environment Variable Required
+Add this to your Vercel project environment variables:
+```
+SUPABASE_ANON_KEY=your_supabase_anon_public_key
+```
+Find it in Supabase Dashboard → Project Settings → API → `anon public` key.
+
+### API Routes (12 total — at limit)
+Chat actions are merged into `/api/expenses`:
+- `GET  /api/expenses?action=chat-config`  → returns Supabase URL + anon key for frontend realtime
+- `GET  /api/expenses?action=chat-msgs`    → fetch last 80 messages
+- `POST /api/expenses?action=chat-send`    → send a message
 
 ---
 
