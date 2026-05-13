@@ -309,6 +309,35 @@ tr:hover td{background:#F5F7FF}
 .xf-section-hdr .xf-icon{font-size:22px;flex-shrink:0}
 .xf-section-hdr .xf-title{font-size:13px;font-weight:700;line-height:1.2}
 .xf-section-hdr .xf-desc{font-size:10px;opacity:.75;margin-top:1px}
+/* ── Group Chat ── */
+.gc-wrap{display:flex;flex-direction:column;height:calc(100svh - 238px);min-height:320px}
+.gc-msgs{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 0 6px;display:flex;flex-direction:column;gap:0}
+.gc-msg{display:flex;flex-direction:column;margin-bottom:8px;max-width:82%;word-break:break-word}
+.gc-msg.mine{align-self:flex-end;align-items:flex-end}
+.gc-msg.other{align-self:flex-start;align-items:flex-start}
+.gc-bubble{padding:8px 11px;border-radius:14px;font-size:13px;line-height:1.5;font-family:'Hind Siliguri',sans-serif}
+.gc-msg.mine .gc-bubble{background:var(--bl);color:#fff;border-bottom-right-radius:3px}
+.gc-msg.other .gc-bubble{background:#fff;color:var(--txt);border:1px solid var(--bdr);border-bottom-left-radius:3px}
+.gc-meta{font-size:10px;color:var(--mt);margin-bottom:3px;display:flex;align-items:center;gap:5px}
+.gc-role-badge{display:inline-block;padding:1px 6px;border-radius:9px;font-size:9px;font-weight:700;letter-spacing:.2px}
+.gc-role-owner{background:#FFF8E1;color:#E65100;border:1px solid #FFCC80}
+.gc-role-manager{background:#E8EAF6;color:#3949AB;border:1px solid #9FA8DA}
+.gc-role-so{background:#E8F5E9;color:#2E7D32;border:1px solid #A5D6A7}
+.gc-role-dsr{background:#E3F2FD;color:#1565C0;border:1px solid #90CAF9}
+.gc-time{font-size:9.5px;color:var(--mt2);margin-top:2px}
+.gc-msg.mine .gc-time{align-self:flex-end}
+.gc-input-row{display:flex;gap:8px;align-items:flex-end;padding:8px 0 2px;border-top:1px solid var(--bdr);background:var(--bg)}
+.gc-input-row textarea{flex:1;border:1.5px solid var(--bdr);border-radius:10px;padding:9px 11px;font-size:13px;font-family:'Hind Siliguri',sans-serif;resize:none;max-height:90px;min-height:42px;outline:none;background:#fff;color:var(--txt);line-height:1.4}
+.gc-input-row textarea:focus{border-color:var(--bl)}
+.gc-send-btn{flex-shrink:0;width:44px;height:44px;border-radius:50%;background:var(--bl);color:#fff;border:none;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
+.gc-send-btn:active{background:var(--bl2);transform:scale(.93)}
+.gc-send-btn:disabled{background:#B0BEC5;cursor:default}
+.gc-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--mt);font-size:13px;gap:8px}
+.gc-date-sep{text-align:center;font-size:10px;color:var(--mt);margin:6px 0;position:relative}
+.gc-date-sep::before,.gc-date-sep::after{content:'';position:absolute;top:50%;width:30%;height:1px;background:var(--bdr)}
+.gc-date-sep::before{left:0}.gc-date-sep::after{right:0}
+.gc-conn-dot{width:7px;height:7px;border-radius:50%;background:#9E9E9E;display:inline-block;margin-right:4px}
+.gc-conn-dot.live{background:#4CAF50;box-shadow:0 0 0 2px #C8E6C9}
 </style>
 </head>
 <body>
@@ -527,7 +556,7 @@ function renderExtraTab(sub) {
   h += '<div class="xf-subnav">';
   h += '<button class="xf-sbt '+(_extraTab==='pwmgr'?'active':'')+'" ontouchstart="renderExtraTab(\'pwmgr\');event.preventDefault()" onclick="renderExtraTab(\'pwmgr\')">🔑 Password Manager</button>';
   h += '<button class="xf-sbt '+(_extraTab==='ownerapproval'?'active':'')+'" ontouchstart="renderExtraTab(\'ownerapproval\');event.preventDefault()" onclick="renderExtraTab(\'ownerapproval\')">👑 Owner Approvals</button>';
-  h += '<button class="xf-sbt '+(_extraTab==='groupchat'?'active':'')+'" disabled>💬 Group Chat</button>';
+  h += '<button class="xf-sbt '+(_extraTab==='groupchat'?'active':'')+'" ontouchstart=\"renderExtraTab(\'groupchat\');event.preventDefault()\" onclick=\"renderExtraTab(\'groupchat\')\">💬 Group Chat</button>';
   h += '<button class="xf-sbt '+(_extraTab==='impnumbers'?'active':'')+'" disabled>📞 Important Numbers</button>';
   h += '<button class="xf-sbt '+(_extraTab==='noticepanel'?'active':'')+'" disabled>📋 Notice Panel</button>';
   h += '</div>';
@@ -558,7 +587,18 @@ function renderExtraTab(sub) {
 
   // ── Coming Soon sections ───────────────────────────
   else if (_extraTab === 'groupchat') {
-    h += _xfComingSoon('💬', 'Group Chat', 'দলের সাথে সরাসরি যোগাযোগ করুন।\nএই ফিচারটি শীঘ্রই আসছে।');
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+    h += '<div style="font-size:13px;font-weight:700;color:var(--bl)">💬 গ্রুপ চ্যাট</div>';
+    h += '<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--mt)"><span id="gc-conn-dot" class="gc-conn-dot"></span><span id="gc-conn-txt">সংযোগ হচ্ছে...</span></div>';
+    h += '</div>';
+    h += '<div class="gc-wrap">';
+    h += '<div class="gc-msgs" id="gc-msgs-list"><div class="gc-empty"><div style="font-size:32px">💬</div><div>লোড হচ্ছে...</div></div></div>';
+    h += '<div class="gc-input-row">';
+    h += '<textarea id="gc-input-ta" placeholder="বার্তা লিখুন..." rows="1" onkeydown="gcInputKey(event)" oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,90)+\'px\'" maxlength="1000"></textarea>';
+    h += '<button class="gc-send-btn" id="gc-send-btn" ontouchstart="gcSend();event.preventDefault()" onclick="gcSend()">➤</button>';
+    h += '</div>';
+    h += '</div>';
+    setTimeout(gcLoadAndInit, 0);
   } else if (_extraTab === 'impnumbers') {
     h += _xfComingSoon('📞', 'Important Numbers', 'জরুরি ও গুরুত্বপূর্ণ নম্বরগুলো এক জায়গায়।\nএই ফিচারটি শীঘ্রই আসছে।');
   } else if (_extraTab === 'noticepanel') {
@@ -3565,6 +3605,213 @@ async function calUndo(id) {
   if (r.ok) { toast('🔴 বকেয়া হিসেবে পুনরায় চিহ্নিত'); loadCal(CAL.month); }
   else toast(r.error||'ব্যর্থ');
 }
+
+// ════════════════════════════════════════════════════
+//  GROUP CHAT
+// ════════════════════════════════════════════════════
+var _gcMsgs        = [];
+var _gcSubClient   = null;
+var _gcChannel     = null;
+var _gcLive        = false;
+var _gcSending     = false;
+var _gcInited      = false;
+var _gcPollTimer   = null;
+
+var ROLE_LABELS_CHAT = { owner:'Owner', manager:'Manager', so:'SO', dsr:'DSR' };
+
+function _gcRoleClass(role) {
+  if (role==='owner')   return 'gc-role-owner';
+  if (role==='manager') return 'gc-role-manager';
+  if (role==='so')      return 'gc-role-so';
+  return 'gc-role-dsr';
+}
+
+function _gcFmtTime(iso) {
+  if (!iso) return '';
+  try {
+    var d = new Date(iso);
+    var h = d.getHours(), m = d.getMinutes();
+    return (h<10?'0':'')+h+':'+(m<10?'0':'')+m;
+  } catch(e) { return ''; }
+}
+
+function _gcFmtDate(iso) {
+  if (!iso) return '';
+  try {
+    var d = new Date(iso);
+    var months = ['জানু','ফেব্রু','মার্চ','এপ্রি','মে','জুন','জুলা','আগস্ট','সেপ্টে','অক্টো','নভে','ডিসে'];
+    return d.getDate()+' '+months[d.getMonth()];
+  } catch(e) { return iso.slice(0,10); }
+}
+
+function _gcDateKey(iso) { return iso ? String(iso).slice(0,10) : ''; }
+
+function _gcBuildMsgHTML(msg, showDate) {
+  var isMine = (msg.senderId === S.userId) ||
+               (msg.senderRole === 'owner' && S.role === 'owner' && !msg.senderId);
+  var cls = isMine ? 'mine' : 'other';
+  var roleLabel = ROLE_LABELS_CHAT[msg.senderRole] || msg.senderRole;
+  var roleCls   = _gcRoleClass(msg.senderRole);
+  var h = '';
+  if (showDate) {
+    h += '<div class="gc-date-sep">'+_gcFmtDate(msg.createdAt)+'</div>';
+  }
+  h += '<div class="gc-msg '+cls+'" data-id="'+esc(msg.id)+'">';
+  if (!isMine) {
+    h += '<div class="gc-meta">';
+    h += '<span style="font-weight:700">'+esc(msg.senderName)+'</span>';
+    h += '<span class="gc-role-badge '+roleCls+'">'+esc(roleLabel)+'</span>';
+    h += '</div>';
+  }
+  h += '<div class="gc-bubble">'+esc(msg.message).replace(/\n/g,'<br>')+'</div>';
+  h += '<div class="gc-time">'+_gcFmtTime(msg.createdAt)+(isMine?' ✓':'')+'</div>';
+  h += '</div>';
+  return h;
+}
+
+function _gcRenderMessages() {
+  var el = document.getElementById('gc-msgs-list');
+  if (!el) return;
+  if (!_gcMsgs.length) {
+    el.innerHTML = '<div class="gc-empty"><div style="font-size:36px">💬</div><div>এখনো কোনো বার্তা নেই।<br>প্রথম বার্তাটি পাঠান!</div></div>';
+    return;
+  }
+  var h = '';
+  var lastDate = '';
+  _gcMsgs.forEach(function(msg) {
+    var dk = _gcDateKey(msg.createdAt);
+    var showDate = dk !== lastDate;
+    lastDate = dk;
+    h += _gcBuildMsgHTML(msg, showDate);
+  });
+  el.innerHTML = h;
+}
+
+function _gcAppendMsg(msg) {
+  var el = document.getElementById('gc-msgs-list');
+  if (!el) return;
+  // Remove empty state
+  var empty = el.querySelector('.gc-empty');
+  if (empty) el.innerHTML = '';
+  // Date separator check
+  var lastDate = '';
+  if (_gcMsgs.length > 0) lastDate = _gcDateKey(_gcMsgs[_gcMsgs.length-1].createdAt);
+  var dk = _gcDateKey(msg.createdAt);
+  var showDate = dk !== lastDate;
+  el.insertAdjacentHTML('beforeend', _gcBuildMsgHTML(msg, showDate));
+  _gcScrollBottom();
+}
+
+function _gcScrollBottom() {
+  var el = document.getElementById('gc-msgs-list');
+  if (el) setTimeout(function(){ el.scrollTop = el.scrollHeight; }, 50);
+}
+
+function _gcSetLive(live) {
+  _gcLive = live;
+  var dot = document.getElementById('gc-conn-dot');
+  if (dot) {
+    dot.className = 'gc-conn-dot' + (live?' live':'');
+    dot.title = live ? 'সরাসরি সংযুক্ত' : 'পোলিং মোড';
+  }
+}
+
+async function _gcInitRealtime() {
+  try {
+    var cfg = await apiGet('/api/expenses?action=chat-config');
+    if (!cfg || !cfg.ok || !cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+      _gcStartPolling(); return;
+    }
+    if (typeof window.supabase === 'undefined') { _gcStartPolling(); return; }
+    _gcSubClient = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+    _gcChannel = _gcSubClient.channel('gc-global')
+      .on('postgres_changes', { event:'INSERT', schema:'public', table:'group_chat_messages' },
+        function(payload) {
+          var raw = payload.new;
+          if (!raw) return;
+          // Dedup
+          if (_gcMsgs.find(function(m){ return m.id === String(raw.id||''); })) return;
+          var msg = { id:String(raw.id||''), senderId:String(raw.sender_id||''),
+            senderName:raw.sender_name||'', senderRole:raw.sender_role||'',
+            message:raw.message||'', createdAt:raw.created_at||'' };
+          _gcMsgs.push(msg);
+          _gcAppendMsg(msg);
+        })
+      .subscribe(function(status) {
+        if (status === 'SUBSCRIBED') _gcSetLive(true);
+        else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+          _gcSetLive(false); _gcStartPolling();
+        }
+      });
+  } catch(e) { _gcStartPolling(); }
+}
+
+function _gcStartPolling() {
+  if (_gcPollTimer) return;
+  _gcPollTimer = setInterval(async function() {
+    if (_extraTab !== 'groupchat') return;
+    var lastId = _gcMsgs.length ? _gcMsgs[_gcMsgs.length-1].createdAt : '';
+    var r = await apiGet('/api/expenses?action=chat-msgs');
+    if (!r || !r.ok) return;
+    var newMsgs = (r.messages||[]).filter(function(m){
+      return !_gcMsgs.find(function(x){ return x.id===m.id; });
+    });
+    newMsgs.forEach(function(m){ _gcMsgs.push(m); _gcAppendMsg(m); });
+  }, 4000);
+}
+
+async function gcLoadAndInit() {
+  if (_gcInited) { _gcScrollBottom(); return; }
+  _gcInited = true;
+  var r = await apiGet('/api/expenses?action=chat-msgs');
+  _gcMsgs = (r && r.ok) ? (r.messages||[]) : [];
+  _gcRenderMessages();
+  _gcScrollBottom();
+  _gcInitRealtime();
+}
+
+async function gcSend() {
+  if (_gcSending) return;
+  var ta = document.getElementById('gc-input-ta');
+  if (!ta) return;
+  var msg = ta.value.trim();
+  if (!msg) return;
+  _gcSending = true;
+  var btn = document.getElementById('gc-send-btn');
+  if (btn) btn.disabled = true;
+  var r = await apiPost('/api/expenses?action=chat-send', {
+    senderId:   S.userId,
+    senderName: S.userName || (S.role==='owner'?'Owner':'Manager'),
+    senderRole: S.role,
+    message:    msg
+  });
+  _gcSending = false;
+  if (btn) btn.disabled = false;
+  if (r && r.ok) {
+    ta.value = '';
+    ta.style.height = '';
+    // Optimistic: if realtime is live it'll arrive; otherwise poll will pick it up
+    // But add optimistically for immediate feedback
+    if (!_gcLive) {
+      var optMsg = { id:'opt-'+Date.now(), senderId:S.userId,
+        senderName: S.userName||(S.role==='owner'?'Owner':''), senderRole:S.role,
+        message:msg, createdAt:new Date().toISOString() };
+      _gcMsgs.push(optMsg);
+      _gcAppendMsg(optMsg);
+    }
+  } else {
+    toast((r&&r.error)||'পাঠানো ব্যর্থ');
+  }
+}
+
+function gcInputKey(e) {
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); gcSend(); }
+  // Auto-resize
+  var ta = e.target;
+  ta.style.height='auto';
+  ta.style.height=Math.min(ta.scrollHeight,90)+'px';
+}
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </body>
 </html>
