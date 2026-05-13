@@ -154,17 +154,6 @@ function mapDue(r) {
   };
 }
 
-function mapChatMsg(r) {
-  return {
-    id:         String(r.id || ''),
-    senderId:   String(r.sender_id || ''),
-    senderName: r.sender_name || '',
-    senderRole: r.sender_role || '',
-    message:    r.message || '',
-    createdAt:  r.created_at || ''
-  };
-}
-
 function calcStock(allTx) {
   const m = {};
   allTx.forEach(r => {
@@ -217,6 +206,6 @@ async function computeBonusSummary() {
 module.exports = {
   supabase, cors, num, ds, today, now_,
   mapProduct, mapSR, mapTx, mapDmg, mapBonus, mapPayment,
-  mapExpCat, mapExpRecord, mapDue, mapChatMsg,
+  mapExpCat, mapExpRecord, mapDue,
   calcStock, computeBonusSummary
 };

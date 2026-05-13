@@ -213,37 +213,8 @@ INSERT INTO user_passwords (user_key, user_name, role, password)
 VALUES ('owner', 'Owner', 'owner', '12345');
 
 -- ══════════════════════════════════════════════════════════════════
---  V14: Global Group Chat
+--  V13: Manager Pending Approvals — staging layer before main tables
 -- ══════════════════════════════════════════════════════════════════
-
-DROP TABLE IF EXISTS group_chat_messages CASCADE;
-
-CREATE TABLE group_chat_messages (
-  id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  sender_id   TEXT        NOT NULL DEFAULT '',
-  sender_name TEXT        NOT NULL DEFAULT '',
-  sender_role TEXT        NOT NULL DEFAULT '',
-  message     TEXT        NOT NULL,
-  created_at  TIMESTAMPTZ DEFAULT NOW()
-);
-CREATE INDEX idx_gcm_created_at ON group_chat_messages(created_at);
-
-ALTER TABLE group_chat_messages ENABLE ROW LEVEL SECURITY;
-
--- Service role: full access (used by Vercel API for INSERT/SELECT)
-CREATE POLICY "srv_chat"
-  ON group_chat_messages FOR ALL TO service_role
-  USING (true) WITH CHECK (true);
-
--- Anon: SELECT only — needed for Supabase Realtime client-side subscriptions
-CREATE POLICY "anon_chat_read"
-  ON group_chat_messages FOR SELECT TO anon
-  USING (true);
-
--- Enable realtime broadcast on this table
--- (Run in Supabase Dashboard → Database → Replication, or use the line below)
-ALTER PUBLICATION supabase_realtime ADD TABLE group_chat_messages;
-
 
 DROP TABLE IF EXISTS manager_pending_approvals CASCADE;
 

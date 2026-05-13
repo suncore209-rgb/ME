@@ -1,4 +1,4 @@
-const { supabase, cors, num, ds, now_, today, mapExpCat, mapExpRecord, mapDue, mapChatMsg } = require('./_lib/db');
+const { supabase, cors, num, ds, now_, today, mapExpCat, mapExpRecord, mapDue } = require('./_lib/db');
 
 module.exports = async (req, res) => {
   cors(res);
@@ -113,39 +113,6 @@ module.exports = async (req, res) => {
           discountAmt: num(r.discount_amt), damageAmt: num(r.damage_amt), note: r.note
         }))
       });
-    }
-
-
-    // ── Group Chat ─────────────────────────────────
-    if (req.method === 'GET' && action === 'chat-config') {
-      return res.json({
-        ok: true,
-        supabaseUrl:     process.env.SUPABASE_URL     || '',
-        supabaseAnonKey: process.env.SUPABASE_ANON_KEY || ''
-      });
-    }
-    if (req.method === 'GET' && action === 'chat-msgs') {
-      const { data, error } = await supabase
-        .from('group_chat_messages')
-        .select('*')
-        .order('created_at', { ascending: true })
-        .limit(80);
-      if (error) throw error;
-      return res.json({ ok: true, messages: (data || []).map(mapChatMsg) });
-    }
-    if (req.method === 'POST' && action === 'chat-send') {
-      const b = req.body || {};
-      const msg = String(b.message || '').trim();
-      if (!msg) return res.json({ ok: false, error: 'বার্তা প্রয়োজন' });
-      const { error } = await supabase.from('group_chat_messages').insert({
-        sender_id:   String(b.senderId   || ''),
-        sender_name: String(b.senderName || 'অজানা'),
-        sender_role: String(b.senderRole || ''),
-        message:     msg,
-        created_at:  now_()
-      });
-      if (error) throw error;
-      return res.json({ ok: true });
     }
 
     res.status(400).json({ ok: false, error: 'অজানা action: ' + action });
