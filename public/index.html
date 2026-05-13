@@ -1263,9 +1263,9 @@ async function loadDsrDash() {
 function _dsrTabBar() {
   var tab=S.dsrTab||'tx';
   var h='<div class="seg" style="margin-bottom:12px">';
-  h+='<button class="sbt '+(tab==='tx'?'active':'')+'" onclick="S.dsrTab='tx';loadDsrDash()">📝 লেনদেন</button>';
-  h+='<button class="sbt '+(tab==='dues'?'active':'')+'" onclick="S.dsrTab='dues';loadDsrDash()">💰 বাকি / পেমেন্ট</button>';
-  h+='<button class="sbt '+(tab==='products'?'active':'')+'" onclick="S.dsrTab='products';loadDsrDash()">📦 পণ্য ক্যাটালগ</button>';
+  h+='<button class="sbt '+(tab==='tx'?'active':'')+'" onclick="S.dsrTab=\'tx\';loadDsrDash()">📝 লেনদেন</button>';
+  h+='<button class="sbt '+(tab==='dues'?'active':'')+'" onclick="S.dsrTab=\'dues\';loadDsrDash()">💰 বাকি / পেমেন্ট</button>';
+  h+='<button class="sbt '+(tab==='products'?'active':'')+'" onclick="S.dsrTab=\'products\';loadDsrDash()">📦 পণ্য ক্যাটালগ</button>';
   h+='</div>';
   return h;
 }
@@ -1296,16 +1296,16 @@ function renderDsrTxTab(txs, fromDate, toDate) {
 
   var h=_dsrTabBar()+'<div class="ct">🚚 আমার লেনদেন</div>';
   h+='<div class="card" style="padding:10px"><div class="seg" style="margin-bottom:10px">';
-  h+='<button class="sbt '+(mode==='today'?'active':'')+'" onclick="S.dsrMode='today';S.dsrDate=''+iso(new Date())+'';_loadDsrTxView()">আজ</button>';
-  h+='<button class="sbt '+(mode==='custom'?'active':'')+'" onclick="S.dsrMode='custom';renderDsrTxTab(S.dsrData||[],S.dsrDate,S.dsrDate)">তারিখ</button>';
-  h+='<button class="sbt '+(mode==='range'?'active':'')+'" onclick="S.dsrMode='range';renderDsrTxTab(S.dsrData||[],S.dsrFrom,S.dsrTo)">রেঞ্জ</button>';
+  h+='<button class="sbt '+(mode==='today'?'active':'')+'" onclick="S.dsrMode=\'today\';S.dsrDate=\''+iso(new Date())+'\';;_loadDsrTxView()">আজ</button>';
+  h+='<button class="sbt '+(mode==='custom'?'active':'')+'" onclick="S.dsrMode=\'custom\';renderDsrTxTab(S.dsrData||[],S.dsrDate,S.dsrDate)">তারিখ</button>';
+  h+='<button class="sbt '+(mode==='range'?'active':'')+'" onclick="S.dsrMode=\'range\';renderDsrTxTab(S.dsrData||[],S.dsrFrom,S.dsrTo)">রেঞ্জ</button>';
   h+='</div>';
   if (mode==='custom') {
     h+='<div class="fg"><label class="fl">তারিখ নির্বাচন</label><input type="date" id="dsr-dt" value="'+(S.dsrDate||iso(new Date()))+'" onchange="S.dsrDate=this.value;_loadDsrTxView()"></div>';
   } else if (mode==='range') {
     h+='<div class="g2"><div class="fg"><label class="fl">শুরু</label><input type="date" id="dsr-fr" value="'+(S.dsrFrom||iso(new Date()))+'" onchange="S.dsrFrom=this.value"></div>';
     h+='<div class="fg"><label class="fl">শেষ</label><input type="date" id="dsr-to" value="'+(S.dsrTo||iso(new Date()))+'" onchange="S.dsrTo=this.value"></div></div>';
-    h+='<button class="btn btn-bl btn-w btn-sm" onclick="S.dsrFrom=document.getElementById('dsr-fr').value;S.dsrTo=document.getElementById('dsr-to').value;_loadDsrTxView()">📊 দেখুন</button>';
+    h+='<button class="btn btn-bl btn-w btn-sm" onclick="S.dsrFrom=document.getElementById(\'dsr-fr\').value;S.dsrTo=document.getElementById(\'dsr-to\').value;_loadDsrTxView()">📊 দেখুন</button>';
   }
   h+='</div>';
 
