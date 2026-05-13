@@ -6,9 +6,9 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    // GET — fetch dues for a month or all
+    // GET — fetch dues filtered by month and/or dsrId
     if (req.method === 'GET') {
-      const { month } = req.query; // e.g. "2026-04"
+      const { month, dsrId } = req.query;
       let q = supabase.from('due_calendar').select('*').order('due_date');
       if (month) {
         const [calY, calM] = month.split('-').map(Number);
@@ -16,6 +16,8 @@ module.exports = async (req, res) => {
         const lastDate = month + '-' + String(lastDay).padStart(2, '0');
         q = q.gte('due_date', month + '-01').lte('due_date', lastDate);
       }
+      // dsrId filter: DSR or SO can only see their own calendar dues
+      if (dsrId) q = q.eq('dsr_id', dsrId);
       const { data, error } = await q;
       if (error) throw error;
       return res.json({ ok: true, dues: (data || []).map(mapDue) });
@@ -48,7 +50,6 @@ module.exports = async (req, res) => {
       const d = req.body;
       if (!d.id) return res.json({ ok: false, error: 'id প্রয়োজন' });
 
-      // Partial / Full payment via payAmount field
       if (typeof d.payAmount !== 'undefined') {
         const pay = num(d.payAmount);
         if (pay <= 0) return res.json({ ok: false, error: 'পরিমাণ ০-এর বেশি হতে হবে' });
@@ -75,7 +76,6 @@ module.exports = async (req, res) => {
         return res.json({ ok: true, paidAmount: newPaid, remaining, status: newStatus });
       }
 
-      // Status toggle / field edit
       const updates = {};
       if (d.status === 'cleared') {
         updates.status       = 'cleared';

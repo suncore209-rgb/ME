@@ -42,6 +42,8 @@ function mapSR(r) {
     area: r.area || '',
     role: r.role || 'dsr',
     thumb: r.thumb || '',
+    soId: String(r.so_id || ''),
+    soName: r.so_name || '',
     createdAt: r.created_at || ''
   };
 }

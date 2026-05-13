@@ -69,9 +69,30 @@ module.exports = async (req, res) => {
       return res.json({ ok: true, txId });
     }
 
-    // GET — list transactions with optional date + srId filter
+    // GET — list transactions with optional filters
+    // ?srId=<id>   → filter by a single sr_id (DSR isolation)
+    // ?soId=<id>   → filter by SO: includes SO's own tx + all assigned DSRs' tx
+    // ?from=&to=   → date range filter
     if (req.method === 'GET') {
-      const { from, to, srId } = req.query;
+      const { from, to, srId, soId } = req.query;
+
+      if (soId) {
+        // Resolve DSRs assigned to this SO
+        const { data: dsrsData } = await supabase
+          .from('srs').select('id').eq('so_id', soId);
+        const dsrIds = (dsrsData || []).map(d => d.id);
+        // Include the SO's own transactions as well
+        const allIds = [soId, ...dsrIds];
+
+        let q = supabase.from('transactions').select('*').order('created_at', { ascending: false });
+        if (from) q = q.gte('date', from);
+        if (to)   q = q.lte('date', to);
+        if (allIds.length) q = q.in('sr_id', allIds);
+        const { data, error } = await q;
+        if (error) throw error;
+        return res.json((data || []).map(mapTx));
+      }
+
       let q = supabase.from('transactions').select('*').order('created_at');
       if (from) q = q.gte('date', from);
       if (to)   q = q.lte('date', to);

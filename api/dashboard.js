@@ -1,6 +1,7 @@
 const {
   supabase, cors, num, ds,
-  mapProduct, mapSR, mapTx, mapPayment, mapDmg, mapBonus
+  mapProduct, mapSR, mapTx, mapPayment, mapDmg, mapBonus,
+  calcStock
 } = require('./_lib/db');
 
 module.exports = async (req, res) => {
@@ -9,6 +10,178 @@ module.exports = async (req, res) => {
   if (req.method !== 'GET') return res.status(405).json({ ok: false, error: 'Method not allowed' });
 
   try {
+    const { role, userId } = req.query;
+
+    // ══════════════════════════════════════════════════════
+    //  SO DASHBOARD — isolated to SO's own data + assigned DSRs
+    // ══════════════════════════════════════════════════════
+    if (role === 'so' && userId) {
+      const today = new Date().toISOString().slice(0, 10);
+      const monthStart = today.slice(0, 7) + '-01';
+
+      // Assigned DSRs for this SO
+      const { data: dsrsData } = await supabase.from('srs').select('*').eq('so_id', userId).order('created_at');
+      const assignedDsrs = (dsrsData || []).map(mapSR);
+      const dsrIds = assignedDsrs.map(d => d.id);
+      // All IDs: SO + their DSRs
+      const allIds = [userId, ...dsrIds];
+
+      // Products & stock (read-only, all products visible to SO)
+      const [prodRes, txStockRes] = await Promise.all([
+        supabase.from('products').select('*').order('created_at'),
+        supabase.from('transactions').select('tx_id,type,product_id,total_units').order('created_at')
+      ]);
+      const products = (prodRes.data || []).map(mapProduct);
+      const stockMap = calcStock((txStockRes.data || []).map(r => ({
+        txId: String(r.tx_id || ''), type: r.type || '',
+        productId: String(r.product_id || ''), totalUnits: String(r.total_units || 0)
+      })));
+
+      // Transactions: SO + DSRs, today and this month
+      let txTodayQ = supabase.from('transactions').select('*').eq('date', today).order('created_at');
+      let txMonthQ = supabase.from('transactions').select('*').gte('date', monthStart).lte('date', today).order('created_at');
+      // All-time for due calculation (give/return/damage for DSRs only)
+      let txAllDueQ = supabase.from('transactions').select('type,sr_id,total_units,total_revenue').in('type', ['give', 'return', 'damage']).order('created_at');
+
+      if (allIds.length) {
+        txTodayQ = txTodayQ.in('sr_id', allIds);
+        txMonthQ = txMonthQ.in('sr_id', allIds);
+      }
+      if (dsrIds.length) {
+        txAllDueQ = txAllDueQ.in('sr_id', dsrIds);
+      }
+
+      const [txTodayRes, txMonthRes, txAllDueRes] = await Promise.all([
+        allIds.length ? txTodayQ : { data: [] },
+        allIds.length ? txMonthQ : { data: [] },
+        dsrIds.length ? txAllDueQ : { data: [] }
+      ]);
+
+      const txToday = (txTodayRes.data || []).map(mapTx);
+      const txMonth = (txMonthRes.data || []).map(mapTx);
+      const txAllDue = txAllDueRes.data || [];
+
+      // SO's own payments
+      const { data: soPayData } = await supabase.from('sr_payments').select('*').eq('sr_id', userId).order('date', { ascending: false });
+      const soPayments = (soPayData || []).map(mapPayment);
+      const soTotalPaid = soPayments.reduce((s, r) => s + num(r.amount), 0);
+
+      // DSR payments (all time, for due calc)
+      let dsrPayData = { data: [] };
+      if (dsrIds.length) {
+        dsrPayData = await supabase.from('sr_payments').select('sr_id,amount').in('sr_id', dsrIds);
+      }
+      const dsrPayments = dsrPayData.data || [];
+
+      // DSR month payments
+      let dsrPayMonthData = { data: [] };
+      if (dsrIds.length) {
+        dsrPayMonthData = await supabase.from('sr_payments').select('*')
+          .in('sr_id', dsrIds).gte('date', monthStart).lte('date', today).order('date');
+      }
+      const dsrPayMonth = (dsrPayMonthData.data || []).map(mapPayment);
+
+      // SO own stats (point_sale only — direct sales by SO)
+      const soTxToday = txToday.filter(r => r.srId === userId);
+      const soTxMonth = txMonth.filter(r => r.srId === userId);
+      const soOwnGivenRev  = txAllDue.filter(r => r.sr_id === userId && r.type === 'give').reduce((s, r) => s + num(r.total_revenue), 0);
+      const soOwnReturnRev = txAllDue.filter(r => r.sr_id === userId && r.type === 'return').reduce((s, r) => s + num(r.total_revenue), 0);
+      const soOwnDue = (soOwnGivenRev - soOwnReturnRev) - soTotalPaid;
+
+      // DSR due map
+      const dueMap = {};
+      assignedDsrs.forEach(dsr => {
+        dueMap[dsr.id] = { srId: dsr.id, name: dsr.name, area: dsr.area || '', phone: dsr.phone || '', thumb: dsr.thumb || '', givenRev: 0, returnRev: 0, payments: 0 };
+      });
+      txAllDue.forEach(r => {
+        const sid = String(r.sr_id || ''); if (!sid || !dueMap[sid]) return;
+        const rev = num(r.total_revenue);
+        if (r.type === 'give')   dueMap[sid].givenRev  += rev;
+        if (r.type === 'return') dueMap[sid].returnRev += rev;
+      });
+      dsrPayments.forEach(r => {
+        const sid = String(r.sr_id || ''); if (!sid || !dueMap[sid]) return;
+        dueMap[sid].payments += num(r.amount);
+      });
+      const dsrDueList = Object.values(dueMap).map(d => ({ ...d, due: (d.givenRev - d.returnRev) - d.payments }));
+      const totalDsrDue = dsrDueList.reduce((s, d) => s + (d.due > 0 ? d.due : 0), 0);
+
+      // Today stats (SO + DSRs combined)
+      const todayGiven  = txToday.filter(r => r.type === 'give' || r.type === 'point_sale').reduce((s, r) => s + num(r.totalRevenue), 0);
+      const todayReturn = txToday.filter(r => r.type === 'return' || r.type === 'point_damage_return').reduce((s, r) => s + num(r.totalRevenue), 0);
+      const monthGiven  = txMonth.filter(r => r.type === 'give' || r.type === 'point_sale').reduce((s, r) => s + num(r.totalRevenue), 0);
+      const monthReturn = txMonth.filter(r => r.type === 'return' || r.type === 'point_damage_return').reduce((s, r) => s + num(r.totalRevenue), 0);
+      const monthDsrPay = dsrPayMonth.reduce((s, r) => s + num(r.amount), 0);
+
+      return res.json({
+        ok: true,
+        assignedDsrs,
+        dsrDues: { total: totalDsrDue, list: dsrDueList },
+        soPayments: soPayments.slice(0, 30),
+        soOwnDue,
+        products,
+        stockMap,
+        today: { revenue: todayGiven - todayReturn },
+        month: { revenue: monthGiven - monthReturn, dsrPayments: monthDsrPay }
+      });
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  DSR DASHBOARD — strictly isolated to own data
+    // ══════════════════════════════════════════════════════
+    if (role === 'dsr' && userId) {
+      const today = new Date().toISOString().slice(0, 10);
+      const monthStart = today.slice(0, 7) + '-01';
+
+      const [prodRes, txStockRes, txAllRes, paymentsRes, txMonthRes, payMonthRes] = await Promise.all([
+        supabase.from('products').select('*').order('created_at'),
+        supabase.from('transactions').select('tx_id,type,product_id,total_units').order('created_at'),
+        supabase.from('transactions').select('type,total_units,total_revenue').eq('sr_id', userId).in('type', ['give', 'return', 'damage']).order('created_at'),
+        supabase.from('sr_payments').select('*').eq('sr_id', userId).order('date', { ascending: false }),
+        supabase.from('transactions').select('*').eq('sr_id', userId).gte('date', monthStart).lte('date', today).order('created_at'),
+        supabase.from('sr_payments').select('*').eq('sr_id', userId).gte('date', monthStart).lte('date', today).order('date')
+      ]);
+
+      const products = (prodRes.data || []).map(mapProduct);
+      const stockMap = calcStock((txStockRes.data || []).map(r => ({
+        txId: String(r.tx_id || ''), type: r.type || '',
+        productId: String(r.product_id || ''), totalUnits: String(r.total_units || 0)
+      })));
+      const txAll    = txAllRes.data || [];
+      const payments = (paymentsRes.data || []).map(mapPayment);
+      const txMonth  = (txMonthRes.data || []).map(mapTx);
+      const payMonth = (payMonthRes.data || []).map(mapPayment);
+
+      // Own due calculation
+      const givenRev  = txAll.filter(r => r.type === 'give').reduce((s, r)  => s + num(r.total_revenue), 0);
+      const returnRev = txAll.filter(r => r.type === 'return').reduce((s, r) => s + num(r.total_revenue), 0);
+      const totalPaid = payments.reduce((s, r) => s + num(r.amount), 0);
+      const ownDue    = (givenRev - returnRev) - totalPaid;
+
+      // Month summary
+      const mGiven   = txMonth.filter(r => r.type === 'give' || r.type === 'point_sale').reduce((s, r)   => s + num(r.totalRevenue), 0);
+      const mReturn  = txMonth.filter(r => r.type === 'return' || r.type === 'point_damage_return').reduce((s, r) => s + num(r.totalRevenue), 0);
+      const mGivenU  = txMonth.filter(r => r.type === 'give').reduce((s, r) => s + num(r.totalUnits), 0);
+      const mReturnU = txMonth.filter(r => r.type === 'return').reduce((s, r) => s + num(r.totalUnits), 0);
+      const mPayAmt  = payMonth.reduce((s, r) => s + num(r.amount), 0);
+
+      return res.json({
+        ok: true,
+        products,
+        stockMap,
+        ownDue,
+        givenRev,
+        returnRev,
+        totalPaid,
+        payments: payments.slice(0, 30),
+        month: { revenue: mGiven - mReturn, givenUnits: mGivenU, returnUnits: mReturnU, payments: mPayAmt },
+        txMonth: txMonth.slice(0, 60)
+      });
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  OWNER / MANAGER DASHBOARD — full data
+    // ══════════════════════════════════════════════════════
     const today = new Date().toISOString().slice(0, 10);
     const monthStart = today.slice(0, 7) + '-01';
 
@@ -32,7 +205,7 @@ module.exports = async (req, res) => {
     const dmgPending  = (dmgRes.data      || []).map(mapDmg);
     const bonusRecs   = (bonRes.data      || []).map(mapBonus);
 
-    // ── Stock map (from all transactions) ─────────────────
+    // ── Stock map ─────────────────────────────────────────
     const stockMap = {};
     txAll.forEach(r => {
       const pid = String(r.product_id || ''); if (!pid) return;
@@ -91,14 +264,8 @@ module.exports = async (req, res) => {
       };
     });
 
-    // Use ALL transactions for dues (historical)
-    const [txAllForDues] = await Promise.all([
-      supabase.from('transactions')
-        .select('type,sr_id,total_units,total_revenue')
-        .in('type',['give','return','damage'])
-        .order('created_at')
-    ]);
-    const [payAllRes] = await Promise.all([
+    const [txAllForDues, payAllRes] = await Promise.all([
+      supabase.from('transactions').select('type,sr_id,total_units,total_revenue').in('type',['give','return','damage']).order('created_at'),
       supabase.from('sr_payments').select('sr_id,amount').order('date')
     ]);
 
@@ -120,11 +287,10 @@ module.exports = async (req, res) => {
     }));
     const totalDue = duesList.reduce((s,sr)=>s+(sr.due>0?sr.due:0),0);
 
-    // ── DAMAGE pending amount ──────────────────────────────
+    // ── DAMAGE pending ─────────────────────────────────────
     const dmgPendingAmt = dmgPending.reduce((s,r)=>s+num(r.totalCost),0);
 
     // ── BONUS pending ──────────────────────────────────────
-    // Compute accured vs received
     let bonusPendingAmt = 0;
     products.filter(p=>num(p.bonusFreeUnits)>0||num(p.bonusFreeMoney)>0).forEach(p => {
       const cleared = bonusRecs.filter(b=>String(b.productId)===String(p.id)&&b.status==='cleared'&&b.clearedDate)
@@ -146,15 +312,15 @@ module.exports = async (req, res) => {
     const recentRes = await supabase.from('transactions').select('*').order('created_at',{ascending:false}).limit(10);
     const recent = (recentRes.data||[]).map(mapTx);
 
-    // ── TOTAL STOCK VALUES (buy price & sell price) ────
+    // ── TOTAL STOCK VALUES ─────────────────────────────────
     const totalBuyValue  = stockList.reduce((s,p)=>s+(p.units*(products.find(pr=>pr.id===p.id)?num(products.find(pr=>pr.id===p.id).purchasePrice):0)),0);
     const totalSellValue = totalSell;
     const estimatedProfit = totalSellValue - totalBuyValue;
 
-    // ── LOW STOCK ALERTS ───────────────────────────────
+    // ── LOW STOCK ──────────────────────────────────────────
     const lowStockList = stockList.filter(p=>num(p.lowStockAlert)>0&&p.units<=num(p.lowStockAlert));
 
-    // ── TOP 3 SELLING PRODUCTS (all time, by units) ───
+    // ── TOP 3 SELLING PRODUCTS ─────────────────────────────
     const prodSales = {};
     txAll.forEach(r => {
       const pid = String(r.product_id||''); if(!pid) return;
@@ -162,12 +328,11 @@ module.exports = async (req, res) => {
       if(r.type==='give'||r.type==='point_sale') prodSales[pid].units += num(r.total_units);
       if(r.type==='return'||r.type==='point_damage_return') prodSales[pid].units -= num(r.total_units);
     });
-    // attach product names
     products.forEach(p=>{ if(prodSales[p.id]) prodSales[p.id].productName=p.name; });
     const top3 = Object.values(prodSales).filter(p=>p.units>0).sort((a,b)=>b.units-a.units).slice(0,3)
       .map(p=>({ ...p, thumb: (stockList.find(s=>s.id===p.productId)||{}).thumb||'' }));
 
-    // ── SR PERFORMANCE (this month) ────────────────────
+    // ── SR PERFORMANCE (this month) ────────────────────────
     const srPerf = {};
     srs.forEach(sr=>{ srPerf[sr.id]={srId:sr.id,name:sr.name,area:sr.area||'',thumb:sr.thumb||'',soldUnits:0,returnUnits:0,revenue:0,due:0}; });
     txMonth.forEach(r=>{
@@ -176,7 +341,6 @@ module.exports = async (req, res) => {
       if(r.type==='give'){srPerf[sid].soldUnits+=num(r.totalUnits);srPerf[sid].revenue+=num(r.totalRevenue);}
       if(r.type==='return'){srPerf[sid].returnUnits+=num(r.totalUnits);srPerf[sid].revenue-=num(r.totalRevenue);}
     });
-    // attach dues
     duesList.forEach(d=>{ if(srPerf[d.srId]) srPerf[d.srId].due=d.due; });
     const srPerfList = Object.values(srPerf).filter(s=>s.soldUnits>0||s.returnUnits>0).sort((a,b)=>b.revenue-a.revenue);
 
