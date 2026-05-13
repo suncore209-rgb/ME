@@ -594,7 +594,7 @@ function renderExtraTab(sub) {
     h += '<div class="gc-wrap">';
     h += '<div class="gc-msgs" id="gc-msgs-list"><div class="gc-empty"><div style="font-size:32px">💬</div><div>লোড হচ্ছে...</div></div></div>';
     h += '<div class="gc-input-row">';
-    h += '<textarea id="gc-input-ta" placeholder="বার্তা লিখুন..." rows="1" onkeydown="gcInputKey(event)" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,90)+'px'" maxlength="1000"></textarea>';
+    h += '<textarea id="gc-input-ta" placeholder="বার্তা লিখুন..." rows="1" onkeydown="gcInputKey(event)" oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,90)+\'px\'" maxlength="1000"></textarea>';
     h += '<button class="gc-send-btn" id="gc-send-btn" ontouchstart="gcSend();event.preventDefault()" onclick="gcSend()">➤</button>';
     h += '</div>';
     h += '</div>';
