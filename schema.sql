@@ -211,3 +211,29 @@ CREATE POLICY "anon_deny_user_passwords" ON user_passwords FOR ALL TO anon USING
 -- ── Seed ───────────────────────────────────────────────────────────
 INSERT INTO user_passwords (user_key, user_name, role, password)
 VALUES ('owner', 'Owner', 'owner', '12345');
+
+-- ══════════════════════════════════════════════════════════════════
+--  V13: Manager Pending Approvals — staging layer before main tables
+-- ══════════════════════════════════════════════════════════════════
+
+DROP TABLE IF EXISTS manager_pending_approvals CASCADE;
+
+CREATE TABLE manager_pending_approvals (
+  id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  manager_id   TEXT        NOT NULL DEFAULT '',
+  manager_name TEXT        NOT NULL DEFAULT '',
+  input_type   TEXT        NOT NULL DEFAULT '' CHECK (input_type IN ('transaction','payment','expense')),
+  input_data   JSONB       NOT NULL DEFAULT '{}',
+  submitted_at TIMESTAMPTZ DEFAULT NOW(),
+  status       TEXT        NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected')),
+  approved_at  TIMESTAMPTZ,
+  approved_by  TEXT        DEFAULT ''
+);
+
+CREATE INDEX idx_mpa_manager_id   ON manager_pending_approvals(manager_id);
+CREATE INDEX idx_mpa_status       ON manager_pending_approvals(status);
+CREATE INDEX idx_mpa_submitted_at ON manager_pending_approvals(submitted_at);
+
+ALTER TABLE manager_pending_approvals ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "srv_mpa" ON manager_pending_approvals FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY "anon_deny_mpa" ON manager_pending_approvals FOR ALL TO anon USING (false);
